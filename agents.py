@@ -358,41 +358,25 @@ class ProtoAgent(tf.keras.layers.Layer):
 # Factory
 # =========================================================================================
 
-def AgentFactory( nInst : int, config : Config, name : str = None, dtype=dh_dtype ) -> tf.keras.layers.Layer:
+def AgentFactory(nInst: int, config: Config, name: str = None, dtype=dh_dtype) -> tf.keras.layers.Layer:
+    config = ensure_config(config)
     """
     Creates an agent network for nInst instruments based on 'config'.
+    """
 
-    Parameters
-    ----------
-        nInst : int
-            Number of instruments for deep hedging per time step
-            
-        config : Config
-            Configuration. The most important is
-                agent_type : str
-                    Defines which agent to call. 
-                    All other parameters of the config will
-                    dependent on the agent chosen.                
-        name : str, optional
-            Namer of the tf layer for the agent
-        per_step : bool, optional
-            Whether the agent is used per time step, or once per sample.
-            This allows the use of agents in other contexts, for example in the objective
-            definition for y in OCE monetary utilities. See objectives.py
-        dtype : tf.DType
-            dtype
+    # FIX: Keras 3 sometimes converts Config -> dict
+    if not callable(config):
+        config = Config(config)
 
-    Returns
-    -------
-        An agent model
-    """    
-    agent_type  = config("agent_type", "feed_forward", ['feed_forward', 'dense_agent', 'protopnet'], "Which network agent type to use")
-    agent       = None
+    agent_type = config("agent_type", "feed_forward")
+
     if agent_type in ["feed_forward", "dense_agent"]:
         agent = SimpleDenseAgent(nInst, config, name=name)
 
     elif agent_type == "protopnet":
         agent = ProtoAgent(nInst, config, name=name)
-        
-    _log.verify(agent is not None, "Unknown agent type '%s'", agent_type)
-    return agent 
+
+    else:
+        raise ValueError(f"Unknown agent type {agent_type}")
+
+    return agent

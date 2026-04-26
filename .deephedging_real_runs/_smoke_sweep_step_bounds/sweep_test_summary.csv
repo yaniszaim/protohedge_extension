@@ -1,0 +1,5 @@
+model,model_family,prototype_source,n_prototypes,weighted_similarity,learn_distance_feature_weights,risk_measure,n_runs,gains_mean_avg,gains_mean_std,gains_p05_avg,gains_cvar05_avg,shortfall_prob_avg,delta_abs_max_avg,action_abs_mean_avg,pct_at_any_position_bound_avg,pct_at_upper_position_bound_avg,pct_at_lower_position_bound_avg,pct_paths_touch_any_position_bound_avg
+vanilla,vanilla,,,,,cvar,1,0.005633199587464333,,-0.15746412314474584,-0.20111188292503357,0.375,2.0,0.10000000149011612,0.675,0.275,0.4,1.0
+proto_source=spot_delta_k=2_weighted=1_learnw=0,proto,spot_delta,2.0,True,False,cvar,1,-0.025934621691703796,,-0.056280695274472235,-0.058889564126729965,0.875,1.4774448871612549,0.043678730726242065,0.0,0.0,0.0,0.0
+unhedged,baseline,,,,,,1,-0.028932824730873108,,-0.06627659201622009,-0.07326352596282959,0.875,0.0,0.0,0.0,0.0,0.0,0.0
+spot_delta,baseline,,,,,,1,-0.030300257727503777,,-0.06849924977868796,-0.0783410593867302,1.0,0.9999880194664001,0.0270967036485672,0.0,0.0,0.0,0.0

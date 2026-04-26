@@ -12,6 +12,21 @@ This repository extends the original **Deep Hedging** framework by introducing a
 
 ---
 
+## Current Status
+
+This repo now contains both the original TensorFlow implementation and an in-progress PyTorch port.
+
+- The original TensorFlow notebooks and modules remain available for paper parity checks.
+- The PyTorch port covers the main synthetic ProtoHedge workflow through `notebooks/proto-trainer-torch.ipynb`.
+- The empirical real-data workflow now lives in `notebooks/real-data-tests-torch.ipynb`.
+- Real-data training uses `RealWorld_Spot_ATM_Torch`, which loads `Data/training_paths.npy`.
+- The PyTorch real-data sweep helper is `real_data_sweep_torch.py`; it checkpoints metrics, paper tables, plots, and config files during long runs.
+- Real-data sweep outputs are written under `.deephedging_real_runs/`.
+
+For strict parity with the original TensorFlow `world_real.py`, the real-data torch workflow now defaults to one-step hedge increments (`hedge_mode="step"`), not trade-to-terminal increments.
+
+---
+
 ## 🔍 What’s new in ProtoHedge
 
 - **Prototype layer (`ClusteredProtoLayer`)** that learns a fixed set of market **prototypes** (via KMeans/medoids) from features such as `price`, `delta`, and `time_left`.
@@ -22,10 +37,13 @@ This repository extends the original **Deep Hedging** framework by introducing a
 ---
 
 ## Repository structure
-- `notebooks/` — training and testing notebooks (prototype trainer, Black–Scholes experiments, etc.)
-- `pictures/` — plots used in README
-- Core modules: `agents.py`, `layers.py`, `trainer.py`, `world.py`
-- Utilities: `plot_training.py`, `plot_bs_hedge.py`, `softclip.py`
+- `notebooks/` - TensorFlow and PyTorch training / analysis notebooks.
+- `pictures/` - plots used in the README.
+- TensorFlow core modules - `agents.py`, `layers.py`, `trainer.py`, `world.py`, `world_real.py`.
+- PyTorch core modules - `agents_torch.py`, `layers_torch.py`, `trainer_torch.py`, `gym_torch.py`, `world_torch.py`, `world_real_torch.py`, `run_train_torch.py`.
+- Prototype tooling - `prototype_extraction_torch.py`, `proto_analysis_torch.py`, `plot_bs_hedge_torch.py`, `plot_training_torch.py`.
+- Empirical sweep tooling - `real_data_sweep_torch.py`, `real_data_experiment_torch.py`.
+- Real-data outputs - `.deephedging_real_runs/`.
 
 
 ---
@@ -88,6 +106,7 @@ See `requirements.txt` for exact dependencies. At a minimum:
 - Python 3.9+
 - TensorFlow ≥ 2.10
 - tensorflow-probability ≥ 0.15
+- PyTorch
 - cvxpy
 - cdxbasics
 
@@ -222,21 +241,44 @@ Text information:
     
 ## Running ProtoHedge
 
-The easiest way to get started is to run the provided Jupyter notebook:
+### TensorFlow reference notebook
 
-Open **`notebooks/proto-trainer.ipynb`**
+Open **`notebooks/proto-trainer.ipynb`** if you want the original TensorFlow ProtoHedge workflow.
 
-This notebook will:  
-1. Build the **simulation world** (`SimpleWorld_Spot_ATM`, Black–Scholes or stochastic vol).  
-2. Initialize the **ProtoAgent** (using the `ClusteredProtoLayer` with prototypes).  
-3. Train the model using the standard Deep Hedging training loop.  
-4. Plot convergence graphs (loss, utilities, actions, deltas).  
-5. Show **prototype attribution results** so you can see which market prototypes drove each hedging action.  
+### PyTorch synthetic parity notebook
 
-The output includes:  
-- Hedging performance (comparable to the black-box baseline).  
-- Plots of training progress.  
-- Tables/figures showing prototype activations and weights (for interpretability).  
+Open **`notebooks/proto-trainer-torch.ipynb`** if you want the PyTorch version of the main synthetic experiments. This notebook mirrors the TensorFlow prototype trainer as closely as possible while using the torch modules.
+
+### PyTorch real-data notebook
+
+Open **`notebooks/real-data-tests-torch.ipynb`** for the empirical workflow. This notebook:
+
+1. Loads `Data/training_paths.npy`.
+2. Builds the torch real-data world through `RealWorld_Spot_ATM_Torch`.
+3. Runs quick diagnostic vanilla / ProtoHedge checks on train, validation, and test splits.
+4. Launches a full real-data sweep comparing unhedged, spot-delta, vanilla Deep Hedging, and multiple ProtoHedge variants.
+5. Writes summary tables, paper tables, checkpointed metrics, and plots to `.deephedging_real_runs/`.
+
+The real-data notebook is organized so the early cells stay lightweight, while the sweep section performs the long full-data experiments.
+
+### Long real-data sweep presets
+
+The real-data notebook currently exposes two main long-run presets:
+
+- `focused_original_epochs` - full dataset, one seed, 800 epochs, focused ProtoHedge grid.
+- `paper_original_epochs` - full dataset, three seeds, 800 epochs, stronger empirical table.
+
+The sweep helper writes:
+
+- `sweep_metrics.csv`
+- `sweep_test_summary.csv`
+- `paper_model_comparison.csv`
+- `paper_best_models.csv`
+- `paper_selected_table.csv`
+- `interpretation.md`
+- diagnostic plots, including bound-saturation plots
+
+These outputs are designed to support the empirical-validation axis described in the ProtoHedge paper.
 
 ---
 
@@ -252,8 +294,19 @@ The output includes:
 - `agents.py` — defines agents and how they connect to layers.
 - `softclip.py` — smooth bounding for hedging actions.
 
+**PyTorch counterparts:**
+- `world_torch.py` — torch synthetic world support.
+- `world_real_torch.py` — torch real-data world.
+- `gym_torch.py` — torch Deep Hedging gym.
+- `trainer_torch.py` — torch trainer.
+- `run_train_torch.py` — notebook-friendly torch experiment entry point.
+- `prototype_extraction_torch.py` — prototype payload extraction (`{"prototypes", "scaler"}`).
+- `real_data_sweep_torch.py` — full empirical grid runner with checkpointing.
+
 **Notebooks:**
 - `notebooks/proto-trainer.ipynb` — main ProtoHedge training and evaluation run.
+- `notebooks/proto-trainer-torch.ipynb` — PyTorch version of the main synthetic ProtoHedge workflow.
+- `notebooks/real-data-tests-torch.ipynb` — main empirical validation notebook for real data.
 - `notebooks/test-proto-trainer.ipynb` — additional experiments on black-scholes world.
 - `notebooks/test-stoch-proto-trainer.ipynb` — stochastic volatility experiments.
 - `notebooks/trainer.ipynb` — original Deep Hedging baseline for comparison.
@@ -261,6 +314,9 @@ The output includes:
 **Utilities & figures:**
 - `plot_training.py` — live training visualizations.
 - `plot_bs_hedge.py` — compare hedging strategies vs Black–Scholes.
+- `plot_training_torch.py` — torch training visualizations.
+- `plot_bs_hedge_torch.py` — torch Black-Scholes hedge comparison plots.
+- `proto_analysis_torch.py` — prototype usage and prototype-space analysis utilities.
 - `pictures/progress.png` — example of training progress output.
 - `Network.md` — notes on network and recurrent agent options.
 

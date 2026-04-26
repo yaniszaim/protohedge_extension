@@ -1,0 +1,200 @@
+{
+  "data_path": "Data/training_paths.npy",
+  "output_dir": ".deephedging_real_runs/real_data_sweep",
+  "samples": 512,
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "seeds": [
+    1234
+  ],
+  "epochs": 5,
+  "prototype_counts": [
+    10,
+    25,
+    50
+  ],
+  "prototype_sources": [
+    "vanilla",
+    "spot_delta",
+    "zero"
+  ],
+  "weighted_similarity_options": [
+    true,
+    false
+  ],
+  "learn_distance_feature_weights_options": [
+    false
+  ],
+  "risk_measures": [
+    "cvar"
+  ],
+  "normalize": true,
+  "hedge_mode": "terminal",
+  "position_bounds": true,
+  "trade_bounds": null,
+  "cumulative_bounds": null,
+  "runs": [
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_vanilla_k_10.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_vanilla_k_10.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_vanilla_k_25.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_vanilla_k_25.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_vanilla_k_50.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_vanilla_k_50.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_spot_delta_k_10.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_spot_delta_k_10.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_spot_delta_k_25.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_spot_delta_k_25.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_spot_delta_k_50.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_spot_delta_k_50.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_zero_k_10.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_zero_k_10.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_zero_k_25.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_zero_k_25.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_zero_k_50.pkl"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/real_data_sweep/prototypes/seed_1234_risk_cvar_source_zero_k_50.pkl"
+    }
+  ]
+}

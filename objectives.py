@@ -52,35 +52,15 @@ class MonetaryUtility(tf.keras.Model):
     UTILITIES = ['mean', 'exp', 'exp2', 'vicky', 'cvar', 'quad']
     
     def __init__(self, config : Config, name : str = None, dtype : tf.DType = dh_dtype ):
-        """
-        Parameters
-        ----------
-            config : Config
-                configuration, most notably            
-                utility  - which utility to use e.g. mean, exp, vicky, quad
-                lmbda    - risk aversion
-                features - features to use for time 0 y.
-                           Leave empty for a determinstic y amount
-                
-            name : str, optional
-                Name of the tenosrflow model
-            dtype : tf.DType, optional
-                dtype
-        """
+
+    # FIX: convert dict / TrackedDict → Config
+        from .base import ensure_config
+        config = ensure_config(config)
+
         tf.keras.Model.__init__(self, name=name, dtype=dtype )
+
         self.utility      = config("utility","exp2", self.UTILITIES, help="Type of monetary utility")
         self.lmbda        = config("lmbda", 1., float, help="Risk aversion")
-        self.display_name = self.utility + "@%g" % self.lmbda
-        _log.verify( self.lmbda > 0., "'lmnda' must be positive. Use utility 'mean' for zero lambda")
-        
-        if self.utility in ["mean"]:
-            _log.warning("Using utility mean - OCE 'y' is now fixed.")
-            self.y       = VariableLayer( 0., trainable=False, name=name+"_OCE_y_fixed" if not name is None else "OCE_y_fixed", dtype=dtype )
-            config.y.mark_done()  # avoid error message from config.done()
-        else:       
-            features     = config.y("features", [], list, "Path-wise features used to define 'y'. If left empty, then 'y' becomes a simple variable.")
-            self.y       = DenseLayer( features=features, nOutput=1, initial_value=0., config=config.y.network, name= name+"_OCE_y" if not name is None else "OCE_y", dtype=dtype )
-        config.done() # all config read
         
     def call( self, data : dict, training : bool = False ) -> tf.Tensor:
         """

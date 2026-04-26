@@ -1,0 +1,56 @@
+{
+  "data_path": "Data/training_paths.npy",
+  "output_dir": ".deephedging_real_runs/_smoke_sweep_step_bounds",
+  "samples": 48,
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "seeds": [
+    321
+  ],
+  "epochs": 1,
+  "lr": 0.001,
+  "batch_size": null,
+  "epoch_refresh": 1,
+  "max_points": 200,
+  "prototype_counts": [
+    2
+  ],
+  "prototype_sources": [
+    "spot_delta"
+  ],
+  "weighted_similarity_options": [
+    true
+  ],
+  "learn_distance_feature_weights_options": [
+    false
+  ],
+  "risk_measures": [
+    "cvar"
+  ],
+  "normalize": true,
+  "hedge_mode": "step",
+  "position_bounds": true,
+  "trade_bounds": null,
+  "cumulative_bounds": null,
+  "checkpoint_stage": "complete",
+  "runs": [
+    {
+      "seed": 321,
+      "model": "data_baselines"
+    },
+    {
+      "seed": 321,
+      "risk_measure": "cvar",
+      "model": "vanilla"
+    },
+    {
+      "seed": 321,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 2,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/_smoke_sweep_step_bounds/prototypes/seed_321_risk_cvar_source_spot_delta_k_2.pkl"
+    }
+  ]
+}

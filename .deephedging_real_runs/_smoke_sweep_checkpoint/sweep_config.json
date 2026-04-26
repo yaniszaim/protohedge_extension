@@ -1,0 +1,56 @@
+{
+  "data_path": "Data/training_paths.npy",
+  "output_dir": ".deephedging_real_runs/_smoke_sweep_checkpoint",
+  "samples": 48,
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "seeds": [
+    999
+  ],
+  "epochs": 1,
+  "lr": 0.001,
+  "batch_size": null,
+  "epoch_refresh": 1,
+  "max_points": 200,
+  "prototype_counts": [
+    2
+  ],
+  "prototype_sources": [
+    "zero"
+  ],
+  "weighted_similarity_options": [
+    true
+  ],
+  "learn_distance_feature_weights_options": [
+    false
+  ],
+  "risk_measures": [
+    "cvar"
+  ],
+  "normalize": true,
+  "hedge_mode": "terminal",
+  "position_bounds": true,
+  "trade_bounds": null,
+  "cumulative_bounds": null,
+  "checkpoint_stage": "complete",
+  "runs": [
+    {
+      "seed": 999,
+      "model": "data_baselines"
+    },
+    {
+      "seed": 999,
+      "risk_measure": "cvar",
+      "model": "vanilla"
+    },
+    {
+      "seed": 999,
+      "risk_measure": "cvar",
+      "prototype_source": "zero",
+      "n_prototypes": 2,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/_smoke_sweep_checkpoint/prototypes/seed_999_risk_cvar_source_zero_k_2.pkl"
+    }
+  ]
+}
