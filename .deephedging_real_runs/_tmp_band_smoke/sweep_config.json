@@ -1,0 +1,85 @@
+{
+  "data_path": "Data/training_paths.npy",
+  "output_dir": ".deephedging_real_runs/_tmp_band_smoke",
+  "samples": 96,
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "seeds": [
+    1234
+  ],
+  "epochs": 1,
+  "lr": 0.001,
+  "batch_size": null,
+  "epoch_refresh": 1,
+  "selection_metric": "val_loss",
+  "selection_alpha_action_abs": 0.005,
+  "selection_alpha_delta_abs": 0.01,
+  "selection_alpha_bound_occupancy": 0.1,
+  "selection_alpha_path_bound_touch": 0.0,
+  "action_penalty_weight": 0.001,
+  "delta_penalty_weight": 0.002,
+  "max_bound_occupancy": 0.5,
+  "max_path_touch_rate": null,
+  "max_points": 64,
+  "spot_delta_band_grid": [
+    0.0,
+    0.01,
+    0.05
+  ],
+  "tuned_baseline_metric": "gains_mean",
+  "prototype_counts": [
+    10
+  ],
+  "prototype_sources": [
+    "spot_delta"
+  ],
+  "weighted_similarity_options": [
+    false
+  ],
+  "learn_distance_feature_weights_options": [
+    false
+  ],
+  "risk_measures": [
+    "cvar"
+  ],
+  "normalize": true,
+  "hedge_mode": "step",
+  "position_bounds": true,
+  "trade_bounds": {
+    "lbnd_as": -1.0,
+    "ubnd_as": 1.0,
+    "lbnd_av": -1.0,
+    "ubnd_av": 1.0
+  },
+  "cumulative_bounds": {
+    "lbnd_delta_s": -1.0,
+    "ubnd_delta_s": 1.0,
+    "lbnd_delta_v": -1.0,
+    "ubnd_delta_v": 1.0
+  },
+  "checkpoint_stage": "complete",
+  "runs": [
+    {
+      "seed": 1234,
+      "model": "data_baselines",
+      "spot_delta_band": 0.0,
+      "baseline_selection_metric": "gains_mean"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "model": "vanilla",
+      "artifact_dir": ".deephedging_real_runs/_tmp_band_smoke/model_artifacts/seed_1234/risk_cvar/vanilla"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": ".deephedging_real_runs/_tmp_band_smoke/prototypes/seed_1234_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": ".deephedging_real_runs/_tmp_band_smoke/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_10_weighted_0_learnw_0"
+    }
+  ]
+}

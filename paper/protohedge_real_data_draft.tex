@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Empirical Evaluation of ProtoHedge:\\Interpretable Deep Hedging with Real Market Data}
+\author{Yanis Zaim \and \textit{Advisor: TODO}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper studies whether ProtoHedge remains competitive when moved from synthetic simulation to real historical hedging episodes. We build a PyTorch reimplementation of the original TensorFlow ProtoHedge pipeline, introduce a real-data hedging environment based on cleaned historical option episodes, and evaluate prototype-based hedging against unhedged exposure, a spot-delta hedge, and vanilla Deep Hedging. Our current evidence suggests that ProtoHedge can remain close to vanilla Deep Hedging in hedging gains while using a more interpretable prototype-based decision structure and, in several configurations, materially lower position-bound occupancy. The main empirical question is therefore not whether ProtoHedge always dominates vanilla, but whether it preserves most of vanilla's performance at a low interpretability cost. The current notebook and sweep infrastructure are designed to answer that question across multiple seeds, market regimes, and prototype configurations.
+\end{abstract}
+
+\section{Introduction}
+The original ProtoHedge paper motivates prototype-based deep hedging as a way to add interpretability to otherwise black-box hedging policies. That paper establishes the proof of concept in synthetic environments. The goal of the present project is narrower and empirical: test whether ProtoHedge still behaves competitively when trained and evaluated on real historical hedging episodes.
+
+The contribution of this paper is therefore not a new ProtoHedge architecture. The contribution is an empirical extension of ProtoHedge to real market data. Concretely, we (i) construct real-data hedging episodes from WRDS-sourced option data, (ii) integrate those episodes into a new \texttt{RealWorld\_Spot\_ATM} environment, (iii) port the full training pipeline to PyTorch, and (iv) evaluate ProtoHedge against classical and neural baselines under a common real-data protocol.
+
+The core research question is simple: can ProtoHedge deliver interpretability with little loss in hedging performance relative to vanilla Deep Hedging?
+
+\section{Empirical Pipeline}
+The real-data pipeline follows the project axis directly.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item Gather and clean option data from WRDS.
+    \item Extract fixed-length ATM hedging episodes.
+    \item Build a real-data world that exposes spot, option price, option delta, option vega, implied volatility, transaction costs, and payoff in the format expected by Deep Hedging.
+    \item Train ProtoHedge and vanilla Deep Hedging on those historical episodes.
+    \item Compare them to simple baselines and inspect the learned prototypes.
+\end{enumerate}
+
+Each real-data episode is stored as a tensor with feature order
+\[(\text{spot},\; \text{call price},\; \text{call delta},\; \text{call vega},\; \text{implied volatility}).\]
+The new PyTorch environment preserves the one-step hedge accounting convention of the original TensorFlow real-data world.
+
+\section{Models and Baselines}
+We compare four model families.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Unhedged}: raw short-option payoff.
+    \item \textbf{Spot-delta baseline}: a simple rule-based hedge.
+    \item \textbf{Vanilla Deep Hedging}: the black-box neural benchmark.
+    \item \textbf{ProtoHedge}: a prototype-based neural hedge with varying prototype counts, prototype sources, and weighted/unweighted similarity.
+\end{enumerate}
+
+The point of the comparison is not to require ProtoHedge to beat vanilla everywhere. In the original paper, ProtoHedge is valuable because it offers a more interpretable policy class. On real data, the relevant success criterion is therefore whether ProtoHedge stays near vanilla in performance while offering a smaller and more inspectable decision structure.
+
+\section{Evaluation Protocol}
+We evaluate models using:
+\begin{enumerate}[leftmargin=1.5em]
+    \item mean hedging gains,
+    \item 5\% tail performance and empirical CVaR,
+    \item shortfall probability,
+    \item action and delta magnitude,
+    \item cumulative-position bound occupancy.
+\end{enumerate}
+
+To avoid rewarding economically implausible strategies, the real-data sweep also uses tighter trade and position bounds, validation-based checkpoint selection, and mild action/delta regularization. This creates a more credible empirical test than a raw unconstrained comparison.
+
+\section{Current Findings}
+The current paper-level result is based on a multi-seed robust sweep with three random splits, full data, step-wise hedge accounting, tighter trade and position bounds, validation-based checkpoint selection, and mild action/delta regularization.
+
+The aggregate result is favorable to the ProtoHedge thesis. Vanilla Deep Hedging achieves the highest mean gains on average, with mean test gains of approximately $1.660$ and empirical CVaR$_{5\%}$ of approximately $-0.045$. However, the strongest screened ProtoHedge models remain very close on mean performance while using materially less bound occupancy. The best screened mean ProtoHedge configuration, based on spot-delta-derived prototypes with $K=10$ and unweighted similarity, reaches mean gains of approximately $1.647$, which is within about $0.8\%$ of vanilla, while reducing average bound occupancy from approximately $0.603$ to $0.317$.
+
+The most attractive tail-oriented ProtoHedge configuration uses spot-delta-derived prototypes with $K=25$ and unweighted similarity. Its average mean gains are approximately $1.638$, its empirical CVaR$_{5\%}$ improves from vanilla's $-0.045$ to approximately $-0.029$, and its shortfall probability improves from approximately $0.027$ to $0.022$. This is the clearest current empirical evidence that ProtoHedge can buy interpretability with little loss in average performance and, in some configurations, better downside behavior.
+
+The multi-seed result is also more conservative than the earlier exploratory runs. In the unconstrained real-data setting, very large gains were accompanied by heavy saturation at the cumulative position bounds. The robust sweep shows that much of that earlier optimism came from overly aggressive trading. Under tighter constraints, the learned models still substantially outperform the simple baselines, but the comparison becomes more credible and economically interpretable.
+
+The current frontier is not diffuse. After screening, two spot-delta-derived ProtoHedge families stand out:
+\begin{enumerate}[leftmargin=1.5em]
+    \item $K=10$, unweighted similarity: strongest mean-performance tradeoff.
+    \item $K=25$, unweighted similarity: strongest downside-risk tradeoff.
+\end{enumerate}
+This suggests that moderate prototype counts may already be sufficient on this dataset, and that unweighted similarity is at least as competitive as weighted similarity in the current empirical setup.
+
+\section{Representative Regime Findings}
+To interpret the frontier beyond averages, we reloaded representative frontier models and evaluated them on a held-out test split across return, implied-volatility, and drawdown regimes.
+
+The regime analysis suggests that the ProtoHedge tradeoff is state-dependent. The mean-oriented ProtoHedge model tracks vanilla closely in all return regimes, but the tail-oriented ProtoHedge model shows stronger downside behavior in several settings. For example, in the representative split:
+\begin{enumerate}[leftmargin=1.5em]
+    \item in the middle-return regime, the tail-oriented ProtoHedge has better mean, better CVaR$_{5\%}$, and lower shortfall than vanilla;
+    \item in the up-return regime, both ProtoHedge frontier models improve on vanilla's extreme left tail;
+    \item in the deep-drawdown regime, the tail-oriented ProtoHedge improves CVaR$_{5\%}$ and lowers shortfall relative to vanilla;
+    \item in low-volatility episodes, the tail-oriented ProtoHedge improves both CVaR$_{5\%}$ and shortfall relative to vanilla.
+\end{enumerate}
+These are not yet full multi-seed regime claims, but they are consistent with the broader empirical picture: ProtoHedge does not simply mimic vanilla uniformly. Different prototype configurations shift the mean-tail tradeoff in interpretable ways.
+
+\section{Prototype Interpretation}
+The best screened mean ProtoHedge model exhibits concentrated, non-random prototype usage. In the representative split, three prototypes account for most of the usage mass, and their relative importance changes across volatility and drawdown regimes. This is exactly the kind of behavior one would hope to see from an interpretable prototype policy: a small number of recurring market states explain most of the model's decisions.
+
+For the current spot-delta-derived frontier model, the dominant prototypes correspond to recurrent near-ATM states with different existing hedge positions and different option-price levels. Their usage is not constant across regimes. One prototype becomes much more dominant in high-volatility episodes, while another becomes more important in lower-volatility or deep-drawdown episodes. This regime-sensitive usage shift is encouraging because it suggests that the prototype layer is capturing economically distinct market situations rather than serving as a decorative approximation layer.
+
+\section{What It Means for ProtoHedge to Work on Real Data}
+In this paper, ProtoHedge ``works'' if the following conditions hold.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item It beats weak baselines such as the unhedged position and the simple delta hedge.
+    \item It remains close to vanilla Deep Hedging on held-out performance.
+    \item It does not rely on obviously pathological boundary-driven behavior.
+    \item Its prototypes remain interpretable as representative market states.
+\end{enumerate}
+
+Under this definition, ProtoHedge does not need to dominate vanilla. It needs to justify the cost of adding interpretability.
+
+\section{Next Experimental Steps}
+The next stage of this paper is already implemented in the notebook workflow.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item Expand the multi-seed result to additional assets, tickers, or market subsets so that the empirical claim is not tied to one historical panel.
+    \item Turn the current frontier models into the main paper comparison table, with explicit emphasis on the performance-interpretability tradeoff rather than pure mean dominance.
+    \item Aggregate regime analysis across seeds and, when metadata permits, across calendar stress periods rather than only quantile-based return/volatility buckets.
+    \item Use the saved prototype tables and heatmaps to produce a compact interpretability section showing how the dominant prototypes shift across market conditions.
+    \item Add at least one stronger classical or learned benchmark beyond the current spot-delta baseline when the empirical setup is stable.
+\end{enumerate}
+
+These steps align directly with the empirical-validation axis of the broader research agenda.
+
+\section{Conclusion}
+This project turns ProtoHedge from a synthetic proof of concept into a real-data empirical program. The PyTorch port is complete enough to run the original-style notebook workflow, train prototype-based hedging models on historical episodes, compare them to baselines, and inspect their learned prototypes. The current evidence supports the idea that ProtoHedge may offer interpretability at relatively low cost in hedging performance. The main task now is to test whether that conclusion remains stable across seeds, regimes, and assets.
+
+\begin{thebibliography}{9}
+
+\bibitem{buehler2019deephedging}
+Hans Buehler, Lukas Gonon, Josef Teichmann, and Ben Wood.
+\newblock Deep hedging.
+\newblock \emph{Quantitative Finance}, 19(8):1271--1291, 2019.
+
+\bibitem{protohedge2025}
+ProtoHedge original paper.
+\newblock Placeholder citation to be replaced with the final bibliographic entry from the original manuscript.
+
+\end{thebibliography}
+
+\end{document}

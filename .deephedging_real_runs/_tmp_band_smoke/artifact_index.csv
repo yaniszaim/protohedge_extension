@@ -1,0 +1,3 @@
+artifact_dir,model_name,model_family,seed,risk_measure,prototype_source,n_prototypes,weighted_similarity,learn_distance_feature_weights,best_epoch,best_score
+/Users/yaniszaim/deephedging/.deephedging_real_runs/_tmp_band_smoke/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_10_weighted_0_learnw_0,proto_source=spot_delta_k=10_weighted=0_learnw=0,proto,1234,cvar,spot_delta,10.0,False,False,-1,0.15638541590688484
+/Users/yaniszaim/deephedging/.deephedging_real_runs/_tmp_band_smoke/model_artifacts/seed_1234/risk_cvar/vanilla,vanilla,vanilla,1234,cvar,,,,,-1,0.23202316069975498

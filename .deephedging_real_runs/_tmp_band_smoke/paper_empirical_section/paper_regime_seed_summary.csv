@@ -1,0 +1,46 @@
+regime_type,regime,series,n,mean,p05,cvar05,shortfall_prob,seed,analysis_label,paper_label
+return_regime,down,unhedged_gains,5,0.0,0.0,0.0,0.0,1234,unhedged,Unhedged
+return_regime,down,spot_delta_gains,5,1.2202956713736058e-05,-0.012971222517080605,-0.01586412452161312,0.4,1234,spot_delta,Spot-Delta
+return_regime,down,spot_delta_band_gains,5,-5.319598130881786e-06,-0.010763084306381643,-0.013177883811295033,0.4,1234,spot_delta_band,Spot-Delta Band
+return_regime,down,vanilla_gains,5,-0.1033213872462511,-0.2333180010318756,-0.2418186068534851,0.6,1234,vanilla,Vanilla DH
+return_regime,down,proto_mean_gains,5,-0.01323801577091217,-0.05895745605230331,-0.061380475759506226,0.6,1234,proto_mean,ProtoHedge (Mean frontier)
+return_regime,middle,unhedged_gains,5,-0.007755398750305176,-0.0228442907333374,-0.026084542274475098,0.6,1234,unhedged,Unhedged
+return_regime,middle,spot_delta_gains,5,-0.004139786399900913,-0.013192989304661751,-0.01390028279274702,0.8,1234,spot_delta,Spot-Delta
+return_regime,middle,spot_delta_band_gains,5,-0.004751036129891873,-0.01437019482254982,-0.01579255610704422,0.8,1234,spot_delta_band,Spot-Delta Band
+return_regime,middle,vanilla_gains,5,-0.01802219063974917,-0.08708683848381042,-0.08811555057764053,0.4,1234,vanilla,Vanilla DH
+return_regime,middle,proto_mean_gains,5,-0.004666736163198948,-0.037376712821424005,-0.04360464960336685,0.6,1234,proto_mean,ProtoHedge (Mean frontier)
+return_regime,up,unhedged_gains,5,-0.04398889541625976,-0.05120441913604736,-0.0516812801361084,1.0,1234,unhedged,Unhedged
+return_regime,up,spot_delta_gains,5,-0.03646339289844036,-0.04953422918915749,-0.05292815342545509,1.0,1234,spot_delta,Spot-Delta
+return_regime,up,spot_delta_band_gains,5,-0.03744213543832302,-0.04960376545786858,-0.05263896659016609,1.0,1234,spot_delta_band,Spot-Delta Band
+return_regime,up,vanilla_gains,5,-0.0767467375844717,-0.2840267241001129,-0.3325973153114319,0.6,1234,vanilla,Vanilla DH
+return_regime,up,proto_mean_gains,5,-0.056272453628480434,-0.08991998136043548,-0.09523316472768784,1.0,1234,proto_mean,ProtoHedge (Mean frontier)
+vol_regime,low_vol,unhedged_gains,5,-0.02721543312072754,-0.0490382194519043,-0.04929697513580322,1.0,1234,unhedged,Unhedged
+vol_regime,low_vol,spot_delta_gains,5,-0.017706488259136677,-0.034389843419194224,-0.035312362015247345,1.0,1234,spot_delta,Spot-Delta
+vol_regime,low_vol,spot_delta_band_gains,5,-0.019131203554570674,-0.03657196164131164,-0.03746296092867851,1.0,1234,spot_delta_band,Spot-Delta Band
+vol_regime,low_vol,vanilla_gains,5,-0.017114875325933098,-0.08715680837631226,-0.08974435925483704,0.4,1234,vanilla,Vanilla DH
+vol_regime,low_vol,proto_mean_gains,5,-0.027054930850863457,-0.06816339194774627,-0.06866724789142609,0.6,1234,proto_mean,ProtoHedge (Mean frontier)
+vol_regime,mid_vol,unhedged_gains,5,-0.014192605018615722,-0.03760714530944824,-0.0390242338180542,0.4,1234,unhedged,Unhedged
+vol_regime,mid_vol,spot_delta_gains,5,-0.010642895475029945,-0.03425045534968376,-0.035958532243967056,0.6,1234,spot_delta,Spot-Delta
+vol_regime,mid_vol,spot_delta_band_gains,5,-0.011161191947758197,-0.03380393423140049,-0.034972961992025375,0.6,1234,spot_delta_band,Spot-Delta Band
+vol_regime,mid_vol,vanilla_gains,5,-0.0034849513322114944,-0.08708683848381042,-0.08811555057764053,0.4,1234,vanilla,Vanilla DH
+vol_regime,mid_vol,proto_mean_gains,5,-0.0051300499588251116,-0.03764344658702612,-0.04393806681036949,0.8,1234,proto_mean,ProtoHedge (Mean frontier)
+vol_regime,high_vol,unhedged_gains,5,-0.01033625602722168,-0.04134502410888672,-0.0516812801361084,0.2,1234,unhedged,Unhedged
+vol_regime,high_vol,spot_delta_gains,5,-0.012241592607460916,-0.0455153476446867,-0.05292815342545509,0.6,1234,spot_delta,Spot-Delta
+vol_regime,high_vol,spot_delta_band_gains,5,-0.011906095664016902,-0.04474675003439188,-0.05263896659016609,0.6,1234,spot_delta_band,Spot-Delta Band
+vol_regime,high_vol,vanilla_gains,5,-0.17749048881232737,-0.31444157361984254,-0.3325973153114319,0.8,1234,vanilla,Vanilla DH
+vol_regime,high_vol,proto_mean_gains,5,-0.041992224752902985,-0.08846262693405152,-0.09523316472768784,0.8,1234,proto_mean,ProtoHedge (Mean frontier)
+drawdown_regime,mild_dd,unhedged_gains,5,0.0,0.0,0.0,0.0,1234,unhedged,Unhedged
+drawdown_regime,mild_dd,spot_delta_gains,5,1.2202956713736058e-05,-0.012971222517080605,-0.01586412452161312,0.4,1234,spot_delta,Spot-Delta
+drawdown_regime,mild_dd,spot_delta_band_gains,5,-5.319598130881786e-06,-0.010763084306381643,-0.013177883811295033,0.4,1234,spot_delta_band,Spot-Delta Band
+drawdown_regime,mild_dd,vanilla_gains,5,-0.1033213872462511,-0.2333180010318756,-0.2418186068534851,0.6,1234,vanilla,Vanilla DH
+drawdown_regime,mild_dd,proto_mean_gains,5,-0.01323801577091217,-0.05895745605230331,-0.061380475759506226,0.6,1234,proto_mean,ProtoHedge (Mean frontier)
+drawdown_regime,mid_dd,unhedged_gains,5,-0.016550230979919433,-0.04479031562805176,-0.048003196716308594,0.6,1234,unhedged,Unhedged
+drawdown_regime,mid_dd,spot_delta_gains,5,-0.014711193088442088,-0.035829298198223114,-0.035958532243967056,0.8,1234,spot_delta,Spot-Delta
+drawdown_regime,mid_dd,spot_delta_band_gains,5,-0.01499410318210721,-0.03696496114134788,-0.03746296092867851,0.8,1234,spot_delta_band,Spot-Delta Band
+drawdown_regime,mid_dd,vanilla_gains,5,-0.04551093266345561,-0.08708683848381042,-0.08811555057764053,0.6,1234,vanilla,Vanilla DH
+drawdown_regime,mid_dd,proto_mean_gains,5,-0.035816841386258604,-0.06372141167521476,-0.06866724789142609,1.0,1234,proto_mean,ProtoHedge (Mean frontier)
+drawdown_regime,deep_dd,unhedged_gains,5,-0.03519406318664551,-0.05120441913604736,-0.0516812801361084,1.0,1234,unhedged,Unhedged
+drawdown_regime,deep_dd,spot_delta_gains,5,-0.025891986209899187,-0.04848247654736042,-0.05292815342545509,1.0,1234,spot_delta,Spot-Delta
+drawdown_regime,deep_dd,spot_delta_band_gains,5,-0.027199068386107684,-0.04871276617050171,-0.05263896659016609,1.0,1234,spot_delta_band,Spot-Delta Band
+drawdown_regime,deep_dd,vanilla_gains,5,-0.049257995560765266,-0.2840267241001129,-0.3325973153114319,0.4,1234,vanilla,Vanilla DH
+drawdown_regime,deep_dd,proto_mean_gains,5,-0.02512234840542078,-0.08941612541675567,-0.09523316472768784,0.6,1234,proto_mean,ProtoHedge (Mean frontier)

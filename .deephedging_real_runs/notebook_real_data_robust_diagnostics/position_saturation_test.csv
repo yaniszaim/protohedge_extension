@@ -1,0 +1,4 @@
+model,split,delta_abs_mean,delta_abs_max,pct_at_any_position_bound,pct_at_upper_position_bound,pct_at_lower_position_bound,pct_paths_touch_any_position_bound,passes_bound_occupancy_screen,passes_path_touch_screen,passes_robust_screen
+spot_delta,test,0.49582168459892273,0.9999880194664001,0.008012820512820512,0.008012820512820512,0.0,0.24358974358974358,True,True,True
+vanilla,test,0.6147805452346802,1.0,0.2064102564102564,0.2064102564102564,0.0,1.0,True,True,True
+proto,test,0.7626370787620544,1.0,0.5032051282051282,0.0,0.5032051282051282,1.0,False,True,False

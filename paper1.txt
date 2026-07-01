@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{float}
+
+\graphicspath{{paper/assets/}}
+
+\title{Empirical Evaluation of ProtoHedge:\\Interpretable Deep Hedging with Real Market Data}
+\author{Yanis Zaim}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+ProtoHedge was proposed as an interpretable alternative to black-box deep hedging, but the original evidence was primarily synthetic. This paper studies whether ProtoHedge remains competitive on real historical option-hedging episodes. We evaluate ProtoHedge on a real-data at-the-money short-call hedging task and compare it with unhedged exposure, classical delta-style baselines, and vanilla Deep Hedging. In a robust multi-seed protocol with step-wise hedge accounting, tighter trading constraints, validation-based checkpoint selection, and mild regularization, vanilla Deep Hedging achieves the highest average gains, but several ProtoHedge configurations remain within 1--2\% of vanilla while using substantially less time at hard position bounds. The strongest tail-oriented ProtoHedge configuration also improves empirical downside metrics relative to vanilla. These findings support the main empirical ProtoHedge thesis: prototype-based structure can provide interpretability at little cost in hedging performance, and can in some cases regularize the learned hedge toward less extreme behavior.
+\end{abstract}
+
+\section{Introduction}
+Deep hedging methods learn trading policies directly from data and an objective function, allowing hedgers to incorporate frictions, constraints, and multiple state variables without relying on closed-form formulas. Their main weakness is interpretability. A neural hedge can perform well while offering little insight into which market states drive its decisions.
+
+ProtoHedge was introduced to address that problem by forcing the policy to act through a small set of prototypes. Rather than mapping market states directly to actions through a fully opaque representation, ProtoHedge compares each current state to a dictionary of representative states and bases its decision on those similarities. The central promise is therefore not that ProtoHedge should always beat a larger black-box model. The promise is a better performance--interpretability tradeoff.
+
+The empirical question in this paper is whether that tradeoff survives on real historical data. More precisely, we ask whether ProtoHedge can remain close to vanilla Deep Hedging on held-out real-data performance while offering a smaller and more inspectable decision structure. That is the first and most important validation step if ProtoHedge is to be used as more than a synthetic proof of concept.
+
+Our current answer is encouraging. Vanilla Deep Hedging remains the strongest black-box benchmark on raw mean gains, but the best ProtoHedge configurations stay very close on average performance, improve some downside metrics, and use materially less time at hard position bounds. For an interpretable hedging architecture, that is a strong result.
+
+\section{Research Objective and Success Criterion}
+This paper is focused on empirical validation. ProtoHedge does not need to outperform vanilla Deep Hedging in every dimension to succeed. Instead, we consider ProtoHedge successful on real data if it satisfies four conditions.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item It clearly outperforms weak and moderate classical baselines such as unhedged exposure and simple delta-style hedging.
+    \item It remains close to vanilla Deep Hedging on held-out performance.
+    \item It does not rely excessively on pathological boundary-driven behavior.
+    \item It delivers a genuine interpretability advantage, meaning that decisions are routed through a small set of recurring prototype states rather than a fully diffuse black-box representation.
+\end{enumerate}
+
+This success criterion matches the original motivation for ProtoHedge. The goal is not to prove that black-box models are obsolete. The goal is to test whether interpretability can be added at low cost.
+
+\section{Data and Real-Data Hedging Task}
+The empirical dataset consists of cleaned historical option hedging episodes extracted from WRDS. The current first-draft experiments focus on fixed-length at-the-money short-call episodes of length 20. Each time step contains five features:
+\begin{itemize}[leftmargin=1.5em]
+    \item spot,
+    \item call price,
+    \item call delta,
+    \item call vega,
+    \item implied volatility.
+\end{itemize}
+
+The liability is a short at-the-money call, and the hedger is evaluated on realized hedging gains after transaction costs and trading constraints. In the real-data world, the hedge is allowed to trade in the underlying spot instrument and in a liquid option hedge instrument, so the learned action at each step is a two-dimensional hedge update.
+
+All experiments use step-wise hedge accounting so that hedge gains are computed consistently with the underlying market evolution rather than through a terminal shortcut. This detail matters empirically because earlier exploratory versions of the setup produced inflated results together with unrealistic position-bound saturation. The current version is intentionally conservative and is designed to give a more credible estimate of real-data performance.
+
+\section{Models, Baselines, and Evaluation Protocol}
+We compare five model families.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Unhedged}: raw short-call exposure.
+    \item \textbf{Spot-Delta}: a simple rule-based delta hedge.
+    \item \textbf{Spot-Delta Band}: a no-trade-band variant of the delta hedge, tuned on validation performance.
+    \item \textbf{Vanilla Deep Hedging}: the main black-box neural benchmark.
+    \item \textbf{ProtoHedge}: a prototype-based neural hedge.
+\end{enumerate}
+
+Vanilla Deep Hedging is the standard flexible neural benchmark. In our setting, it is a learned policy that observes the same real-data state variables as ProtoHedge, is trained under the same objective and transaction-cost environment, and outputs the same two-dimensional hedge action, but without any prototype bottleneck. It therefore represents the strongest black-box comparison point for judging the performance cost of interpretability.
+
+ProtoHedge keeps the same environment and objective but inserts an interpretable prototype layer into the decision process. In the current empirical setup, prototypes are extracted from training trajectories, with the strongest frontier obtained from spot-delta-derived prototype states. ProtoHedge is evaluated over prototype counts $K \in \{10,25,50,100\}$, multiple prototype sources, and weighted versus unweighted similarity. The strongest empirical frontier in the current experiments comes from spot-delta-derived prototypes with unweighted similarity.
+
+All neural models in the main sweep are trained for 800 epochs under a CVaR-based objective with three random seeds, full available data, tighter per-trade and cumulative-position bounds, mild regularization, and validation-based checkpoint selection. The reported metrics are mean gains, empirical CVaR$_{5\%}$, shortfall probability, and bound occupancy.
+
+Bound occupancy is especially important in this setting. Position bounds are the hard limits on how large a long or short hedge position the model is allowed to hold. A learned hedge that spends most of its time at those limits is less economically credible than one that achieves similar performance in the interior of the feasible region. We therefore treat lower bound occupancy as a positive sign of policy regularity rather than as a mere implementation detail.
+
+\section{Current Findings}
+The current paper-level result is based on a multi-seed robust sweep with three random splits, full data, step-wise hedge accounting, tighter trade and position bounds, validation-based checkpoint selection, and mild action/delta regularization.
+
+The aggregate result is favorable to the ProtoHedge thesis. Vanilla Deep Hedging achieves the highest mean gains on average, with mean test gains of approximately $1.660$ and empirical CVaR$_{5\%}$ of approximately $-0.045$. However, the strongest screened ProtoHedge models remain very close on mean performance while using materially less bound occupancy. The best screened mean ProtoHedge configuration, based on spot-delta-derived prototypes with $K=10$ and unweighted similarity, reaches mean gains of approximately $1.647$, which is within about $0.8\%$ of vanilla, while reducing average bound occupancy from approximately $0.603$ to $0.317$.
+
+The most attractive tail-oriented ProtoHedge configuration uses spot-delta-derived prototypes with $K=25$ and unweighted similarity. Its average mean gains are approximately $1.638$, its empirical CVaR$_{5\%}$ improves from vanilla's $-0.045$ to approximately $-0.029$, and its shortfall probability improves from approximately $0.027$ to $0.022$. This is the clearest current empirical evidence that ProtoHedge can buy interpretability with little loss in average performance and, in some configurations, better downside behavior.
+
+The multi-seed result is also more conservative than the earlier exploratory runs. In the unconstrained real-data setting, very large gains were accompanied by heavy saturation at the cumulative position bounds. The robust sweep shows that much of that earlier optimism came from overly aggressive trading. Under tighter constraints, the learned models still substantially outperform the simple baselines, but the comparison becomes more credible and economically interpretable.
+
+The current frontier is not diffuse. After screening, two spot-delta-derived ProtoHedge families stand out:
+\begin{enumerate}[leftmargin=1.5em]
+    \item $K=10$, unweighted similarity: strongest mean-performance tradeoff.
+    \item $K=25$, unweighted similarity: strongest downside-risk tradeoff.
+\end{enumerate}
+This suggests that moderate prototype counts may already be sufficient on this dataset, and that unweighted similarity is at least as competitive as weighted similarity in the current empirical setup.
+
+\begin{table}[t]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.2cm}llllrrrrrrl}
+\toprule
+Model & Prototype source & K & Weighted & Mean gains & Mean std & CVaR5 & Shortfall prob. & Bound occupancy & Mean gap vs vanilla (\%) & Robust screen \\
+\midrule
+Unhedged & - & - & - & -0.0212 & 0.0009 & -0.0952 & 0.6513 & 0.0000 & -101.28 & Yes \\
+Spot-Delta & - & - & - & -0.0209 & 0.0011 & -0.0904 & 0.8185 & 0.0118 & -101.26 & Yes \\
+Spot-Delta Band & - & - & - & -0.0209 & 0.0011 & -0.0904 & 0.8185 & 0.0000 & -101.26 & Yes \\
+Vanilla DH & - & - & - & 1.6599 & 0.0298 & -0.0449 & 0.0272 & 0.6030 & 0.00 & No \\
+ProtoHedge (Mean frontier) & spot\_delta & 10 & No & 1.6466 & 0.0393 & -0.0565 & 0.0277 & 0.3171 & -0.80 & Yes \\
+ProtoHedge (Tail frontier) & spot\_delta & 25 & No & 1.6383 & 0.0125 & -0.0294 & 0.0223 & 0.3551 & -1.30 & Yes \\
+\bottomrule
+\end{tabular}
+}
+\caption{Main multi-seed empirical comparison on the primary real-data panel. Vanilla Deep Hedging has the highest mean gains, while the two shortlisted ProtoHedge configurations remain within 1--2\% of vanilla and use materially less bound occupancy.}
+\label{tab:main-results}
+\end{table}
+
+\section{Pathwise Competitiveness}
+Aggregate means can hide whether one model is broadly competitive or only looks close because of averaging. We therefore also compare the models path by path.
+
+The paired-gap analysis shows that the frontier ProtoHedge models and vanilla Deep Hedging split wins almost evenly on held-out paths. The average pathwise win rate is about $49\%$ for both the mean-oriented and tail-oriented ProtoHedge frontier models versus vanilla. This is a useful empirical result because it shows that ProtoHedge is not consistently dominated on the same test paths. Instead, it is genuinely competitive while shifting the tradeoff toward lower bound occupancy and, in the tail-oriented case, better downside behavior.
+
+\begin{table}[t]
+\centering
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.2cm}lllrrrrr}
+\toprule
+Comparison & LHS & RHS & $n$ seeds & Mean gap & Mean-gap std & Win rate & CVaR$_{5\%}$ gap & Shortfall gap \\
+\midrule
+proto\_mean $-$ spot\_delta\_band & proto\_mean & spot\_delta\_band & 3 & 1.6675 & 0.0401 & 0.9768 & 0.0338 & 0.7908 \\
+proto\_tail $-$ spot\_delta\_band & proto\_tail & spot\_delta\_band & 3 & 1.6592 & 0.0127 & 0.9807 & 0.0610 & 0.7962 \\
+proto\_mean $-$ vanilla & proto\_mean & vanilla & 3 & -0.0133 & 0.0099 & 0.4941 & -0.0116 & -0.0005 \\
+proto\_tail $-$ vanilla & proto\_tail & vanilla & 3 & -0.0216 & 0.0207 & 0.4936 & 0.0156 & 0.0049 \\
+\bottomrule
+\end{tabular}
+}
+\caption{Aggregate paired comparisons between frontier ProtoHedge models and their main comparators. Positive CVaR and shortfall gaps indicate an improvement for ProtoHedge relative to the comparator.}
+\label{tab:paired-gaps}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{paired_gap_summary.png}
+\caption{Pathwise paired-gap summary for frontier ProtoHedge models against vanilla Deep Hedging and the tuned Spot-Delta Band baseline. The mean-oriented and tail-oriented ProtoHedge models are nearly tied with vanilla path by path, but strongly dominate the tuned classical baseline.}
+\label{fig:paired-gap}
+\end{figure}
+
+Figure~\ref{fig:paired-gap} should be read as a pathwise rather than an average comparison. The key point is that ProtoHedge is not merely ``close on average'' because of a few lucky episodes: against vanilla, the two frontier models split wins almost evenly, while against the tuned Spot-Delta Band baseline they win overwhelmingly. That is strong evidence that the prototype bottleneck does not destroy competitiveness.
+
+\section{Representative Regime Findings}
+To interpret the frontier beyond averages, we reloaded representative frontier models and evaluated them on held-out test splits across return, implied-volatility, and drawdown regimes.
+
+The regime analysis suggests that the ProtoHedge tradeoff is state-dependent. The mean-oriented ProtoHedge model tracks vanilla closely in all return regimes, but the tail-oriented ProtoHedge model shows stronger downside behavior in several settings. For example, in the aggregate regime analysis:
+\begin{enumerate}[leftmargin=1.5em]
+    \item in low-volatility regimes, the tail-oriented ProtoHedge improves mean gains, CVaR$_{5\%}$, and shortfall probability relative to vanilla;
+    \item in medium and deep drawdown regimes, the tail-oriented ProtoHedge improves downside behavior while staying close on average performance;
+    \item in upward-return regimes, both ProtoHedge frontier models improve on vanilla's extreme left tail;
+    \item vanilla remains stronger in some high-volatility slices, reinforcing that the empirical story is a tradeoff rather than a universal win.
+\end{enumerate}
+These findings are consistent with the broader empirical picture: ProtoHedge does not simply mimic vanilla uniformly. Different prototype configurations shift the mean-tail tradeoff in interpretable ways.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{regime_metric_heatmaps.png}
+\caption{Aggregate regime analysis across seeds for the main models. Each cell summarizes how a model behaves in a particular return, drawdown, or volatility regime under mean gains, CVaR$_{5\%}$, and shortfall probability.}
+\label{fig:regimes}
+\end{figure}
+
+Figure~\ref{fig:regimes} is useful for seeing where ProtoHedge helps most. The tail-oriented model is especially attractive in low-volatility and drawdown-heavy slices, where it tends to preserve mean performance while improving left-tail behavior. Vanilla remains strongest in some high-volatility regimes, which is why the paper's claim is a tradeoff claim rather than a claim of uniform dominance.
+
+\section{Prototype Interpretation}
+The best screened mean ProtoHedge model exhibits concentrated, non-random prototype usage. In the representative split, three prototypes account for most of the usage mass, and their relative importance changes across volatility and drawdown regimes. This is exactly the kind of behavior one would hope to see from an interpretable prototype policy: a small number of recurring market states explain most of the model's decisions.
+
+For the current spot-delta-derived frontier model, the dominant prototypes correspond to recurrent near-ATM states with different existing hedge positions and different option-price levels. Their usage is not constant across regimes. One prototype becomes much more dominant in high-volatility episodes, while another becomes more important in lower-volatility or deep-drawdown episodes. This regime-sensitive usage shift is encouraging because it suggests that the prototype layer is capturing economically distinct market situations rather than serving as a decorative approximation layer.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{prototype_top_usage.png}
+\caption{Top prototype usage for the mean-oriented and tail-oriented ProtoHedge frontier models. A small number of prototypes account for most of the total usage mass.}
+\label{fig:proto-top}
+\end{figure}
+
+Figure~\ref{fig:proto-top} addresses the basic interpretability question: are the models actually using a compact prototype dictionary, or are they spreading mass over many interchangeable states? The answer is the former. The top few prototypes explain most of the decision weight, which means the policy can be summarized by a small set of recurring market situations.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{prototype_regime_heatmaps.png}
+\caption{Prototype usage by market regime for the shortlisted ProtoHedge models. Different prototypes become dominant in different return, drawdown, and volatility conditions.}
+\label{fig:proto-regimes}
+\end{figure}
+
+Figure~\ref{fig:proto-regimes} shows why the prototype layer is more than a cosmetic summary device. Usage shifts across regimes in a structured way: some prototypes become more important in volatile or drawdown-heavy episodes, while others dominate in calmer conditions. This is the empirical interpretation mechanism that ProtoHedge is meant to provide.
+
+\section{What It Means for ProtoHedge to Work on Real Data}
+In this paper, ProtoHedge ``works'' if the following conditions hold.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item It beats weak baselines such as the unhedged position and the simple delta hedge.
+    \item It remains close to vanilla Deep Hedging on held-out performance.
+    \item It does not rely on obviously pathological boundary-driven behavior.
+    \item Its prototypes remain interpretable as representative market states.
+\end{enumerate}
+
+Under this definition, ProtoHedge does not need to dominate vanilla. It needs to justify the cost of adding interpretability.
+
+\section{Next Experimental Steps}
+The next stage of this paper is already implemented in the notebook workflow.
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item Expand the multi-seed result to additional assets, tickers, or market subsets so that the empirical claim is not tied to one historical panel.
+    \item Turn the current frontier models into the main paper comparison table, with explicit emphasis on the performance--interpretability tradeoff rather than pure mean dominance.
+    \item Aggregate regime analysis across seeds and, when metadata permits, across calendar stress periods rather than only quantile-based return/volatility buckets.
+    \item Use nearest historical episodes and saved prototype tables to produce a more concrete interpretability section showing what the dominant prototypes correspond to in actual market conditions.
+    \item Add at least one stronger transparent benchmark beyond the current spot-delta family when the empirical setup is stable.
+\end{enumerate}
+
+These steps align directly with the empirical-validation axis of the broader research agenda.
+
+\section{Conclusion}
+This paper presents a first empirical validation stage of ProtoHedge on real market data. On the current historical hedging task, ProtoHedge clearly outperforms simple baselines and remains close to vanilla Deep Hedging while offering a more interpretable and less boundary-seeking policy structure. The best mean-oriented ProtoHedge model stays within roughly $1\%$ of vanilla on average gains, and the best tail-oriented model stays within roughly $2\%$ while improving empirical downside metrics.
+
+For an interpretable deep hedging model, that is a meaningful result. It suggests that ProtoHedge is not merely a synthetic proof of concept, but a viable empirical direction for real-data hedging research. The next step is to test the same result across additional assets and market segments and then fold those results into a broader study of scalability and comparative model performance.
+
+\begin{thebibliography}{9}
+
+\bibitem{buehler2019deephedging}
+Hans Buehler, Lukas Gonon, Josef Teichmann, and Ben Wood.
+\newblock Deep hedging.
+\newblock \emph{Quantitative Finance}, 19(8):1271--1291, 2019.
+
+\bibitem{protohedge2025}
+ProtoHedge original paper.
+\newblock Placeholder citation to be replaced with the final bibliographic entry from the original manuscript.
+
+\bibitem{wrds}
+Wharton Research Data Services.
+\newblock WRDS data platform.
+\newblock Bibliographic details to be completed in the final version.
+
+\end{thebibliography}
+
+\end{document}

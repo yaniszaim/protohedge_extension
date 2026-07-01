@@ -24,12 +24,14 @@ if __package__ in [None, ""]:
         sys.path.insert(0, str(parent))
 
 from deephedging.base_torch import torchCast
+from deephedging.real_data_analysis_torch import save_model_artifact
 from deephedging.prototype_extraction_torch import build_prototype_payload, save_prototype_payload
 from deephedging.run_train_torch import run_experiment
 from deephedging.world_real_torch import RealWorld_Spot_ATM_Torch
 
 
 MODEL_FEATURES = ["price", "delta", "time_left"]
+DEFAULT_SPOT_DELTA_BAND_GRID = (0.0, 0.01, 0.02, 0.05, 0.10, 0.15)
 
 
 def _as_numpy(x):
@@ -119,7 +121,19 @@ def world_cfg(
     return cfg
 
 
-def training_cfg(epochs=5, lr=1e-3, batch_size=None, epoch_refresh=None):
+def training_cfg(
+    epochs=5,
+    lr=1e-3,
+    batch_size=None,
+    epoch_refresh=None,
+    selection_metric="train_loss",
+    selection_alpha_action_abs=0.0,
+    selection_alpha_delta_abs=0.0,
+    selection_alpha_bound_occupancy=0.0,
+    selection_alpha_path_bound_touch=0.0,
+    action_penalty_weight=0.0,
+    delta_penalty_weight=0.0,
+):
     epoch_refresh = int(epoch_refresh) if epoch_refresh is not None else max(1, int(epochs))
     return {
         "epochs": int(epochs),
@@ -130,6 +144,13 @@ def training_cfg(epochs=5, lr=1e-3, batch_size=None, epoch_refresh=None):
         "global_clipnorm": 1.0,
         "lr_decay_factor": None,
         "lr_decay_patience": None,
+        "selection_metric": str(selection_metric),
+        "selection_alpha_action_abs": float(selection_alpha_action_abs),
+        "selection_alpha_delta_abs": float(selection_alpha_delta_abs),
+        "selection_alpha_bound_occupancy": float(selection_alpha_bound_occupancy),
+        "selection_alpha_path_bound_touch": float(selection_alpha_path_bound_touch),
+        "action_penalty_weight": float(action_penalty_weight),
+        "delta_penalty_weight": float(delta_penalty_weight),
     }
 
 
@@ -255,7 +276,7 @@ def evaluate_unhedged(data_path, indices, world_kwargs):
     return world, result, summarize_result(result, market=world.data.market)
 
 
-def evaluate_spot_delta(data_path, indices, world_kwargs):
+def _evaluate_spot_delta_rule(data_path, indices, world_kwargs, band=0.0, label="spot_delta"):
     world = RealWorld_Spot_ATM_Torch(
         world_cfg(data_path=data_path, indices=indices, **world_kwargs)
     )
@@ -268,6 +289,9 @@ def evaluate_spot_delta(data_path, indices, world_kwargs):
     ubnd_delta = np.asarray(market.ubnd_delta, dtype=np.float32) if "ubnd_delta" in market else None
     lbnd_delta = np.asarray(market.lbnd_delta, dtype=np.float32) if "lbnd_delta" in market else None
     call_delta = np.asarray(world.data.features.per_step["call_delta"], dtype=np.float32)
+    band = float(band)
+    if band < 0.0:
+        raise ValueError(f"band must be non-negative, got {band}")
 
     n_paths, n_steps, n_inst = hedges.shape
     delta = np.zeros((n_paths, n_inst), dtype=np.float32)
@@ -278,9 +302,12 @@ def evaluate_spot_delta(data_path, indices, world_kwargs):
 
     for t in range(n_steps):
         target = np.zeros_like(delta)
-        target[:, 0] = call_delta[:, t]
+        target_low = call_delta[:, t] - band
+        target_high = call_delta[:, t] + band
         if ubnd_delta is not None and lbnd_delta is not None:
-            target = np.minimum(np.maximum(target, lbnd_delta[:, t, :]), ubnd_delta[:, t, :])
+            target_low = np.minimum(np.maximum(target_low, lbnd_delta[:, t, 0]), ubnd_delta[:, t, 0])
+            target_high = np.minimum(np.maximum(target_high, lbnd_delta[:, t, 0]), ubnd_delta[:, t, 0])
+        target[:, 0] = np.minimum(np.maximum(delta[:, 0], target_low), target_high)
         action = np.minimum(np.maximum(target - delta, lbnd_a[:, t, :]), ubnd_a[:, t, :])
         if ubnd_delta is not None and lbnd_delta is not None:
             bounded_delta = np.minimum(np.maximum(delta + action, lbnd_delta[:, t, :]), ubnd_delta[:, t, :])
@@ -292,14 +319,81 @@ def evaluate_spot_delta(data_path, indices, world_kwargs):
         deltas[:, t, :] = delta
 
     result = {"payoff": payoff, "pnl": pnl, "cost": cost, "gains": payoff + pnl - cost, "actions": actions, "deltas": deltas}
-    _assert_finite("spot_delta", result)
+    _assert_finite(label, result)
     return world, result, summarize_result(result, market=world.data.market)
+
+
+def evaluate_spot_delta(data_path, indices, world_kwargs):
+    return _evaluate_spot_delta_rule(
+        data_path=data_path,
+        indices=indices,
+        world_kwargs=world_kwargs,
+        band=0.0,
+        label="spot_delta",
+    )
+
+
+def evaluate_spot_delta_band(data_path, indices, world_kwargs, band=0.05):
+    return _evaluate_spot_delta_rule(
+        data_path=data_path,
+        indices=indices,
+        world_kwargs=world_kwargs,
+        band=band,
+        label="spot_delta_band",
+    )
+
+
+def select_spot_delta_band(
+    data_path,
+    val_indices,
+    world_kwargs,
+    band_grid=DEFAULT_SPOT_DELTA_BAND_GRID,
+    selection_metric="gains_cvar05",
+):
+    rows = []
+    for band in band_grid:
+        _, _, metrics = evaluate_spot_delta_band(
+            data_path=data_path,
+            indices=val_indices,
+            world_kwargs=world_kwargs,
+            band=float(band),
+        )
+        rows.append({"band": float(band), **metrics})
+
+    band_df = pd.DataFrame(rows)
+    if band_df.empty:
+        raise ValueError("band_grid produced no candidate rows")
+    if selection_metric not in band_df.columns:
+        raise ValueError(f"selection_metric '{selection_metric}' not in {band_df.columns.tolist()}")
+
+    ascending = selection_metric in {"shortfall_prob", "cost_mean", "action_abs_mean", "delta_abs_mean"}
+    sort_cols = [selection_metric, "gains_mean", "pct_at_any_position_bound", "band"]
+    sort_ascending = [ascending, False, True, True]
+    best = band_df.sort_values(sort_cols, ascending=sort_ascending).iloc[0]
+    return {
+        "best_band": float(best["band"]),
+        "selection_metric": str(selection_metric),
+        "candidates": band_df.sort_values(sort_cols, ascending=sort_ascending).reset_index(drop=True),
+    }
 
 
 def metric_row(model, split, metrics, **kwargs):
     row = {"model": model, "split": split, **kwargs}
     row.update(metrics)
     return row
+
+
+def _training_meta(result):
+    history = result.get("history", {})
+    return {
+        "selected_epoch": history.get("best_epoch"),
+        "selected_score": history.get("best_score"),
+        "selection_metric": history.get("selection_metric"),
+        "selected_val_action_abs_mean": history.get("best_val_action_abs_mean"),
+        "selected_val_delta_abs_mean": history.get("best_val_delta_abs_mean"),
+        "selected_val_pct_at_any_position_bound": history.get("best_val_pct_at_any_position_bound"),
+        "selected_val_pct_paths_touch_any_position_bound": history.get("best_val_pct_paths_touch_any_position_bound"),
+    }
 
 
 def run_real_data_sweep(
@@ -323,13 +417,26 @@ def run_real_data_sweep(
     lr=1e-3,
     batch_size=None,
     epoch_refresh=None,
+    selection_metric="train_loss",
+    selection_alpha_action_abs=0.0,
+    selection_alpha_delta_abs=0.0,
+    selection_alpha_bound_occupancy=0.0,
+    selection_alpha_path_bound_touch=0.0,
+    action_penalty_weight=0.0,
+    delta_penalty_weight=0.0,
+    max_bound_occupancy=None,
+    max_path_touch_rate=None,
     max_points=None,
+    spot_delta_band_grid=DEFAULT_SPOT_DELTA_BAND_GRID,
+    tuned_baseline_metric="gains_mean",
 ):
     data_path = Path(data_path)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     prototype_dir = output_dir / "prototypes"
     prototype_dir.mkdir(parents=True, exist_ok=True)
+    artifact_root = output_dir / "model_artifacts"
+    artifact_root.mkdir(parents=True, exist_ok=True)
 
     data = np.load(data_path, mmap_mode="r")
     if data.ndim != 3 or data.shape[-1] < 5:
@@ -368,7 +475,18 @@ def run_real_data_sweep(
                         "lr": lr,
                         "batch_size": batch_size,
                         "epoch_refresh": epoch_refresh,
+                        "selection_metric": selection_metric,
+                        "selection_alpha_action_abs": selection_alpha_action_abs,
+                        "selection_alpha_delta_abs": selection_alpha_delta_abs,
+                        "selection_alpha_bound_occupancy": selection_alpha_bound_occupancy,
+                        "selection_alpha_path_bound_touch": selection_alpha_path_bound_touch,
+                        "action_penalty_weight": action_penalty_weight,
+                        "delta_penalty_weight": delta_penalty_weight,
+                        "max_bound_occupancy": max_bound_occupancy,
+                        "max_path_touch_rate": max_path_touch_rate,
                         "max_points": max_points,
+                        "spot_delta_band_grid": list(spot_delta_band_grid),
+                        "tuned_baseline_metric": tuned_baseline_metric,
                         "prototype_counts": list(prototype_counts),
                         "prototype_sources": list(prototype_sources),
                         "weighted_similarity_options": list(weighted_similarity_options),
@@ -387,8 +505,18 @@ def run_real_data_sweep(
                 indent=2,
             )
 
-        summarize_sweep(metrics_df, output_dir)
-        plot_sweep_results(metrics_df, output_dir)
+        summarize_sweep(
+            metrics_df,
+            output_dir,
+            max_bound_occupancy=max_bound_occupancy,
+            max_path_touch_rate=max_path_touch_rate,
+        )
+        plot_sweep_results(
+            metrics_df,
+            output_dir,
+            max_bound_occupancy=max_bound_occupancy,
+            max_path_touch_rate=max_path_touch_rate,
+        )
         print(f"\n[checkpoint:{stage}] saved {len(metrics_df)} metric rows to {metrics_path}")
         return metrics_df
 
@@ -399,6 +527,20 @@ def run_real_data_sweep(
         np.savez(split_dir / "splits.npz", **splits)
         seed_world_kwargs = {**world_kwargs, "seed": int(seed)}
 
+        band_selection = select_spot_delta_band(
+            data_path=data_path,
+            val_indices=splits["val"],
+            world_kwargs=seed_world_kwargs,
+            band_grid=spot_delta_band_grid,
+            selection_metric=tuned_baseline_metric,
+        )
+        band_selection["candidates"].to_csv(split_dir / "spot_delta_band_selection.csv", index=False)
+        selected_band = float(band_selection["best_band"])
+        print(
+            f"\n=== seed={seed} tuned spot-delta band ===\n"
+            f"selected band={selected_band:.4f} by {tuned_baseline_metric}"
+        )
+
         # Data-only baselines.
         baseline_artifacts = {}
         for split_name, idx in splits.items():
@@ -406,10 +548,37 @@ def run_real_data_sweep(
             all_rows.append(metric_row("unhedged", split_name, unhedged_metrics, seed=seed, model_family="baseline"))
 
             _, spot_delta_result, spot_delta_metrics = evaluate_spot_delta(data_path, idx, seed_world_kwargs)
-            baseline_artifacts[split_name] = {"spot_delta": spot_delta_result}
+            _, spot_delta_band_result, spot_delta_band_metrics = evaluate_spot_delta_band(
+                data_path,
+                idx,
+                seed_world_kwargs,
+                band=selected_band,
+            )
+            baseline_artifacts[split_name] = {
+                "spot_delta": spot_delta_result,
+                "spot_delta_band": spot_delta_band_result,
+            }
             all_rows.append(metric_row("spot_delta", split_name, spot_delta_metrics, seed=seed, model_family="baseline"))
+            all_rows.append(
+                metric_row(
+                    "spot_delta_band",
+                    split_name,
+                    spot_delta_band_metrics,
+                    seed=seed,
+                    model_family="baseline",
+                    selected_band=selected_band,
+                    baseline_selection_metric=tuned_baseline_metric,
+                )
+            )
 
-        run_records.append({"seed": int(seed), "model": "data_baselines"})
+        run_records.append(
+            {
+                "seed": int(seed),
+                "model": "data_baselines",
+                "spot_delta_band": selected_band,
+                "baseline_selection_metric": tuned_baseline_metric,
+            }
+        )
         checkpoint(f"seed_{seed}_baselines")
 
         for risk_measure in risk_measures:
@@ -429,7 +598,26 @@ def run_real_data_sweep(
                     lr=lr,
                     batch_size=batch_size,
                     epoch_refresh=epoch_refresh,
+                    selection_metric=selection_metric,
+                    selection_alpha_action_abs=selection_alpha_action_abs,
+                    selection_alpha_delta_abs=selection_alpha_delta_abs,
+                    selection_alpha_bound_occupancy=selection_alpha_bound_occupancy,
+                    selection_alpha_path_bound_touch=selection_alpha_path_bound_touch,
+                    action_penalty_weight=action_penalty_weight,
+                    delta_penalty_weight=delta_penalty_weight,
                 ),
+            )
+            vanilla_meta = _training_meta(vanilla)
+            vanilla_artifact_dir = save_model_artifact(
+                result=vanilla,
+                artifact_root=artifact_root,
+                model_name="vanilla",
+                seed=seed,
+                risk_measure=risk_measure,
+                split_indices=splits,
+                data_path=data_path,
+                world_kwargs=seed_world_kwargs,
+                model_family="vanilla",
             )
 
             for split_name, idx in splits.items():
@@ -442,15 +630,25 @@ def run_real_data_sweep(
                         seed=seed,
                         risk_measure=risk_measure,
                         model_family="vanilla",
+                        artifact_dir=str(vanilla_artifact_dir),
+                        **vanilla_meta,
                     )
                 )
 
-            run_records.append({"seed": int(seed), "risk_measure": risk_measure, "model": "vanilla"})
+            run_records.append(
+                {
+                    "seed": int(seed),
+                    "risk_measure": risk_measure,
+                    "model": "vanilla",
+                    "artifact_dir": str(vanilla_artifact_dir),
+                }
+            )
             checkpoint(f"seed_{seed}_risk_{risk_measure}_vanilla")
 
             source_results = {
                 "vanilla": vanilla["training_result"],
                 "spot_delta": baseline_artifacts["train"]["spot_delta"],
+                "spot_delta_band": baseline_artifacts["train"]["spot_delta_band"],
                 "zero": None,
             }
 
@@ -491,7 +689,30 @@ def run_real_data_sweep(
                                     lr=lr,
                                     batch_size=batch_size,
                                     epoch_refresh=epoch_refresh,
+                                    selection_metric=selection_metric,
+                                    selection_alpha_action_abs=selection_alpha_action_abs,
+                                    selection_alpha_delta_abs=selection_alpha_delta_abs,
+                                    selection_alpha_bound_occupancy=selection_alpha_bound_occupancy,
+                                    selection_alpha_path_bound_touch=selection_alpha_path_bound_touch,
+                                    action_penalty_weight=action_penalty_weight,
+                                    delta_penalty_weight=delta_penalty_weight,
                                 ),
+                            )
+                            proto_meta = _training_meta(proto)
+                            proto_artifact_dir = save_model_artifact(
+                                result=proto,
+                                artifact_root=artifact_root,
+                                model_name=model_name,
+                                seed=seed,
+                                risk_measure=risk_measure,
+                                split_indices=splits,
+                                data_path=data_path,
+                                world_kwargs=seed_world_kwargs,
+                                model_family="proto",
+                                prototype_source=source,
+                                n_prototypes=n_prototypes,
+                                weighted_similarity=weighted,
+                                learn_distance_feature_weights=learn_weights,
                             )
 
                             proto_actions = proto["model"].prototype_actions.detach().cpu().numpy()
@@ -514,6 +735,8 @@ def run_real_data_sweep(
                                         learn_distance_feature_weights=bool(learn_weights),
                                         proto_action_norm_mean=proto_action_norm_mean,
                                         proto_action_norm_max=proto_action_norm_max,
+                                        artifact_dir=str(proto_artifact_dir),
+                                        **proto_meta,
                                     )
                                 )
 
@@ -526,6 +749,7 @@ def run_real_data_sweep(
                                     "weighted_similarity": bool(weighted),
                                     "learn_distance_feature_weights": bool(learn_weights),
                                     "prototype_path": str(prototype_path),
+                                    "artifact_dir": str(proto_artifact_dir),
                                 }
                             )
 
@@ -540,9 +764,18 @@ def run_real_data_sweep(
     return metrics_df
 
 
-def summarize_sweep(metrics_df, output_dir):
+def summarize_sweep(metrics_df, output_dir, max_bound_occupancy=None, max_path_touch_rate=None):
     output_dir = Path(output_dir)
     test = metrics_df[metrics_df["split"] == "test"].copy()
+    for col in [
+        "selected_epoch",
+        "selected_score",
+        "selected_val_pct_at_any_position_bound",
+        "selected_val_pct_paths_touch_any_position_bound",
+        "selected_band",
+    ]:
+        if col not in test.columns:
+            test[col] = np.nan
     group_cols = [
         "model",
         "model_family",
@@ -568,15 +801,35 @@ def summarize_sweep(metrics_df, output_dir):
             pct_at_upper_position_bound_avg=("pct_at_upper_position_bound", "mean"),
             pct_at_lower_position_bound_avg=("pct_at_lower_position_bound", "mean"),
             pct_paths_touch_any_position_bound_avg=("pct_paths_touch_any_position_bound", "mean"),
+            selected_epoch_avg=("selected_epoch", "mean"),
+            selected_score_avg=("selected_score", "mean"),
+            selected_val_pct_at_any_position_bound_avg=("selected_val_pct_at_any_position_bound", "mean"),
+            selected_val_pct_paths_touch_any_position_bound_avg=("selected_val_pct_paths_touch_any_position_bound", "mean"),
+            selected_band_avg=("selected_band", "mean"),
         )
         .reset_index()
         .sort_values(["gains_mean_avg", "gains_cvar05_avg"], ascending=False)
+    )
+    if max_bound_occupancy is not None:
+        summary["passes_bound_occupancy_screen"] = (
+            summary["pct_at_any_position_bound_avg"] <= float(max_bound_occupancy)
+        )
+    else:
+        summary["passes_bound_occupancy_screen"] = True
+    if max_path_touch_rate is not None:
+        summary["passes_path_touch_screen"] = (
+            summary["pct_paths_touch_any_position_bound_avg"] <= float(max_path_touch_rate)
+        )
+    else:
+        summary["passes_path_touch_screen"] = True
+    summary["passes_robust_screen"] = (
+        summary["passes_bound_occupancy_screen"] & summary["passes_path_touch_screen"]
     )
     summary.to_csv(output_dir / "sweep_test_summary.csv", index=False)
     return summary
 
 
-def build_paper_report(metrics_df, output_dir):
+def build_paper_report(metrics_df, output_dir, max_bound_occupancy=None, max_path_touch_rate=None):
     """
     Build compact tables for writeups and decision-making.
 
@@ -585,7 +838,12 @@ def build_paper_report(metrics_df, output_dir):
     and how far each candidate is from the relevant baselines.
     """
     output_dir = Path(output_dir)
-    summary = summarize_sweep(metrics_df, output_dir).copy()
+    summary = summarize_sweep(
+        metrics_df,
+        output_dir,
+        max_bound_occupancy=max_bound_occupancy,
+        max_path_touch_rate=max_path_touch_rate,
+    ).copy()
 
     def _baseline_value(model_name, metric, risk_measure=None):
         rows = summary[summary["model"] == model_name]
@@ -598,7 +856,7 @@ def build_paper_report(metrics_df, output_dir):
         return float(rows.iloc[0][metric])
 
     for metric in ["gains_mean_avg", "gains_cvar05_avg", "shortfall_prob_avg"]:
-        for baseline in ["unhedged", "spot_delta", "vanilla"]:
+        for baseline in ["unhedged", "spot_delta", "spot_delta_band", "vanilla"]:
             col = f"{metric}_minus_{baseline}"
             values = []
             for _, row in summary.iterrows():
@@ -623,6 +881,11 @@ def build_paper_report(metrics_df, output_dir):
             best_rows.append(("best_proto_mean", proto.sort_values("gains_mean_avg", ascending=False).iloc[0]))
             best_rows.append(("best_proto_cvar05", proto.sort_values("gains_cvar05_avg", ascending=False).iloc[0]))
             best_rows.append(("best_proto_shortfall", proto.sort_values("shortfall_prob_avg", ascending=True).iloc[0]))
+            screened_proto = proto[proto["passes_robust_screen"]]
+            if not screened_proto.empty:
+                best_rows.append(("best_screened_proto_mean", screened_proto.sort_values("gains_mean_avg", ascending=False).iloc[0]))
+                best_rows.append(("best_screened_proto_cvar05", screened_proto.sort_values("gains_cvar05_avg", ascending=False).iloc[0]))
+                best_rows.append(("best_screened_proto_shortfall", screened_proto.sort_values("shortfall_prob_avg", ascending=True).iloc[0]))
 
     if best_rows:
         best_df = pd.DataFrame([{"selection": name, **row.to_dict()} for name, row in best_rows])
@@ -630,7 +893,7 @@ def build_paper_report(metrics_df, output_dir):
         best_df = pd.DataFrame()
     best_df.to_csv(output_dir / "paper_best_models.csv", index=False)
 
-    selected_models = ["unhedged", "spot_delta", "vanilla"]
+    selected_models = ["unhedged", "spot_delta", "spot_delta_band", "vanilla"]
     if not best_df.empty:
         selected_models.extend(best_df["model"].astype(str).tolist())
     paper_table = summary[summary["model"].astype(str).isin(dict.fromkeys(selected_models).keys())].copy()
@@ -665,7 +928,7 @@ def _write_interpretation_md(summary, best_df, output_dir):
         (output_dir / "interpretation.md").write_text("\n".join(lines))
         return
 
-    baselines = summary[summary["model"].isin(["unhedged", "spot_delta", "vanilla"])].copy()
+    baselines = summary[summary["model"].isin(["unhedged", "spot_delta", "spot_delta_band", "vanilla"])].copy()
     if not baselines.empty:
         lines.extend(["## Baselines", ""])
         for _, row in baselines.iterrows():
@@ -674,6 +937,8 @@ def _write_interpretation_md(summary, best_df, output_dir):
                 f"CVaR5 `{_fmt(row['gains_cvar05_avg'])}`, "
                 f"shortfall `{_fmt(row['shortfall_prob_avg'])}`"
             )
+            if "selected_band_avg" in row.index and not pd.isna(row["selected_band_avg"]):
+                line += f", selected band `{_fmt(row['selected_band_avg'])}`"
             if "pct_at_any_position_bound_avg" in row.index:
                 line += f", bound occupancy `{_fmt(row['pct_at_any_position_bound_avg'])}`"
             lines.append(line)
@@ -702,6 +967,7 @@ def _write_interpretation_md(summary, best_df, output_dir):
         vanilla_mean = summary.loc[summary["model"] == "vanilla", "gains_mean_avg"]
         unhedged_mean = summary.loc[summary["model"] == "unhedged", "gains_mean_avg"]
         spot_mean = summary.loc[summary["model"] == "spot_delta", "gains_mean_avg"]
+        spot_band_mean = summary.loc[summary["model"] == "spot_delta_band", "gains_mean_avg"]
         if not vanilla_mean.empty:
             lines.append(
                 f"Best ProtoHedge mean minus vanilla mean: "
@@ -716,6 +982,11 @@ def _write_interpretation_md(summary, best_df, output_dir):
             lines.append(
                 f"Best ProtoHedge mean minus spot-delta mean: "
                 f"`{_fmt(best_mean['gains_mean_avg'] - float(spot_mean.iloc[0]))}`."
+            )
+        if not spot_band_mean.empty:
+            lines.append(
+                f"Best ProtoHedge mean minus tuned spot-delta-band mean: "
+                f"`{_fmt(best_mean['gains_mean_avg'] - float(spot_band_mean.iloc[0]))}`."
             )
         if "pct_at_any_position_bound_avg" in best_mean.index:
             lines.append(
@@ -734,6 +1005,16 @@ def _write_interpretation_md(summary, best_df, output_dir):
                     f"Vanilla bound occupancy: "
                     f"`{_fmt(float(vanilla_bounds.iloc[0]))}`."
                 )
+        screened_proto = proto[proto["passes_robust_screen"]] if "passes_robust_screen" in proto.columns else proto.iloc[0:0]
+        if not screened_proto.empty:
+            screened_best = screened_proto.sort_values("gains_mean_avg", ascending=False).iloc[0]
+            lines.append(
+                f"Best screen-passing ProtoHedge: `{screened_best['model']}` with mean "
+                f"`{_fmt(screened_best['gains_mean_avg'])}` and bound occupancy "
+                f"`{_fmt(screened_best['pct_at_any_position_bound_avg'])}`."
+            )
+        else:
+            lines.append("No ProtoHedge configuration passed the current robustness screen.")
         lines.append("")
 
     lines.extend(
@@ -753,15 +1034,25 @@ def _write_interpretation_md(summary, best_df, output_dir):
     (output_dir / "interpretation.md").write_text("\n".join(lines))
 
 
-def plot_sweep_results(metrics_df, output_dir):
+def plot_sweep_results(metrics_df, output_dir, max_bound_occupancy=None, max_path_touch_rate=None):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     test = metrics_df[metrics_df["split"] == "test"].copy()
     if test.empty:
         return
 
-    summary = summarize_sweep(metrics_df, output_dir)
-    build_paper_report(metrics_df, output_dir)
+    summary = summarize_sweep(
+        metrics_df,
+        output_dir,
+        max_bound_occupancy=max_bound_occupancy,
+        max_path_touch_rate=max_path_touch_rate,
+    )
+    build_paper_report(
+        metrics_df,
+        output_dir,
+        max_bound_occupancy=max_bound_occupancy,
+        max_path_touch_rate=max_path_touch_rate,
+    )
     top = summary.head(25).copy()
     labels = top["model"].astype(str)
 
@@ -867,6 +1158,22 @@ def main():
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--epoch-refresh", type=int, default=None)
     parser.add_argument("--max-points", type=int, default=None)
+    parser.add_argument("--selection-metric", default="train_loss")
+    parser.add_argument("--selection-alpha-action-abs", type=float, default=0.0)
+    parser.add_argument("--selection-alpha-delta-abs", type=float, default=0.0)
+    parser.add_argument("--selection-alpha-bound-occupancy", type=float, default=0.0)
+    parser.add_argument("--selection-alpha-path-bound-touch", type=float, default=0.0)
+    parser.add_argument("--action-penalty-weight", type=float, default=0.0)
+    parser.add_argument("--delta-penalty-weight", type=float, default=0.0)
+    parser.add_argument("--max-bound-occupancy", type=float, default=None)
+    parser.add_argument("--max-path-touch-rate", type=float, default=None)
+    parser.add_argument(
+        "--spot-delta-band-grid",
+        type=float,
+        nargs="+",
+        default=list(DEFAULT_SPOT_DELTA_BAND_GRID),
+    )
+    parser.add_argument("--tuned-baseline-metric", default="gains_mean")
     args = parser.parse_args()
 
     run_real_data_sweep(
@@ -882,7 +1189,18 @@ def main():
         risk_measures=tuple(args.risk_measures),
         lr=args.lr,
         epoch_refresh=args.epoch_refresh,
+        selection_metric=args.selection_metric,
+        selection_alpha_action_abs=args.selection_alpha_action_abs,
+        selection_alpha_delta_abs=args.selection_alpha_delta_abs,
+        selection_alpha_bound_occupancy=args.selection_alpha_bound_occupancy,
+        selection_alpha_path_bound_touch=args.selection_alpha_path_bound_touch,
+        action_penalty_weight=args.action_penalty_weight,
+        delta_penalty_weight=args.delta_penalty_weight,
+        max_bound_occupancy=args.max_bound_occupancy,
+        max_path_touch_rate=args.max_path_touch_rate,
         max_points=args.max_points,
+        spot_delta_band_grid=tuple(args.spot_delta_band_grid),
+        tuned_baseline_metric=args.tuned_baseline_metric,
     )
 
 

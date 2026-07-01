@@ -2,6 +2,7 @@
 Main training entry point for PyTorch ProtoHedge.
 """
 
+import copy
 import pickle
 from pathlib import Path
 import numpy as np
@@ -55,6 +56,13 @@ def default_config():
             "lr_decay_patience": None,
             "lr_min": 1e-5,
             "scheduler_monitor": "val",
+            "selection_metric": "train_loss",
+            "selection_alpha_action_abs": 0.0,
+            "selection_alpha_delta_abs": 0.0,
+            "selection_alpha_bound_occupancy": 0.0,
+            "selection_alpha_path_bound_touch": 0.0,
+            "action_penalty_weight": 0.0,
+            "delta_penalty_weight": 0.0,
         },
         "objective": {
             "risk_measure": "cvar",
@@ -189,13 +197,13 @@ def _to_tensor(x):
     return torch.tensor(np.asarray(x), dtype=torch.float32)
 
 
-def run_experiment(
+def _merged_config(
     override_world=None,
     override_training=None,
     override_model=None,
     override_objective=None,
 ):
-    config = default_config()
+    config = copy.deepcopy(default_config())
 
     if override_world:
         config["world"].update(override_world)
@@ -214,6 +222,11 @@ def run_experiment(
     if alias_vol is not None:
         config["world"].setdefault("rvol", alias_vol)
         config["world"].setdefault("ivol", alias_vol)
+    return config
+
+
+def build_experiment_components(config):
+    config = copy.deepcopy(config)
 
     torch.manual_seed(int(config["training"].get("seed", 0)))
 
@@ -350,6 +363,8 @@ def run_experiment(
         agent=agent,
         objective=objective,
         feature_names=feature_names,
+        action_penalty_weight=float(config["training"].get("action_penalty_weight", 0.0)),
+        delta_penalty_weight=float(config["training"].get("delta_penalty_weight", 0.0)),
     )
 
     trainer = TrainerTorch(
@@ -362,6 +377,40 @@ def run_experiment(
         lr_min=config["training"].get("lr_min"),
         scheduler_monitor=config["training"].get("scheduler_monitor", "val"),
     )
+
+    return {
+        "config": config,
+        "world": world,
+        "val_world": val_world,
+        "train_data": train_data,
+        "val_data": val_data,
+        "gym": gym,
+        "trainer": trainer,
+        "feature_names": feature_names,
+        "n_inst": n_inst,
+    }
+
+
+def run_experiment(
+    override_world=None,
+    override_training=None,
+    override_model=None,
+    override_objective=None,
+):
+    config = _merged_config(
+        override_world=override_world,
+        override_training=override_training,
+        override_model=override_model,
+        override_objective=override_objective,
+    )
+    components = build_experiment_components(config)
+    world = components["world"]
+    val_world = components["val_world"]
+    train_data = components["train_data"]
+    val_data = components["val_data"]
+    gym = components["gym"]
+    trainer = components["trainer"]
+    n_inst = components["n_inst"]
 
     print(
         f"\nPyTorch version {torch.__version__} "
@@ -377,6 +426,11 @@ def run_experiment(
         n_epochs=int(config["training"]["epochs"]),
         epoch_refresh=int(config["training"].get("epoch_refresh", 20)),
         batch_size=config["training"].get("batch_size"),
+        selection_metric=config["training"].get("selection_metric", "train_loss"),
+        selection_alpha_action_abs=float(config["training"].get("selection_alpha_action_abs", 0.0)),
+        selection_alpha_delta_abs=float(config["training"].get("selection_alpha_delta_abs", 0.0)),
+        selection_alpha_bound_occupancy=float(config["training"].get("selection_alpha_bound_occupancy", 0.0)),
+        selection_alpha_path_bound_touch=float(config["training"].get("selection_alpha_path_bound_touch", 0.0)),
     )
 
     gym.eval()

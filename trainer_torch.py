@@ -15,6 +15,26 @@ def _weighted_err(weights, x):
     return float(np.sqrt(var) / np.sqrt(len(weights)))
 
 
+def _result_diagnostics(result, market):
+    actions = result["actions"].detach().cpu().numpy()
+    deltas = result["deltas"].detach().cpu().numpy()
+    diag = {
+        "action_abs_mean": float(np.mean(np.abs(actions))),
+        "delta_abs_mean": float(np.mean(np.abs(deltas))),
+        "pct_at_any_position_bound": 0.0,
+        "pct_paths_touch_any_position_bound": 0.0,
+    }
+    if "ubnd_delta" in market and "lbnd_delta" in market:
+        ubnd_delta = market["ubnd_delta"].detach().cpu().numpy()
+        lbnd_delta = market["lbnd_delta"].detach().cpu().numpy()
+        near_upper = np.isclose(deltas, ubnd_delta, atol=1e-4, rtol=0.0)
+        near_lower = np.isclose(deltas, lbnd_delta, atol=1e-4, rtol=0.0)
+        near_bound = near_upper | near_lower
+        diag["pct_at_any_position_bound"] = float(np.mean(near_bound))
+        diag["pct_paths_touch_any_position_bound"] = float(np.mean(np.any(near_bound, axis=(1, 2))))
+    return diag
+
+
 class TrainerTorch:
     def __init__(
         self,
@@ -71,7 +91,29 @@ class TrainerTorch:
         n_epochs=200,
         epoch_refresh=20,
         batch_size=None,
+        selection_metric="train_loss",
+        selection_alpha_action_abs=0.0,
+        selection_alpha_delta_abs=0.0,
+        selection_alpha_bound_occupancy=0.0,
+        selection_alpha_path_bound_touch=0.0,
     ):
+        selection_metric = str(selection_metric)
+
+        def _selection_score(base_train_loss, base_val_loss, val_diag):
+            if selection_metric == "train_loss":
+                base = float(base_train_loss)
+            elif selection_metric == "val_loss":
+                base = float(base_val_loss)
+            else:
+                raise ValueError(f"Unsupported selection_metric '{selection_metric}'")
+            return (
+                base
+                + float(selection_alpha_action_abs) * float(val_diag["action_abs_mean"])
+                + float(selection_alpha_delta_abs) * float(val_diag["delta_abs_mean"])
+                + float(selection_alpha_bound_occupancy) * float(val_diag["pct_at_any_position_bound"])
+                + float(selection_alpha_path_bound_touch) * float(val_diag["pct_paths_touch_any_position_bound"])
+            )
+
         history = {
             "losses": {"batch": [], "training": [], "val": []},
             "losses_err": {"training": [], "val": []},
@@ -84,9 +126,22 @@ class TrainerTorch:
                 "val_util0": [],
             },
             "process": {"memory_rss": [], "memory_vms": []},
+            "diagnostics": {
+                "train_action_abs_mean": [],
+                "val_action_abs_mean": [],
+                "train_delta_abs_mean": [],
+                "val_delta_abs_mean": [],
+                "train_pct_at_any_position_bound": [],
+                "val_pct_at_any_position_bound": [],
+                "train_pct_paths_touch_any_position_bound": [],
+                "val_pct_paths_touch_any_position_bound": [],
+            },
             "learning_rate": [],
+            "selection_metric": selection_metric,
+            "selection_scores": {"val": []},
             "best_epoch": -1,
             "best_loss": None,
+            "best_score": None,
             "init_loss": None,
             "init_loss_err": None,
         }
@@ -98,10 +153,15 @@ class TrainerTorch:
 
         with torch.no_grad():
             init_result = self.gym.forward(train_data, training=False, return_paths=False)
+            init_val_result = self.gym.forward(val_data, training=False, return_paths=False)
         init_loss_path = init_result["loss_path"].detach().cpu().numpy()
+        init_val_loss_path = init_val_result["loss_path"].detach().cpu().numpy()
         history["init_loss"] = _weighted_mean(train_weights, init_loss_path)
         history["init_loss_err"] = _weighted_err(train_weights, init_loss_path)
         history["best_loss"] = history["init_loss"]
+        init_val_loss = _weighted_mean(val_weights, init_val_loss_path)
+        init_val_diag = _result_diagnostics(init_val_result, val_data["market"])
+        history["best_score"] = _selection_score(history["init_loss"], init_val_loss, init_val_diag)
         self.best_state_dict = self._clone_state_dict(self.gym)
 
         n_train = len(train_weights)
@@ -140,6 +200,8 @@ class TrainerTorch:
             train_utility0 = train_result["utility0"].detach().cpu().numpy()
             val_utility = val_result["utility"].detach().cpu().numpy()
             val_utility0 = val_result["utility0"].detach().cpu().numpy()
+            train_diag = _result_diagnostics(train_result, train_data["market"])
+            val_diag = _result_diagnostics(val_result, val_data["market"])
 
             train_loss = _weighted_mean(train_weights, train_loss_path)
             val_loss = _weighted_mean(val_weights, val_loss_path)
@@ -155,10 +217,22 @@ class TrainerTorch:
             history["utilities"]["training_util0_err"].append(_weighted_err(train_weights, train_utility0))
             history["utilities"]["val_util"].append(_weighted_mean(val_weights, val_utility))
             history["utilities"]["val_util0"].append(_weighted_mean(val_weights, val_utility0))
+            history["diagnostics"]["train_action_abs_mean"].append(train_diag["action_abs_mean"])
+            history["diagnostics"]["val_action_abs_mean"].append(val_diag["action_abs_mean"])
+            history["diagnostics"]["train_delta_abs_mean"].append(train_diag["delta_abs_mean"])
+            history["diagnostics"]["val_delta_abs_mean"].append(val_diag["delta_abs_mean"])
+            history["diagnostics"]["train_pct_at_any_position_bound"].append(train_diag["pct_at_any_position_bound"])
+            history["diagnostics"]["val_pct_at_any_position_bound"].append(val_diag["pct_at_any_position_bound"])
+            history["diagnostics"]["train_pct_paths_touch_any_position_bound"].append(train_diag["pct_paths_touch_any_position_bound"])
+            history["diagnostics"]["val_pct_paths_touch_any_position_bound"].append(val_diag["pct_paths_touch_any_position_bound"])
             history["learning_rate"].append(float(self.optimizer.param_groups[0]["lr"]))
+            selection_score = _selection_score(train_loss, val_loss, val_diag)
+            history["selection_scores"]["val"].append(float(selection_score))
 
             if train_loss < history["best_loss"]:
                 history["best_loss"] = train_loss
+            if selection_score < history["best_score"]:
+                history["best_score"] = float(selection_score)
                 history["best_epoch"] = epoch
                 self.best_state_dict = self._clone_state_dict(self.gym)
 
@@ -173,10 +247,26 @@ class TrainerTorch:
             if epoch % epoch_refresh == 0:
                 print(
                     f"epoch {epoch} | batch {batch_loss:.4f} | train {train_loss:.4f} "
-                    f"| val {val_loss:.4f}"
+                    f"| val {val_loss:.4f} | select {selection_score:.4f}"
                 )
 
         if self.best_state_dict is not None:
             self.gym.load_state_dict(self.best_state_dict)
+
+        if history["best_epoch"] >= 0:
+            k = int(history["best_epoch"])
+            history["best_val_action_abs_mean"] = float(history["diagnostics"]["val_action_abs_mean"][k])
+            history["best_val_delta_abs_mean"] = float(history["diagnostics"]["val_delta_abs_mean"][k])
+            history["best_val_pct_at_any_position_bound"] = float(history["diagnostics"]["val_pct_at_any_position_bound"][k])
+            history["best_val_pct_paths_touch_any_position_bound"] = float(
+                history["diagnostics"]["val_pct_paths_touch_any_position_bound"][k]
+            )
+        else:
+            history["best_val_action_abs_mean"] = float(init_val_diag["action_abs_mean"])
+            history["best_val_delta_abs_mean"] = float(init_val_diag["delta_abs_mean"])
+            history["best_val_pct_at_any_position_bound"] = float(init_val_diag["pct_at_any_position_bound"])
+            history["best_val_pct_paths_touch_any_position_bound"] = float(
+                init_val_diag["pct_paths_touch_any_position_bound"]
+            )
 
         return history

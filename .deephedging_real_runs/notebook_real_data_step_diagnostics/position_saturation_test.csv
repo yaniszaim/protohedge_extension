@@ -1,0 +1,4 @@
+model,split,delta_abs_mean,delta_abs_max,pct_at_any_position_bound,pct_at_upper_position_bound,pct_at_lower_position_bound
+spot_delta,test,0.49582168459892273,0.9999880194664001,0.0,0.0,0.0
+vanilla,test,0.534180223941803,1.8621515035629272,0.0,0.0,0.0
+proto,test,0.37835606932640076,0.8440167903900146,0.0,0.0,0.0

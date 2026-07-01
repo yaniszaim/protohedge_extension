@@ -1,0 +1,3 @@
+comparison,lhs,rhs,n_seeds,mean_gap_avg,mean_gap_std,median_gap_avg,win_rate_avg,cvar05_gap_avg,cvar05_gap_std,shortfall_gap_avg
+proto_mean_minus_vanilla,proto_mean,vanilla,1,0.04130437225103378,,0.010289687663316727,0.7333333333333333,0.23736415058374405,,-0.19999999999999996
+proto_mean_minus_spot_delta_band,proto_mean,spot_delta_band,1,-0.01065957173705101,,-0.020519938319921494,0.3333333333333333,-0.042594198137521744,,0.0

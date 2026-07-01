@@ -1,0 +1,7 @@
+Model,Prototype source,K,Weighted,Mean gains,Mean std,CVaR5,Shortfall prob.,Bound occupancy,Mean gap vs vanilla (%),Robust screen
+Unhedged,-,-,-,-0.0212,0.0009,-0.0952,0.6513,0.0,-101.28,Yes
+Spot-Delta,-,-,-,-0.0209,0.0011,-0.0904,0.8185,0.0118,-101.26,Yes
+Spot-Delta Band,-,-,-,-0.0209,0.0011,-0.0904,0.8185,0.0,-101.26,Yes
+Vanilla DH,-,-,-,1.6599,0.0298,-0.0449,0.0272,0.603,0.0,No
+ProtoHedge (Mean frontier),spot_delta,10.0,No,1.6466,0.0393,-0.0565,0.0277,0.3171,-0.8,Yes
+ProtoHedge (Tail frontier),spot_delta,25.0,No,1.6383,0.0125,-0.0294,0.0223,0.3551,-1.3,Yes

@@ -16,6 +16,8 @@ class DeepHedgingGymTorch(nn.Module):
         feature_names=None,
         proto_diversity_weight=0.0,
         proto_l2_weight=0.0,
+        action_penalty_weight=0.0,
+        delta_penalty_weight=0.0,
         device="cpu",
     ):
         super().__init__()
@@ -24,6 +26,8 @@ class DeepHedgingGymTorch(nn.Module):
         self.feature_names = list(feature_names or ["price", "delta", "time_left"])
         self.proto_diversity_weight = float(proto_diversity_weight)
         self.proto_l2_weight = float(proto_l2_weight)
+        self.action_penalty_weight = float(action_penalty_weight)
+        self.delta_penalty_weight = float(delta_penalty_weight)
         self.device = device
         self.clip_actions = not bool(getattr(self.agent, "internally_bounded_actions", False))
 
@@ -108,11 +112,22 @@ class DeepHedgingGymTorch(nn.Module):
             reg = reg + self.proto_diversity_weight * prototype_diversity_loss(self.agent.prototypes)
         if self.proto_l2_weight:
             reg = reg + self.proto_l2_weight * prototype_l2_loss(self.agent.prototypes)
+        action_penalty = torch.tensor(0.0, device=self.device)
+        delta_penalty = torch.tensor(0.0, device=self.device)
+        if self.action_penalty_weight:
+            action_penalty = self.action_penalty_weight * torch.mean(torch.abs(actions))
+            reg = reg + action_penalty
+        if self.delta_penalty_weight:
+            delta_penalty = self.delta_penalty_weight * torch.mean(torch.abs(deltas))
+            reg = reg + delta_penalty
 
         result = {
             "loss": objective_out["loss"] + reg,
             "loss_path": objective_out["loss_path"],
             "loss_no_reg": objective_out["loss"],
+            "reg": reg,
+            "action_penalty": action_penalty,
+            "delta_penalty": delta_penalty,
             "utility": objective_out["utility"],
             "utility0": objective_out["utility0"],
             "gains": objective_out["gains"],
