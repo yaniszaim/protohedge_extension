@@ -1,0 +1,589 @@
+{
+  "data_path": "/Users/yaniszaim/deephedging/Data/NEW_PANEL/episodes/AAPL_training_paths.npy",
+  "output_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust",
+  "samples": null,
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "seeds": [
+    1234,
+    2345,
+    3456
+  ],
+  "epochs": 800,
+  "lr": 0.001,
+  "batch_size": null,
+  "epoch_refresh": null,
+  "selection_metric": "val_loss",
+  "selection_alpha_action_abs": 0.005,
+  "selection_alpha_delta_abs": 0.01,
+  "selection_alpha_bound_occupancy": 0.1,
+  "selection_alpha_path_bound_touch": 0.0,
+  "action_penalty_weight": 0.001,
+  "delta_penalty_weight": 0.002,
+  "max_bound_occupancy": 0.5,
+  "max_path_touch_rate": null,
+  "max_points": null,
+  "spot_delta_band_grid": [
+    0.0,
+    0.01,
+    0.02,
+    0.05,
+    0.1,
+    0.15
+  ],
+  "tuned_baseline_metric": "gains_mean",
+  "prototype_counts": [
+    10,
+    25,
+    50,
+    100
+  ],
+  "prototype_sources": [
+    "spot_delta",
+    "vanilla"
+  ],
+  "weighted_similarity_options": [
+    false,
+    true
+  ],
+  "learn_distance_feature_weights_options": [
+    false
+  ],
+  "risk_measures": [
+    "cvar"
+  ],
+  "normalize": true,
+  "hedge_mode": "step",
+  "position_bounds": true,
+  "trade_bounds": {
+    "lbnd_as": -1.0,
+    "ubnd_as": 1.0,
+    "lbnd_av": -1.0,
+    "ubnd_av": 1.0
+  },
+  "cumulative_bounds": {
+    "lbnd_delta_s": -1.0,
+    "ubnd_delta_s": 1.0,
+    "lbnd_delta_v": -1.0,
+    "ubnd_delta_v": 1.0
+  },
+  "checkpoint_stage": "complete",
+  "runs": [
+    {
+      "seed": 1234,
+      "model": "data_baselines",
+      "spot_delta_band": 0.1,
+      "baseline_selection_metric": "gains_mean"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "model": "vanilla",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/vanilla"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_10_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_10_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_25_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_25_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_50_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_50_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 100,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_100_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 100,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_spot_delta_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_spot_delta_k_100_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_10_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_10_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_25_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_25_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_50_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_50_weighted_1_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 100,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_100_weighted_0_learnw_0"
+    },
+    {
+      "seed": 1234,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 100,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_1234_risk_cvar_source_vanilla_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_1234/risk_cvar/proto_source_vanilla_k_100_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "model": "data_baselines",
+      "spot_delta_band": 0.05,
+      "baseline_selection_metric": "gains_mean"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "model": "vanilla",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/vanilla"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_10_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_10_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_25_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_25_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_50_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_50_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 100,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_100_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 100,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_spot_delta_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_spot_delta_k_100_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_10_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_10_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_25_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_25_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_50_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_50_weighted_1_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 100,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_100_weighted_0_learnw_0"
+    },
+    {
+      "seed": 2345,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 100,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_2345_risk_cvar_source_vanilla_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_2345/risk_cvar/proto_source_vanilla_k_100_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "model": "data_baselines",
+      "spot_delta_band": 0.15,
+      "baseline_selection_metric": "gains_mean"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "model": "vanilla",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/vanilla"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_10_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_10_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_25_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_25_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_50_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_50_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 100,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_100_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "spot_delta",
+      "n_prototypes": 100,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_spot_delta_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_spot_delta_k_100_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_10_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 10,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_10.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_10_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_25_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 25,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_25.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_25_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_50_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 50,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_50.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_50_weighted_1_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 100,
+      "weighted_similarity": false,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_100_weighted_0_learnw_0"
+    },
+    {
+      "seed": 3456,
+      "risk_measure": "cvar",
+      "prototype_source": "vanilla",
+      "n_prototypes": 100,
+      "weighted_similarity": true,
+      "learn_distance_feature_weights": false,
+      "prototype_path": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/prototypes/seed_3456_risk_cvar_source_vanilla_k_100.pkl",
+      "artifact_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_notebook/panel_sweeps/AAPL_full_paper_grid_800_step_robust/model_artifacts/seed_3456/risk_cvar/proto_source_vanilla_k_100_weighted_1_learnw_0"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "data_path": "/Users/yaniszaim/deephedging/Data/NEW_PANEL/episodes/AAPL_training_paths.npy",
+  "output_dir": "/Users/yaniszaim/deephedging/.deephedging_real_runs/final_paper_asian_panel/panel_sweeps/AAPL_full_paper_grid_800_asian_call_step_robust",
+  "samples": null,
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "seeds": [
+    1234,
+    2345,
+    3456
+  ],
+  "epochs": 800,
+  "lr": 0.001,
+  "batch_size": null,
+  "epoch_refresh": null,
+  "selection_metric": "val_loss",
+  "selection_alpha_action_abs": 0.005,
+  "selection_alpha_delta_abs": 0.01,
+  "selection_alpha_bound_occupancy": 0.1,
+  "selection_alpha_path_bound_touch": 0.0,
+  "action_penalty_weight": 0.001,
+  "delta_penalty_weight": 0.002,
+  "max_bound_occupancy": 0.5,
+  "max_path_touch_rate": null,
+  "max_points": null,
+  "spot_delta_band_grid": [
+    0.0,
+    0.01,
+    0.02,
+    0.05,
+    0.1,
+    0.15
+  ],
+  "tuned_baseline_metric": "gains_mean",
+  "prototype_counts": [
+    10,
+    25,
+    50,
+    100
+  ],
+  "prototype_sources": [
+    "spot_delta",
+    "vanilla"
+  ],
+  "weighted_similarity_options": [
+    false,
+    true
+  ],
+  "learn_distance_feature_weights_options": [
+    false
+  ],
+  "risk_measures": [
+    "cvar"
+  ],
+  "normalize": true,
+  "hedge_mode": "step",
+  "position_bounds": true,
+  "trade_bounds": {
+    "lbnd_as": -1.0,
+    "ubnd_as": 1.0,
+    "lbnd_av": -1.0,
+    "ubnd_av": 1.0
+  },
+  "cumulative_bounds": {
+    "lbnd_delta_s": -1.0,
+    "ubnd_delta_s": 1.0,
+    "lbnd_delta_v": -1.0,
+    "ubnd_delta_v": 1.0
+  },
+  "liability_type": "asian_call",
+  "asian_average_type": "arithmetic",
+  "asian_start_step": 0,
+  "asian_end_step": null,
+  "checkpoint_stage": "seed_1234_baselines",
+  "runs": [
+    {
+      "seed": 1234,
+      "model": "data_baselines",
+      "spot_delta_band": 0.1,
+      "baseline_selection_metric": "gains_mean"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+--- attachment/sigconf.tex
++++ notebooks/Final_Paper.tex
+@@ -120,33 +120,30 @@
+ %% Of note is the shared affiliation of the first two authors, and the
+ %% "authornote" and "authornotemark" commands
+ %% used to denote shared contribution to the research.
+-\author{Yanis Zaim}
+-\affiliation{%
+-  \institution{Columbia University}
+-  \city{New York}
+-  \state{NY}
+-  \country{USA}}
+-\email{ymz2108@columbia.edu}
+ 
+-\author{Sayak Chakrabarty}
++\author{Imon Banerjee}
+ \affiliation{%
+   \institution{Northwestern University}
+   \city{Evanston}
+   \country{IL}
+   \country{USA}}
+-\email{sayak.chakrabarty@northwestern.edu}
++\email{imon.banerjee@northwestern.edu}
+ 
+-\author{Imon Banerjee}
++\author{Sayak Chakrabarty}
+ \affiliation{%
+   \institution{Northwestern University}
+   \city{Evanston}
+   \country{IL}
+   \country{USA}}
+-\email{imon.banerjee@northwestern.edu}
+-
++\email{sayak.chakrabarty@northwestern.edu}
+ 
+-
+-
++\author{Yanis Zaim}
++\affiliation{%
++  \institution{Columbia University}
++  \city{New York}
++  \state{NY}
++  \country{USA}}
++\email{ymz2108@columbia.edu}
+ %%
+ %% By default, the full list of authors will be used in the page
+ %% headers. Often, this list is too long, and will overlap
+@@ -256,94 +253,118 @@
+ \section{ProtoHedge and the Empirical Validation Problem}
+ \label{sec:protohedge_empirical_problem}
+ 
+-This section places our study in context. We first summarize the deep hedging framework and the role of vanilla Deep Hedging as the main black-box benchmark. We then explain the ProtoHedge architecture and its interpretability motivation. Finally, we identify the central gap left by the original ProtoHedge study: although prototype-based hedging is attractive conceptually, it must still be shown to remain competitive and interpretable on real historical market data.
+-
+-\subsection{Deep Hedging as a Learning Problem}
++\subsection{Deep Hedging as Sequential Risk Management}
+ \label{subsec:deep_hedging_background}
+ 
+-Deep hedging treats hedging as a sequential decision problem rather than a closed-form replication problem. At each trading time $t$, the hedger observes a state vector
++Deep hedging replaces a prescribed replication formula with a policy learned
++from observed market states and a risk-sensitive hedging objective. Let
++$P_t \in \mathbb{R}^m$ be the vector of hedge-instrument prices, let $h_t$ be
++the cumulative hedge inventory, and let $\tau_t$ denote time remaining. At
++time $t$, a policy observes a state such as
+ \[
+-x_t \in \mathcal{X},
++x_t = (P_t, h_{t-1}, \tau_t)
+ \]
+-which may contain the underlying price, option sensitivities, implied volatility, time-to-maturity information, current hedge inventory, and other market features. A policy
++and outputs a trade increment
+ \[
+-\pi_\theta : \mathcal{X} \to \mathcal{A}
++a_t = \pi_\theta(x_t), \qquad
++h_t = \Pi_{\mathcal{H}}(h_{t-1}+a_t),
+ \]
+-with parameters $\theta$ maps the observed state to a hedge action $a_t$, for example a change in the position held in the underlying or in liquid hedging instruments. Over an episode of length $T$, these actions generate a cumulative hedging profit and loss after transaction costs and constraints. The learning problem is to choose $\theta$ so as to optimize a risk-sensitive objective on terminal hedging outcomes.
+-
+-In modern deep hedging, this policy is typically represented by a neural network and trained end-to-end. This approach is attractive because it does not require the world to be exactly Black--Scholes, does not assume frictionless continuous rebalancing, and can incorporate practical features such as transaction costs, trading bounds, incomplete hedge sets, and high-dimensional state variables. In this sense, deep hedging generalizes classical delta hedging: instead of prescribing a rule analytically from a stylized model, it learns a rule directly from data and the training objective.
+-
+-Let $G^\pi$ denote the total hedging gain of a policy $\pi$ over an episode, net of liability payoff and trading costs. A standard deep hedging problem can be written abstractly as
++where $\Pi_{\mathcal{H}}$ enforces the admissible position set. For an option
++payoff $H(P_{0:T})$ and per-unit transaction-cost vector $\kappa_t$, the
++terminal gain can be written schematically as
+ \[
+-\max_{\theta} \; \mathbb{E}[U(G^{\pi_\theta})]
+-\qquad \text{or} \qquad
+-\min_{\theta} \; \rho(-G^{\pi_\theta}),
++G^{\pi_\theta}
++=
++-H(P_{0:T})
+++
++\sum_{t=0}^{T-1} h_t^\top(P_{t+1}-P_t)
++-
++\sum_{t=0}^{T-1}\kappa_t^\top |a_t|.
+ \]
+-where $U$ is a utility function or $\rho$ is a risk measure such as CVaR. In practice, the exact parameterization varies across implementations, but the central idea is the same: learn a hedging policy that performs well under realistic frictions and constraints, rather than relying on an idealized replication formula.
++The agent is trained to optimize a risk criterion, for example
++\[
++\min_\theta \operatorname{CVaR}_{\alpha}\!\left(-G^{\pi_\theta}\right),
++\]
++rather than to reproduce a model-implied delta exactly. This formulation
++accommodates discrete rebalancing, costs, hard bounds, and dynamics that need
++not follow a stylized pricing model.
+ 
+-The principal weakness of this framework is interpretability. A sufficiently expressive neural policy can produce strong hedging performance while remaining difficult to inspect. Even when one can evaluate its actions numerically, it may still be unclear which market situations drive those actions, whether similar states are treated similarly, and whether the policy has learned economically meaningful behavior or merely a complicated nonlinear mapping that is hard to diagnose. This matters especially in hedging, where large position changes, boundary-seeking behavior, and sensitivity to tail events are economically significant. For that reason, vanilla Deep Hedging is a natural and important benchmark, but it is not fully satisfactory when interpretability is part of the modeling objective.
++A standard, or black-box, Deep Hedging policy represents $\pi_\theta$ by a
++feed-forward neural network. It is a necessary performance benchmark in this
++paper because it has the same information, objective, costs, and constraints
++as ProtoHedge. Its limitation is diagnostic rather than computational: an
++action can be evaluated without revealing which market states motivated it or
++whether the policy has learned an economically stable rule.
+ 
+-\subsection{ProtoHedge: Prototype-Based Deep Hedging}
++\subsection{ProtoHedge: Fixed Prototypes as an Interpretable Policy}
+ \label{subsec:protohedge_background}
+ 
+-ProtoHedge was introduced as an interpretable alternative to a fully black-box deep hedging policy. Its key idea is to force the policy to make decisions through comparisons with a small set of representative states, called prototypes, rather than through an unrestricted latent representation alone. This changes the nature of the model explanation: instead of saying only that a neural network took a certain action, one can ask which stored prototype states the current market state most closely resembles, and how those prototypes influence the hedge.
+-
+-At a high level, ProtoHedge still solves the same sequential hedging problem as vanilla Deep Hedging. The state $x_t$ is observed at time $t$, the policy outputs an action $a_t$, and the model is trained under a risk-sensitive objective. The difference lies in the internal architecture. Rather than feeding the state directly through a generic multilayer network to produce an action, ProtoHedge first compares the current state to a collection of prototypes
++ProtoHedge retains the deep-hedging objective but restricts action generation
++to a finite collection of representative states
+ \[
+-\{p_1, \dots, p_K\},
++\mathcal{P}=\{p_1,\ldots,p_K\}.
+ \]
+-where each $p_k$ is a representative point in feature space. These comparisons produce similarity scores
++In the fixed-prototype design studied here, each $p_k$ is an observed
++standardized state selected from the empirical state distribution. For a
++standardized current state $\tilde{x}_t$, nonnegative feature weights
++$\gamma$, and a shared learned projection $f_\phi$, ProtoHedge forms
+ \[
+-s_k(x_t),
++z_t=f_\phi(\gamma\odot\tilde{x}_t), \qquad
++z_k^{p}=f_\phi(\gamma\odot p_k),
+ \]
+-which are then aggregated to determine the action. In simplified form, the action can be viewed as a prototype-weighted combination
+-\[
+-a_t \approx \sum_{k=1}^K w_k(x_t)\,\alpha_k,
++then measures squared distances and converts them into normalized prototype
++weights:
++\[
++d_{t,k}=\lVert z_t-z_k^{p}\rVert_2^2,
++\qquad
++\alpha_{t,k}
++=
++\frac{\exp(-d_{t,k})}
++{\sum_{j=1}^{K}\exp(-d_{t,j})}.
+ \]
+-where $w_k(x_t)$ reflects the similarity between the current state and prototype $p_k$, and $\alpha_k$ is the prototype-associated hedge response. The exact architecture can include additional nonlinear layers and weighting choices, but this representation captures the central intuition: the hedge is routed through a small library of representative market states.
++Each prototype has an associated trainable, bounded hedge response
++$b_k\in\mathbb{R}^{m}$. The action is the similarity-weighted combination
++\[
++a_t=\sum_{k=1}^{K}\alpha_{t,k}b_k.
++\]
+ 
+-This design is important for two reasons. First, it creates an explicit bottleneck in the policy. If only a few prototypes dominate the decision at a given state, then the model's behavior becomes more inspectable. Second, the prototypes themselves can be examined. One can ask what kind of market situations they represent, how frequently they are used, whether they specialize by regime, and whether they correspond to recognizable economic conditions. In contrast to a generic hidden layer, the prototype layer is intended to admit example-based interpretation.
++This decomposition is the central ProtoHedge mechanism. For every hedge
++decision, the model exposes the prototypes with the largest weights, their
++representative market states, and their associated actions. A reviewer can
++therefore trace a decision to examples of historically observed states rather
++than only to opaque network parameters. Concentrated use of a small subset of
++prototypes, systematic shifts in $\alpha_{t,k}$ across regimes, and retrieval
++of the nearest historical episodes provide direct, testable forms of
++interpretability.
+ 
+-The original ProtoHedge work demonstrated that this structure can preserve much of the performance of vanilla Deep Hedging in synthetic settings while providing a more interpretable decision mechanism. Conceptually, ProtoHedge is appealing because it does not reject deep hedging; instead, it restructures it. The goal is not to eliminate expressiveness, but to trade some unrestricted flexibility for a representation that is easier to inspect and potentially more economically meaningful.
++The anchors $p_k$ remain fixed during training in the present study; the
++projection $f_\phi$ and the prototype actions $b_k$ are learned. This
++preserves the original ProtoHedge premise that a prototype should remain tied
++to an actual representative state, rather than drifting to an uninterpretable
++parameter value. Section~\ref{sec:experimental_framework} specifies how the
++prototypes are extracted, how $K$ and similarity weighting are varied, and how
++the policy is trained.
+ 
+-This distinction is critical for our paper. We are not testing whether prototype-based hedging is a fundamentally different problem from deep hedging. We are testing whether the specific interpretability mechanism introduced by ProtoHedge remains viable once one moves beyond controlled simulated worlds.
+-
+-\subsection{Why Empirical Validation Is the Missing Step}
++\subsection{Why the Empirical Test Matters}
+ \label{subsec:empirical_gap}
+ 
+-The original ProtoHedge results are important, but they do not by themselves establish that the method is useful in realistic hedging environments. Synthetic experiments are valuable because they allow careful control over the data-generating process and clean benchmarking against known baselines. However, they do not fully capture the empirical conditions under which hedging systems are actually deployed.
+-
+-Historical market data introduce several sources of difficulty that do not appear cleanly in stylized simulation. Market dynamics are non-stationary; realized option paths reflect changing volatility regimes, crisis periods, and structural breaks; transaction costs and rebalancing constraints matter; and the available hedge signals are noisy and imperfect. Moreover, the interpretability question becomes more demanding on real data. In a synthetic environment, a prototype may be interpretable because the world itself is low-dimensional and model-generated. In historical data, a prototype is only useful if it corresponds to a recognizable market state and if its usage is stable enough to support economic interpretation.
+-
+-This creates three empirical questions that the original ProtoHedge paper leaves open.
+-
+-First, does ProtoHedge remain competitive with vanilla Deep Hedging on held-out historical data? A prototype bottleneck is only worthwhile if it preserves most of the risk-management quality of the black-box benchmark.
+-
+-Second, does the prototype structure behave sensibly under realistic constraints? A learned hedging policy can appear strong in aggregate while relying excessively on hard position limits or other boundary effects. In the empirical setting, such behavior is economically important, because a model that achieves performance only by living at its constraints is less credible than one that performs similarly in the interior of the feasible region.
+-
+-Third, does the interpretability claim survive contact with real data? If ProtoHedge is to be more than a proof-of-concept, then prototype usage should be concentrated enough to be meaningful, should vary in an intelligible way across market regimes, and should be relatable to actual historical episodes rather than only abstract feature vectors.
+-
+-For these reasons, empirical validation is not a minor extension but a necessary step in evaluating ProtoHedge as a hedging framework.
+-
+-\subsection{What This Paper Tests}
+-\label{subsec:what_this_paper_tests}
+-
+-This paper studies ProtoHedge precisely along that missing empirical axis. We evaluate it on real historical hedging episodes constructed from market data, compare it against classical baselines and vanilla Deep Hedging, and examine whether its prototype-based interpretability mechanism remains meaningful outside synthetic settings.
+-
+-Our empirical design focuses on two liabilities. The primary task is hedging a short at-the-money European call over fixed-length historical episodes. We then extend the same framework to a path-dependent short at-the-money Asian call, which tests whether the conclusions persist when the liability depends on the realized path of the underlying rather than only its terminal value. In both cases, the goal is not merely to report raw performance, but to assess the performance--interpretability tradeoff under realistic frictions and constraints.
+-
+-More specifically, the paper tests the following claims.
+-
+-\begin{enumerate}
+-    \item ProtoHedge remains competitive with vanilla Deep Hedging on real historical data across a panel of underlyings, rather than only in synthetic environments.
+-    \item ProtoHedge can improve or preserve downside risk characteristics without relying more heavily than vanilla on hard trading or position boundaries.
+-    \item The prototype layer remains empirically interpretable: usage is concentrated in a relatively small subset of prototypes, varies systematically across market regimes, and can be connected to recognizable historical states.
+-    \item These conclusions are not limited to a terminal European-call liability, but extend to a path-dependent Asian-call setting under the same evaluation framework.
+-\end{enumerate}
+-
+-This framing also clarifies what the paper does \emph{not} attempt to show. Our objective is not to argue that ProtoHedge universally dominates vanilla Deep Hedging on every metric and every market. Nor is our contribution to propose a new prototype architecture. Rather, our contribution is to test whether the central ProtoHedge idea --- interpretable prototype-based deep hedging --- remains viable and informative in an empirical setting where realistic market frictions, regime changes, and historical path structure matter.
++The original ProtoHedge study showed that prototype-based policies can remain
++competitive in Black--Scholes and stochastic-volatility simulations. Historical
++option data pose a materially different test: volatility and liquidity vary
++over time, option observations are noisy, trading is costly and constrained,
++and market paths contain regime shifts and discontinuities. The
++interpretability claim is also stronger on real data, because a useful
++prototype should correspond to a recognizable historical state rather than
++only to a simulator-generated configuration.
+ 
+-The remainder of the paper operationalizes that question. Section~\ref{sec:experimental_framework} describes the real-data experimental design, including the construction of historical episodes, the liabilities, the model set, and the training protocol. Section~\ref{sec:empirical_results} then reports the real-data results, including panel-level performance, position-bound behavior, interpretability diagnostics, and the path-dependent Asian-option extension.
++Accordingly, this paper evaluates whether ProtoHedge remains competitive with
++matched black-box Deep Hedging and transparent delta-style baselines while
++avoiding excessive reliance on hard position bounds. It also tests whether
++prototype use is concentrated, regime-dependent, and retrievable as concrete
++historical episodes. We conduct this evaluation for both terminal European
++short calls and path-dependent Asian short calls, allowing the
++performance--interpretability tradeoff to be assessed under two economically
++distinct liabilities.
+ 
+ 
+ 

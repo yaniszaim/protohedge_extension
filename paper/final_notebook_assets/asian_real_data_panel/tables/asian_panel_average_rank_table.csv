@@ -1,0 +1,19 @@
+paper_label,metric,rank
+Unhedged,gains_cvar05_avg,5.7
+Unhedged,gains_mean_avg,4.7
+Unhedged,pct_at_any_position_bound_avg,1.0
+Spot-Delta,gains_cvar05_avg,3.6
+Spot-Delta,gains_mean_avg,4.0
+Spot-Delta,pct_at_any_position_bound_avg,1.0
+Spot-Delta Band,gains_cvar05_avg,3.5
+Spot-Delta Band,gains_mean_avg,3.5
+Spot-Delta Band,pct_at_any_position_bound_avg,1.0
+Vanilla DH,gains_cvar05_avg,3.6666666666666665
+Vanilla DH,gains_mean_avg,3.0
+Vanilla DH,pct_at_any_position_bound_avg,1.3333333333333333
+ProtoHedge (Mean frontier),gains_cvar05_avg,2.3333333333333335
+ProtoHedge (Mean frontier),gains_mean_avg,1.4444444444444444
+ProtoHedge (Mean frontier),pct_at_any_position_bound_avg,4.111111111111111
+ProtoHedge (Tail frontier),gains_cvar05_avg,1.0
+ProtoHedge (Tail frontier),gains_mean_avg,3.2222222222222223
+ProtoHedge (Tail frontier),pct_at_any_position_bound_avg,4.666666666666667

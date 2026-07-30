@@ -56,6 +56,48 @@ def _jsonify(x):
     return x
 
 
+def _normalize_trade_bounds(bounds):
+    if bounds is None:
+        return {
+            "lbnd_as": -5.0,
+            "ubnd_as": 5.0,
+            "lbnd_av": -5.0,
+            "ubnd_av": 5.0,
+        }
+    if isinstance(bounds, dict):
+        return bounds
+    if isinstance(bounds, (list, tuple)) and len(bounds) == 2:
+        lbnd, ubnd = float(bounds[0]), float(bounds[1])
+        return {
+            "lbnd_as": lbnd,
+            "ubnd_as": ubnd,
+            "lbnd_av": lbnd,
+            "ubnd_av": ubnd,
+        }
+    raise TypeError(f"Unsupported trade_bounds format: {type(bounds)!r}")
+
+
+def _normalize_cumulative_bounds(bounds):
+    if bounds is None:
+        return {
+            "lbnd_delta_s": -2.0,
+            "ubnd_delta_s": 2.0,
+            "lbnd_delta_v": -2.0,
+            "ubnd_delta_v": 2.0,
+        }
+    if isinstance(bounds, dict):
+        return bounds
+    if isinstance(bounds, (list, tuple)) and len(bounds) == 2:
+        lbnd, ubnd = float(bounds[0]), float(bounds[1])
+        return {
+            "lbnd_delta_s": lbnd,
+            "ubnd_delta_s": ubnd,
+            "lbnd_delta_v": lbnd,
+            "ubnd_delta_v": ubnd,
+        }
+    raise TypeError(f"Unsupported cumulative_bounds format: {type(bounds)!r}")
+
+
 def split_indices(n_paths, train_frac=0.70, val_frac=0.15, seed=1234, samples=None):
     rng = np.random.default_rng(int(seed))
     indices = rng.permutation(int(n_paths))
@@ -90,19 +132,13 @@ def world_cfg(
     position_bounds=True,
     trade_bounds=None,
     cumulative_bounds=None,
+    liability_type="european_call",
+    asian_average_type="arithmetic",
+    asian_start_step=0,
+    asian_end_step=None,
 ):
-    trade_bounds = trade_bounds or {
-        "lbnd_as": -5.0,
-        "ubnd_as": 5.0,
-        "lbnd_av": -5.0,
-        "ubnd_av": 5.0,
-    }
-    cumulative_bounds = cumulative_bounds or {
-        "lbnd_delta_s": -2.0,
-        "ubnd_delta_s": 2.0,
-        "lbnd_delta_v": -2.0,
-        "ubnd_delta_v": 2.0,
-    }
+    trade_bounds = _normalize_trade_bounds(trade_bounds)
+    cumulative_bounds = _normalize_cumulative_bounds(cumulative_bounds)
     cfg = {
         "world_type": "real",
         "data_path": str(data_path),
@@ -112,6 +148,10 @@ def world_cfg(
         "normalize": bool(normalize),
         "hedge_mode": str(hedge_mode),
         "position_bounds": bool(position_bounds),
+        "liability_type": str(liability_type),
+        "asian_average_type": str(asian_average_type),
+        "asian_start_step": int(asian_start_step),
+        "asian_end_step": asian_end_step,
         **trade_bounds,
     }
     if position_bounds:
@@ -414,6 +454,10 @@ def run_real_data_sweep(
     position_bounds=True,
     trade_bounds=None,
     cumulative_bounds=None,
+    liability_type="european_call",
+    asian_average_type="arithmetic",
+    asian_start_step=0,
+    asian_end_step=None,
     lr=1e-3,
     batch_size=None,
     epoch_refresh=None,
@@ -449,6 +493,10 @@ def run_real_data_sweep(
         "position_bounds": position_bounds,
         "trade_bounds": trade_bounds,
         "cumulative_bounds": cumulative_bounds,
+        "liability_type": liability_type,
+        "asian_average_type": asian_average_type,
+        "asian_start_step": asian_start_step,
+        "asian_end_step": asian_end_step,
     }
 
     all_rows = []
@@ -497,6 +545,10 @@ def run_real_data_sweep(
                         "position_bounds": position_bounds,
                         "trade_bounds": trade_bounds,
                         "cumulative_bounds": cumulative_bounds,
+                        "liability_type": liability_type,
+                        "asian_average_type": asian_average_type,
+                        "asian_start_step": asian_start_step,
+                        "asian_end_step": asian_end_step,
                         "checkpoint_stage": stage,
                         "runs": run_records,
                     }
@@ -1155,6 +1207,10 @@ def main():
     parser.add_argument("--weighted", nargs="+", default=["true", "false"])
     parser.add_argument("--learn-weights", nargs="+", default=["false"])
     parser.add_argument("--risk-measures", nargs="+", default=["cvar"])
+    parser.add_argument("--liability-type", default="european_call")
+    parser.add_argument("--asian-average-type", default="arithmetic")
+    parser.add_argument("--asian-start-step", type=int, default=0)
+    parser.add_argument("--asian-end-step", type=_parse_optional_int, default=None)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--epoch-refresh", type=int, default=None)
     parser.add_argument("--max-points", type=int, default=None)
@@ -1187,6 +1243,10 @@ def main():
         weighted_similarity_options=_parse_bool_list(args.weighted),
         learn_distance_feature_weights_options=_parse_bool_list(args.learn_weights),
         risk_measures=tuple(args.risk_measures),
+        liability_type=args.liability_type,
+        asian_average_type=args.asian_average_type,
+        asian_start_step=args.asian_start_step,
+        asian_end_step=args.asian_end_step,
         lr=args.lr,
         epoch_refresh=args.epoch_refresh,
         selection_metric=args.selection_metric,

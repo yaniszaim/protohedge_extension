@@ -53,6 +53,36 @@ def _resolve_data_path(path):
     raise FileNotFoundError(f"Could not find real-data path '{path}'")
 
 
+def _compute_short_call_payoff(
+    spot,
+    strike,
+    liability_type="european_call",
+    asian_average_type="arithmetic",
+    asian_start_step=0,
+    asian_end_step=None,
+    dtype=np.float32,
+):
+    liability_type = str(liability_type).lower()
+    if liability_type in ["european", "european_call", "atm_short_call"]:
+        underlying = spot[:, -1]
+    elif liability_type in ["asian", "asian_call", "asian_short_call"]:
+        avg_type = str(asian_average_type).lower()
+        if avg_type not in ["arithmetic", "mean"]:
+            raise ValueError(f"Unsupported asian_average_type '{asian_average_type}'")
+        n_steps = int(spot.shape[1])
+        start = max(0, int(asian_start_step))
+        end = n_steps if asian_end_step in [None, ""] else min(n_steps, int(asian_end_step))
+        if end <= start:
+            raise ValueError(
+                f"Invalid Asian averaging window start={start}, end={end}, n_steps={n_steps}"
+            )
+        underlying = spot[:, start:end].mean(axis=1)
+    else:
+        raise ValueError(f"Unknown liability_type '{liability_type}'")
+    payoff = -np.maximum(underlying - strike, 0.0).astype(dtype)
+    return payoff, underlying.astype(dtype)
+
+
 class RealWorld_Spot_ATM_Torch(object):
     """
     Torch equivalent of ``world_real.RealWorld_Spot_ATM``.
@@ -77,6 +107,29 @@ class RealWorld_Spot_ATM_Torch(object):
         lbnd_av = config("lbnd_av", -5.0, float, help="Lower bound for option trades")
         dt = config("dt", 1.0 / 252.0, float, help="Time step size")
         strike_mode = config("strike_mode", "atm_start", str, help="Strike mode: atm_start or unit")
+        liability_type = config(
+            "liability_type",
+            "european_call",
+            str,
+            help="Liability payoff: european_call or asian_call",
+        )
+        asian_average_type = config(
+            "asian_average_type",
+            "arithmetic",
+            str,
+            help="Asian averaging type (currently arithmetic only)",
+        )
+        asian_start_step = config(
+            "asian_start_step",
+            0,
+            int,
+            help="First step index included in the Asian averaging window",
+        )
+        asian_end_step = config(
+            "asian_end_step",
+            None,
+            help="Exclusive end step of the Asian averaging window; defaults to full path",
+        )
         normalize = config("normalize", False, bool, help="Normalize prices by each path's initial spot")
         hedge_mode = config("hedge_mode", "step", str, help="Hedge PnL mode: step or terminal")
         position_bounds = config("position_bounds", False, bool, help="Expose cumulative position bounds to the gym")
@@ -124,6 +177,10 @@ class RealWorld_Spot_ATM_Torch(object):
         self.normalize = bool(normalize)
         self.hedge_mode = str(hedge_mode).lower()
         self.position_bounds = bool(position_bounds)
+        self.liability_type = str(liability_type).lower()
+        self.asian_average_type = str(asian_average_type).lower()
+        self.asian_start_step = int(asian_start_step)
+        self.asian_end_step = asian_end_step
         self.timeline = np.linspace(0.0, self.nSteps * self.dt, self.nSteps + 1, dtype=np.float32)
 
         spot_raw = data[:, :, 0]
@@ -190,7 +247,15 @@ class RealWorld_Spot_ATM_Torch(object):
         else:
             raise ValueError(f"Unknown strike_mode '{strike_mode}'")
 
-        payoff = -np.maximum(spot[:, -1] - strike, 0.0).astype(self.np_dtype)
+        payoff, liability_underlying = _compute_short_call_payoff(
+            spot=spot,
+            strike=strike,
+            liability_type=self.liability_type,
+            asian_average_type=self.asian_average_type,
+            asian_start_step=self.asian_start_step,
+            asian_end_step=self.asian_end_step,
+            dtype=self.np_dtype,
+        )
 
         self.data = pdct()
         self.data.market = pdct(
@@ -232,6 +297,8 @@ class RealWorld_Spot_ATM_Torch(object):
             per_path=pdct(),
         )
         self.data.features.per_path[DIM_DUMMY] = (payoff * 0.0)[:, np.newaxis]
+        self.data.features.per_path["strike"] = strike[:, np.newaxis]
+        self.data.features.per_path["liability_underlying"] = liability_underlying[:, np.newaxis]
         assert_iter_not_is_nan(self.data, "data")
 
         self.torch_data = dict(features=self.data.features, market=self.data.market)
@@ -244,6 +311,8 @@ class RealWorld_Spot_ATM_Torch(object):
             drift=np.zeros((self.nSamples, self.nSteps), dtype=self.np_dtype),
             rvol=np.zeros((self.nSamples, self.nSteps), dtype=self.np_dtype),
             ivol=ivol,
+            strike=strike,
+            liability_underlying=liability_underlying,
         )
         assert_iter_not_is_nan(self.details, "details")
 

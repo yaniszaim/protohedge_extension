@@ -1,0 +1,63 @@
+\begin{tabular}{llrrrrrr}
+\toprule
+ticker & paper_label & gains_mean_avg & gains_mean_std & gains_cvar05_avg & shortfall_prob_avg & pct_at_any_position_bound_avg & passes_robust_screen \\
+\midrule
+AAPL & Unhedged & -0.020650 & NaN & -0.080852 & 0.559211 & 0.000000 & True \\
+AAPL & Spot-Delta & -0.019956 & NaN & -0.075825 & 0.804825 & 0.000000 & True \\
+AAPL & Spot-Delta Band & -0.020070 & NaN & -0.075484 & 0.815789 & 0.000000 & True \\
+IWM & Unhedged & -0.015521 & 0.000101 & -0.077279 & 0.595940 & 0.000000 & True \\
+IWM & Spot-Delta & -0.015513 & 0.000189 & -0.075485 & 0.806156 & 0.000000 & True \\
+IWM & Spot-Delta Band & -0.015483 & 0.000161 & -0.075180 & 0.815324 & 0.000000 & True \\
+IWM & Vanilla DH & -0.015436 & 0.000100 & -0.075057 & 0.973150 & 0.000000 & True \\
+IWM & ProtoHedge (Mean frontier) & -0.015112 & 0.000416 & -0.071476 & 0.934512 & 0.000000 & True \\
+IWM & ProtoHedge (Tail frontier) & -0.015112 & 0.000416 & -0.071476 & 0.934512 & 0.000000 & True \\
+NVDA & Unhedged & -0.038251 & 0.003071 & -0.180119 & 0.630925 & 0.000000 & True \\
+NVDA & Spot-Delta & -0.037105 & 0.003235 & -0.170573 & 0.825175 & 0.000000 & True \\
+NVDA & Spot-Delta Band & -0.036997 & 0.003212 & -0.170122 & 0.826729 & 0.000000 & True \\
+NVDA & Vanilla DH & -0.037544 & 0.001495 & -0.167153 & 0.949495 & 0.166667 & True \\
+NVDA & ProtoHedge (Mean frontier) & -0.036376 & 0.002126 & -0.177241 & 0.842269 & 0.167541 & True \\
+NVDA & ProtoHedge (Tail frontier) & -0.037490 & 0.001886 & -0.163549 & 0.957265 & 0.194872 & True \\
+QQQ & Unhedged & -0.015992 & 0.000190 & -0.067649 & 0.676490 & 0.000000 & True \\
+QQQ & Spot-Delta & -0.015683 & 0.000382 & -0.064436 & 0.850033 & 0.000000 & True \\
+QQQ & Spot-Delta Band & -0.015684 & 0.000336 & -0.064563 & 0.852652 & 0.000000 & True \\
+QQQ & Vanilla DH & -0.015366 & 0.000109 & -0.062710 & 0.927963 & 0.000000 & True \\
+QQQ & ProtoHedge (Mean frontier) & -0.015575 & 0.000240 & -0.058335 & 0.918468 & 0.000000 & True \\
+QQQ & ProtoHedge (Tail frontier) & -0.015575 & 0.000240 & -0.058335 & 0.918468 & 0.000000 & True \\
+SPY & Unhedged & -0.012198 & 0.000218 & -0.055393 & 0.685658 & 0.000000 & True \\
+SPY & Spot-Delta & -0.012040 & 0.000131 & -0.054190 & 0.852652 & 0.000000 & True \\
+SPY & Spot-Delta Band & -0.012060 & 0.000151 & -0.054145 & 0.856582 & 0.000000 & True \\
+SPY & Vanilla DH & -0.011982 & 0.000271 & -0.053213 & 0.952849 & 0.000000 & True \\
+SPY & ProtoHedge (Mean frontier) & -0.012015 & 0.000150 & -0.052223 & 0.919450 & 0.002292 & True \\
+SPY & ProtoHedge (Tail frontier) & -0.012583 & 0.000939 & -0.051873 & 0.969876 & 0.057286 & True \\
+TLT & Unhedged & -0.007845 & 0.000925 & -0.045692 & 0.491433 & 0.000000 & True \\
+TLT & Spot-Delta & -0.008172 & 0.001115 & -0.043486 & 0.778816 & 0.000000 & True \\
+TLT & Spot-Delta Band & -0.008070 & 0.001021 & -0.043702 & 0.793614 & 0.000000 & True \\
+TLT & Vanilla DH & -0.007970 & 0.000824 & -0.044874 & 0.971184 & 0.000000 & True \\
+TLT & ProtoHedge (Mean frontier) & -0.007346 & 0.001020 & -0.043936 & 0.830218 & 0.002414 & True \\
+TLT & ProtoHedge (Tail frontier) & -0.007386 & 0.000617 & -0.042743 & 0.872274 & 0.006815 & True \\
+XLE & Unhedged & -0.015267 & 0.000683 & -0.092833 & 0.493416 & 0.000000 & True \\
+XLE & Spot-Delta & -0.015522 & 0.000813 & -0.091291 & 0.756757 & 0.000000 & True \\
+XLE & Spot-Delta Band & -0.015430 & 0.000752 & -0.091414 & 0.765073 & 0.000000 & True \\
+XLE & Vanilla DH & -0.015382 & 0.000664 & -0.088240 & 0.968815 & 0.000000 & True \\
+XLE & ProtoHedge (Mean frontier) & -0.015263 & 0.000652 & -0.090634 & 0.876646 & 0.002252 & True \\
+XLE & ProtoHedge (Tail frontier) & -0.015683 & 0.000422 & -0.085528 & 0.914761 & 0.081428 & True \\
+XLF & Unhedged & -0.013344 & 0.000780 & -0.066261 & 0.600877 & 0.000000 & True \\
+XLF & Spot-Delta & -0.013090 & 0.000841 & -0.062577 & 0.799708 & 0.000000 & True \\
+XLF & Spot-Delta Band & -0.013059 & 0.000835 & -0.061926 & 0.804094 & 0.000000 & True \\
+XLF & Vanilla DH & -0.013256 & 0.000730 & -0.064256 & 0.924708 & 0.000000 & True \\
+XLF & ProtoHedge (Mean frontier) & -0.013181 & 0.000827 & -0.062390 & 0.880848 & 0.000037 & True \\
+XLF & ProtoHedge (Tail frontier) & -0.013348 & 0.001096 & -0.061647 & 0.924708 & 0.001371 & True \\
+XLK & Unhedged & -0.015334 & 0.000213 & -0.065845 & 0.644860 & 0.000000 & True \\
+XLK & Spot-Delta & -0.015172 & 0.000126 & -0.060948 & 0.845794 & 0.000000 & True \\
+XLK & Spot-Delta Band & -0.015162 & 0.000163 & -0.061191 & 0.848131 & 0.000000 & True \\
+XLK & Vanilla DH & -0.014945 & 0.000188 & -0.061751 & 0.958723 & 0.000000 & True \\
+XLK & ProtoHedge (Mean frontier) & -0.014761 & 0.000367 & -0.059093 & 0.890966 & 0.000740 & True \\
+XLK & ProtoHedge (Tail frontier) & -0.014761 & 0.000367 & -0.059093 & 0.890966 & 0.000740 & True \\
+XLV & Unhedged & -0.010391 & 0.000837 & -0.054886 & 0.568858 & 0.000000 & True \\
+XLV & Spot-Delta & -0.010395 & 0.001023 & -0.051183 & 0.797340 & 0.000000 & True \\
+XLV & Spot-Delta Band & -0.010386 & 0.001050 & -0.051206 & 0.798122 & 0.000000 & True \\
+XLV & Vanilla DH & -0.010329 & 0.000824 & -0.052205 & 0.944444 & 0.000000 & True \\
+XLV & ProtoHedge (Mean frontier) & -0.010140 & 0.000836 & -0.049266 & 0.845070 & 0.001174 & True \\
+XLV & ProtoHedge (Tail frontier) & -0.010140 & 0.000836 & -0.049266 & 0.845070 & 0.001174 & True \\
+\bottomrule
+\end{tabular}

@@ -97,7 +97,7 @@ def compare_hedges(hedge_proto, hedge_bs):
     plt.show()
 
 
-def plot_blackscholes(world, gym, config, strike=1.0, iscall=True):
+def plot_blackscholes(world, gym, config, strike=1.0, iscall=True, save_prefix=None, dpi=160, show=True):
     """
     Torch port of deephedging.plot_bs_hedge.plot_blackscholes.
     Produces the same BS comparison diagnostics as the original TF notebook.
@@ -322,4 +322,11 @@ def plot_blackscholes(world, gym, config, strike=1.0, iscall=True):
 
     fig_any.tight_layout()
     fig_path.tight_layout()
-    plt.show()
+
+    if save_prefix is not None:
+        fig_any.savefig(f"{save_prefix}_summary.png", dpi=dpi, bbox_inches="tight")
+        fig_path.savefig(f"{save_prefix}_paths.png", dpi=dpi, bbox_inches="tight")
+
+    if show:
+        plt.show()
+    return {"summary_fig": fig_any, "path_fig": fig_path}

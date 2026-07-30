@@ -217,7 +217,7 @@ def _plot_activity_by_spot_time(ax, weights, actions, spot_all, which_inst, with
     ax.legend()
 
 
-def plot_full_diagnostics(results):
+def plot_full_diagnostics(results, save_prefix=None, dpi=160, show=True):
     history = results["history"]
     train = {k: _np(v) for k, v in results["training_result"].items()}
     val = {k: _np(v) for k, v in results["val_result"].items()}
@@ -424,4 +424,8 @@ def plot_full_diagnostics(results):
         ax.axis("off")
 
     plt.tight_layout()
-    plt.show()
+    if save_prefix is not None:
+        fig.savefig(f"{save_prefix}.png", dpi=dpi, bbox_inches="tight")
+    if show:
+        plt.show()
+    return fig

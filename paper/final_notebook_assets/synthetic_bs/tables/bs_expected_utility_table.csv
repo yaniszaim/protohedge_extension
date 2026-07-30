@@ -1,0 +1,4 @@
+model,expected_utility
+Unhedged,-0.10175847262144089
+Vanilla DH,-0.05998806655406952
+ProtoHedge (weighted),-0.05823679268360138

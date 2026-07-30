@@ -1,0 +1,3 @@
+proto_label,n_tickers,wins_mean,wins_cvar,lower_bound_occupancy,avg_mean_gap_vs_vanilla,avg_cvar_gap_vs_vanilla,avg_bound_gap_vs_vanilla
+ProtoHedge (Mean frontier),10,10,7,4,0.0006254158293207705,0.0010295535127321787,-0.028898461278963533
+ProtoHedge (Tail frontier),10,6,10,6,0.00013191417480510058,0.0026719296971956658,-0.047080698482933656
