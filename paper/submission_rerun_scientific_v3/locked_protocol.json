@@ -1,0 +1,49 @@
+{
+  "run_version": "submission_rerun_scientific_v3",
+  "created_utc": "2026-07-31T15:43:00.695221+00:00",
+  "tickers": [
+    "AAPL",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "XLE",
+    "XLF",
+    "XLK",
+    "XLV"
+  ],
+  "liabilities": [
+    "european_call",
+    "asian_call"
+  ],
+  "seeds": [
+    1234,
+    2345,
+    3456
+  ],
+  "epochs": 800,
+  "prototype_counts": [
+    10,
+    25,
+    50,
+    100
+  ],
+  "prototype_sources": [
+    "spot_delta",
+    "vanilla"
+  ],
+  "weighted_similarity_options": [
+    false,
+    true
+  ],
+  "outcome_definition": "liability-offset-excluding-premium-v1",
+  "premium_included": false,
+  "hedge_accounting_version": "inventory-step-v1",
+  "temporal_split_version": "chronological-prewindow-v1",
+  "option_path_version": "fixed-optionid-v1",
+  "model_selection_version": "validation-only-across-seeds-v1",
+  "asian_payoff_state_version": "asian-running-average-moneyness-v1",
+  "bootstrap_repetitions": 2000,
+  "bootstrap_block_length": 20
+}

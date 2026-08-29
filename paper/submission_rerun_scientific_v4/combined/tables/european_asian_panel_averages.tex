@@ -1,0 +1,18 @@
+\begin{tabular}{lrrrrrrll}
+\toprule
+paper\_label & n\_tickers & liability\_offset\_mean\_avg & liability\_offset\_cvar05\_avg & liability\_offset\_rmse\_avg & liability\_offset\_downside\_deviation\_avg & pct\_at\_any\_position\_bound\_avg & liability\_type & liability\_label \\
+\midrule
+Unhedged & 10 & -0.031696 & -0.137725 & 0.051082 & 0.051082 & 0.000000 & european\_call & European \\
+Spot-Delta & 10 & -0.030281 & -0.070542 & 0.033481 & 0.033481 & 0.000014 & european\_call & European \\
+Spot-Delta Band & 10 & -0.029875 & -0.073046 & 0.033661 & 0.033661 & 0.000000 & european\_call & European \\
+Deep Hedging & 10 & -0.023872 & -0.113276 & 0.041646 & 0.041132 & 0.390464 & european\_call & European \\
+ProtoHedge (Validation-Mean) & 10 & -0.021432 & -0.094189 & 0.035060 & 0.033987 & 0.053440 & european\_call & European \\
+ProtoHedge (Validation-Tail) & 10 & -0.024793 & -0.084112 & 0.033853 & 0.033369 & 0.041902 & european\_call & European \\
+Unhedged & 10 & -0.018544 & -0.082546 & 0.030284 & 0.030284 & 0.000000 & asian\_call & Asian \\
+Spot-Delta & 10 & -0.017129 & -0.065298 & 0.029230 & 0.027530 & 0.000014 & asian\_call & Asian \\
+Spot-Delta Band & 10 & -0.016724 & -0.066718 & 0.028730 & 0.027211 & 0.000000 & asian\_call & Asian \\
+Deep Hedging & 10 & -0.016210 & -0.082270 & 0.030993 & 0.030043 & 0.393394 & asian\_call & Asian \\
+ProtoHedge (Validation-Mean) & 10 & -0.012483 & -0.085456 & 0.029431 & 0.027767 & 0.023007 & asian\_call & Asian \\
+ProtoHedge (Validation-Tail) & 10 & -0.014334 & -0.077504 & 0.026745 & 0.026035 & 0.016236 & asian\_call & Asian \\
+\bottomrule
+\end{tabular}

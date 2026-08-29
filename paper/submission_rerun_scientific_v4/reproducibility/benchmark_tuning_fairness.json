@@ -1,0 +1,57 @@
+{
+  "analysis_version": "historical-evidence-v1",
+  "audit_conclusion": "Validation-only ProtoHedge tuning is leakage-safe, but the search budget is asymmetric and 12 Deep Hedging fits select the untrained initial state. A locked checkpoint-selection sensitivity is required before making a definitive superiority claim.",
+  "deep_hedging": {
+    "architecture": {
+      "activation": "softplus",
+      "depth": 3,
+      "width": 20
+    },
+    "architecture_candidates_per_seed_ticker_liability": 1,
+    "checkpoint_candidates": 801,
+    "initial_state_is_checkpoint_candidate": true
+  },
+  "protohedge": {
+    "hyperparameter_candidates_per_seed_ticker_liability": 16,
+    "prototype_counts": [
+      10,
+      25,
+      50,
+      100
+    ],
+    "prototype_sources": [
+      "spot_delta",
+      "vanilla"
+    ],
+    "test_set_used_for_selection": false,
+    "validation_selection_objectives": {
+      "best_screened_proto_cvar05": "liability_offset_cvar05_avg",
+      "best_screened_proto_mean": "liability_offset_mean_avg"
+    },
+    "weighted_similarity_options": [
+      false,
+      true
+    ]
+  },
+  "shared_training_budget": {
+    "epochs": 800,
+    "learning_rate": 0.001,
+    "seeds": [
+      1234,
+      2345,
+      3456
+    ]
+  },
+  "spot_delta_band": {
+    "band_grid": [
+      0.0,
+      0.01,
+      0.02,
+      0.05,
+      0.1,
+      0.15
+    ],
+    "selection_metric": "liability_offset_mean",
+    "validation_candidates_per_seed_ticker_liability": 6
+  }
+}

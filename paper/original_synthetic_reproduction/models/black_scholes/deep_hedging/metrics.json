@@ -1,0 +1,43 @@
+{
+  "elapsed_seconds": 3440.8342089653015,
+  "environment": "black_scholes",
+  "epochs": 800,
+  "expected_utility_empirical_cvar50": -0.0583462017834208,
+  "expected_utility_frozen_training_y": -0.058347063524276606,
+  "generated_prototype_metadata": {
+    "artifact": "/Users/yaniszaim/deephedging/paper/original_synthetic_reproduction/generated_inputs/black_scholes/prototypes_100_nodrift.pkl",
+    "extraction_samples": 10000,
+    "extraction_steps": 20,
+    "feature_order": [
+      "delta",
+      "price",
+      "time_left"
+    ],
+    "kmeans_n_init": "auto",
+    "kmeans_random_state": 0,
+    "model_seed": 1,
+    "n_prototypes": 100,
+    "provenance_note": "The paper notebook names prototypes_100_nodrift.pkl, but that file is absent from every Git revision. This deterministic regeneration uses the notebook's documented scaler, KMeans, and medoid procedure.",
+    "scikit_learn_version": "1.6.1",
+    "sha256": "f85b544089ea914b79f95364dd9bfceb4eefbcd8bf213925b8413d2bed4ad6a8",
+    "source_commit": "aedb450606220462d99c7ca333ab51b600c423b1",
+    "source_model": "reproduced deep_hedging checkpoint",
+    "world_drift": 0.0
+  },
+  "mean_payoff": -0.05087906725406644,
+  "mean_terminal_gain": -0.05077207305990157,
+  "model": "deep_hedging",
+  "model_seed": 1,
+  "prototype_path": null,
+  "prototype_sha256": null,
+  "source_commit": "aedb450606220462d99c7ca333ab51b600c423b1",
+  "tensorflow_version": "2.13.0",
+  "test_samples": 5000,
+  "test_seed": 1,
+  "trainable_parameters": 943,
+  "training_samples": 10000,
+  "unhedged_utility_empirical_cvar50": -0.10175813450813309,
+  "unhedged_utility_frozen_training_y": -0.10176459363382301,
+  "validation_samples": 1000,
+  "world_seed": 2312414312
+}

@@ -5,6 +5,7 @@ PyTorch version of the Deep Hedging gym.
 import torch
 import torch.nn as nn
 
+from deephedging.hedge_accounting import uses_step_returns
 from deephedging.prototype_loss_torch import prototype_diversity_loss, prototype_l2_loss
 
 
@@ -21,6 +22,7 @@ class DeepHedgingGymTorch(nn.Module):
         device="cpu",
     ):
         super().__init__()
+        device = torch.device(device)
         self.agent = agent.to(device)
         self.objective = objective.to(device)
         self.feature_names = list(feature_names or ["price", "delta", "time_left"])
@@ -64,6 +66,7 @@ class DeepHedgingGymTorch(nn.Module):
         ubnd_delta = market["ubnd_delta"].to(self.device) if "ubnd_delta" in market else None
         lbnd_delta = market["lbnd_delta"].to(self.device) if "lbnd_delta" in market else None
         payoff = market["payoff"].to(self.device)
+        step_return_accounting = uses_step_returns(market)
 
         if payoff.ndim > 1:
             payoff = payoff.squeeze(-1)
@@ -96,9 +99,13 @@ class DeepHedgingGymTorch(nn.Module):
                 )
                 action = bounded_delta - delta
 
-            pnl = pnl + torch.sum(action * hedges[:, t, :], dim=1)
+            next_delta = delta + action
+            # One-step returns accrue to the full position held over the
+            # interval. Trade-to-terminal returns accrue only to the new trade.
+            pnl_position = next_delta if step_return_accounting else action
+            pnl = pnl + torch.sum(pnl_position * hedges[:, t, :], dim=1)
             cost = cost + torch.sum(torch.abs(action) * trading_cost[:, t, :], dim=1)
-            delta = delta + action
+            delta = next_delta
             action_prev = action
             actions.append(action[:, None, :])
 
@@ -130,6 +137,11 @@ class DeepHedgingGymTorch(nn.Module):
             "delta_penalty": delta_penalty,
             "utility": objective_out["utility"],
             "utility0": objective_out["utility0"],
+            "liability_offset": objective_out.get(
+                "liability_offset",
+                objective_out["gains"],
+            ),
+            # Backward-compatible alias used by the original plotting code.
             "gains": objective_out["gains"],
             "payoff": payoff,
             "pnl": pnl,

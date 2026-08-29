@@ -1,19 +1,13 @@
 # Fdb version 4
-["bibtex Final_Paper"] 0 "Final_Paper.aux" "Final_Paper.bbl" "Final_Paper" 1785287696.87608 0
+["bibtex Final_Paper"] 1785460805.33601 "Final_Paper.aux" "Final_Paper.bbl" "Final_Paper" 1785460807.24658 0
+  "./references.bib" 1785460133.18056 2549 62fc92395de908e6be86e95f36f28995 ""
   "/usr/local/texlive/2024/texmf-dist/bibtex/bst/acmart/ACM-Reference-Format.bst" 1680299675 90332 18dc4e5c9b5c2ddd337e9f97727d04f1 ""
-  "Final_Paper.aux" 0 -1 0 "pdflatex"
-  "sample-base.bib" 0 -1 0 ""
+  "Final_Paper.aux" 1785460806.73874 15318 2d2ca6da48bd4d02e5d446695dea30ba "pdflatex"
   (generated)
   "Final_Paper.bbl"
   "Final_Paper.blg"
   (rewritten before read)
-["pdflatex"] 1785287694.52148 "Final_Paper.tex" "Final_Paper.pdf" "Final_Paper" 1785287696.87626 0
-  "../paper/final_notebook_assets/real_data_panel/panel_bound_heatmap.png" 1784330246.86843 129969 54a841e6251c3cd553d3be592f5bc834 ""
-  "../paper/final_notebook_assets/real_data_panel/panel_cvar_heatmap.png" 1784330246.63657 154579 3283d21f01000e4be4180a7dfb91d0fe ""
-  "../paper/final_notebook_assets/real_data_panel/panel_mean_heatmap.png" 1784330246.45409 144152 21889e05f9dab900280600f0127f1f23 ""
-  "../paper/final_notebook_assets/real_data_panel/qqq_nearest_historical_episodes.png" 1784330250.5819 234120 aaffe519aca5523a0c6c6e1620d2b1b2 ""
-  "../paper/final_notebook_assets/real_data_panel/qqq_prototype_concentration.png" 1784330250.24486 63778 d8facc6bc99f515948dcb54c63e02190 ""
-  "../paper/final_notebook_assets/real_data_panel/qqq_vol_regime_prototype_usage.png" 1784330249.99919 69231 4ded8bbef8320d273f8683255a4f358f ""
+["pdflatex"] 1785460805.48323 "Final_Paper.tex" "Final_Paper.pdf" "Final_Paper" 1785460807.24677 0
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-4.enc" 1558214095 7693 0f2dce6d313c82989ec3a67fc24df2a0 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_25tcsq.enc" 1490131464 2921 8ca0eb0831f9bc5da080d3697cfe67bf ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_76gpa5.enc" 1490131464 2933 9ad527ce78d7c5fa0a642dead095f172 ""
@@ -79,7 +73,6 @@
   "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/LibertineMathMI5.pfb" 1569879884 36138 54cca9a189ecac91365757cd31373770 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/LibertineMathMI7.pfb" 1575323900 36894 0893e50696ed2a200373455c6aff080e ""
   "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/LibertineMathRM.pfb" 1569879884 17941 ddba6afdead1586dc42d18763749eddd ""
-  "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/NewTXMI.pfb" 1572128992 32409 1452fa0ce4fabfb48acd5d077e296f6d ""
   "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/txexs.pfb" 1621283831 33424 f912ebe54685d0a65d3c046e3d517e38 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb" 1635022465 56686 b959be5e2e4a0232f5aa4c1c4be4574a ""
   "/usr/local/texlive/2024/texmf-dist/fonts/type1/public/newtx/txsym.pfb" 1692649180 44726 c0c4f2d62278d1adbb6a666ba2cb0447 ""
@@ -93,6 +86,7 @@
   "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/libertine/LinLibertineTI-tlf-t1.vf" 1490131464 1768 b3bfd8ed1fe2dce5fd19610abe4c3dbe ""
   "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/newtx/ntxexx.vf" 1699567298 1716 73c8d39d4c3ace9ec98a8f066bb3b494 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/newtx/ntxsy.vf" 1699567298 1804 0d5405efa3655e9ce85ebf4efa9b7f0b ""
+  "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/newtx/ntxsy5.vf" 1699567298 1852 729c2bf5aecca1c077a058610b5c0949 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/newtx/ntxsy7.vf" 1699567298 1932 eb3a33127536e5b93d4fbe6076112b0d ""
   "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/newtx/nxlmi.vf" 1569879884 2744 3e5ba39e1559219ae379b7645e2f9524 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/vf/public/newtx/nxlmi5.vf" 1569879884 2740 c8b5f27ae076b0aa71375fdbd19167ca ""
@@ -219,10 +213,10 @@
   "/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1727816388.68125 5467645 128b85b7cde5f5edc5cb7f1dd7ff8736 ""
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1727816328 8221429 0971c44fcd0e903d4e7d29dde805e0c4 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
-  "Final_Paper.aux" 1785287696.4646 14037 4b06212b7bbe20a6de5583144a5a2cbd "pdflatex"
-  "Final_Paper.bbl" 0 -1 0 "bibtex Final_Paper"
-  "Final_Paper.out" 1785287696.46597 5371 abca7799a9d8f848d00790f666a20eee "pdflatex"
-  "Final_Paper.tex" 1785287677.9809 58925 e521da3446f8ddf7da59cf1294ba87af ""
+  "Final_Paper.aux" 1785460806.73874 15318 2d2ca6da48bd4d02e5d446695dea30ba "pdflatex"
+  "Final_Paper.bbl" 1785460805.47628 5778 419f50061455c4a82f162a71d56a0bd0 "bibtex Final_Paper"
+  "Final_Paper.out" 1785460806.74012 5624 cd3aa78efa59eade0b04af0778ec2306 "pdflatex"
+  "Final_Paper.tex" 1785460793.15837 74220 39241305cfea75d8e9ff5b05773e2b11 ""
   (generated)
   "Final_Paper.aux"
   "Final_Paper.log"

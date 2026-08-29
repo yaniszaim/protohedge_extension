@@ -10,6 +10,7 @@ from .base import Logger, Config, tf, dh_dtype, pdct, tf_make_dim, Int, Float, t
 from .agents import AgentFactory
 from .objectives import MonetaryUtility
 from .softclip import DHSoftClip
+from .hedge_accounting import uses_step_returns
 from collections.abc import Mapping
 from cdxbasics.util import uniqueHash
 import numpy as np
@@ -86,7 +87,9 @@ class VanillaDeepHedgingGym(tf.keras.Model):
                 The data for the gym.
                 It takes the following data with M=number of time steps, N=number of hedging instruments.
                 First coordinate is number of samples in this batch.
-                    market, hedges :            (,M,N) the returns of the hedges, per step, per instrument
+                    market, hedges :            (,M,N) hedge returns, per decision and instrument.
+                                                        The original convention is trade-to-liquidation;
+                                                        marked real-data worlds contain one-step returns.
                     market, cost:               (,M,N) proportional cost for trading, per step, per instrument
                     market, ubnd_a and lbnd_a : (,M,N) min max action, per step, per instrument
                     market, payoff:             (,M) terminal payoff of the underlying portfolio
@@ -134,6 +137,7 @@ class VanillaDeepHedgingGym(tf.keras.Model):
         ubnd_a       = data['market']['ubnd_a']
         lbnd_a       = data['market']['lbnd_a']
         payoff       = data['market']['payoff']
+        step_return_accounting = uses_step_returns(data['market'])
         payoff       = payoff[:,0] if payoff.shape.as_list() == [nBatch,1] else payoff # handle tf<=2.6        
         _log.verify( trading_cost.shape.as_list() == [nBatch, nSteps, nInst], "data['market']['cost']: expected shape %s, found %s", [nBatch, nSteps, nInst], trading_cost.shape.as_list() )
         _log.verify( ubnd_a.shape.as_list() == [nBatch, nSteps, nInst], "data['market']['ubnd_a']: expected shape %s, found %s", [nBatch, nSteps, nInst], ubnd_a.shape.as_list() )
@@ -188,7 +192,10 @@ class VanillaDeepHedgingGym(tf.keras.Model):
 
             # 3: trade
             cost           += tf.reduce_sum( tf.math.abs( action ) * trading_cost[:,t,:], axis=1, name="cost_t" )
-            pnl            += tf.reduce_sum( action * hedges[:,t,:], axis=1, name="pnl_t" )
+            # One-step returns accrue to the full post-trade inventory. The
+            # original synthetic worlds remain on trade-to-terminal accounting.
+            pnl_position    = delta if step_return_accounting else action
+            pnl            += tf.reduce_sum( pnl_position * hedges[:,t,:], axis=1, name="pnl_t" )
 
             # 4: record actions per path, per step, continue loop
             action_        =  tf.stop_gradient( action )[:,tf.newaxis,:]
@@ -388,4 +395,3 @@ class VanillaDeepHedgingGym(tf.keras.Model):
 
         
         return True
-

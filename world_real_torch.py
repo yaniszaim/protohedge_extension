@@ -7,6 +7,13 @@ from pathlib import Path
 import numpy as np
 
 from deephedging.base_torch import Config, DIM_DUMMY, Logger, assert_iter_not_is_nan, pdct
+from deephedging.hedge_accounting import STEP_RETURN_MARKER
+from deephedging.payoff_state import (
+    arithmetic_running_average,
+    is_asian_liability,
+    payoff_state_version_for_liability,
+    resolve_asian_window,
+)
 
 _log = Logger(__file__)
 
@@ -58,24 +65,23 @@ def _compute_short_call_payoff(
     strike,
     liability_type="european_call",
     asian_average_type="arithmetic",
-    asian_start_step=0,
+    asian_start_step=1,
     asian_end_step=None,
     dtype=np.float32,
 ):
     liability_type = str(liability_type).lower()
     if liability_type in ["european", "european_call", "atm_short_call"]:
         underlying = spot[:, -1]
-    elif liability_type in ["asian", "asian_call", "asian_short_call"]:
+    elif is_asian_liability(liability_type):
         avg_type = str(asian_average_type).lower()
         if avg_type not in ["arithmetic", "mean"]:
             raise ValueError(f"Unsupported asian_average_type '{asian_average_type}'")
         n_steps = int(spot.shape[1])
-        start = max(0, int(asian_start_step))
-        end = n_steps if asian_end_step in [None, ""] else min(n_steps, int(asian_end_step))
-        if end <= start:
-            raise ValueError(
-                f"Invalid Asian averaging window start={start}, end={end}, n_steps={n_steps}"
-            )
+        start, end = resolve_asian_window(
+            n_steps,
+            start_step=asian_start_step,
+            end_step=asian_end_step,
+        )
         underlying = spot[:, start:end].mean(axis=1)
     else:
         raise ValueError(f"Unknown liability_type '{liability_type}'")
@@ -87,8 +93,9 @@ class RealWorld_Spot_ATM_Torch(object):
     """
     Torch equivalent of ``world_real.RealWorld_Spot_ATM``.
 
-    Expected path array shape: ``[nSamples, nSteps, >=5]`` with feature order:
-    spot, call_price, call_delta, call_vega, ivol.
+    Expected path shape is ``[nSamples, nSteps + 1, >=5]``. The first
+    ``nSteps`` observations are decision states and the final observation is
+    the terminal mark used by the last one-step return and liability payoff.
     """
 
     def __init__(self, config: Config, dtype=np.float32):
@@ -121,14 +128,19 @@ class RealWorld_Spot_ATM_Torch(object):
         )
         asian_start_step = config(
             "asian_start_step",
-            0,
+            1,
             int,
-            help="First step index included in the Asian averaging window",
+            help="First end-of-interval fixing included in the Asian averaging window",
         )
         asian_end_step = config(
             "asian_end_step",
             None,
             help="Exclusive end step of the Asian averaging window; defaults to full path",
+        )
+        configured_payoff_state_version = config(
+            "payoff_state_version",
+            None,
+            help="Version marker for observable path-dependent liability state",
         )
         normalize = config("normalize", False, bool, help="Normalize prices by each path's initial spot")
         hedge_mode = config("hedge_mode", "step", str, help="Hedge PnL mode: step or terminal")
@@ -170,8 +182,11 @@ class RealWorld_Spot_ATM_Torch(object):
         if not np.isfinite(data).all():
             raise ValueError("Real-data paths contain NaN or infinite values")
 
+        if data.shape[1] < 2:
+            raise ValueError("Real-data episodes require at least one decision and one terminal observation")
         self.nSamples = int(data.shape[0])
-        self.nSteps = int(data.shape[1])
+        self.nObservations = int(data.shape[1])
+        self.nSteps = self.nObservations - 1
         self.nInst = 2
         self.dt = float(dt)
         self.normalize = bool(normalize)
@@ -181,24 +196,46 @@ class RealWorld_Spot_ATM_Torch(object):
         self.asian_average_type = str(asian_average_type).lower()
         self.asian_start_step = int(asian_start_step)
         self.asian_end_step = asian_end_step
+        self.payoff_state_version = payoff_state_version_for_liability(
+            self.liability_type
+        )
+        if (
+            configured_payoff_state_version not in (None, "")
+            and configured_payoff_state_version != self.payoff_state_version
+        ):
+            raise ValueError(
+                "Configured payoff-state version "
+                f"{configured_payoff_state_version!r} does not match "
+                f"{self.payoff_state_version!r} for liability "
+                f"{self.liability_type!r}"
+            )
         self.timeline = np.linspace(0.0, self.nSteps * self.dt, self.nSteps + 1, dtype=np.float32)
 
-        spot_raw = data[:, :, 0]
-        call_price_raw = data[:, :, 1]
-        call_delta = data[:, :, 2]
-        call_vega_raw = data[:, :, 3]
-        ivol = data[:, :, 4]
+        spot_all_raw = data[:, :, 0]
+        call_price_all_raw = data[:, :, 1]
+        call_delta_all = data[:, :, 2]
+        call_vega_all_raw = data[:, :, 3]
+        ivol_all = data[:, :, 4]
 
         if normalize:
-            scale = np.maximum(np.abs(spot_raw[:, :1]), np.asarray(1e-8, dtype=self.np_dtype))
-            spot = spot_raw / scale
-            call_price = call_price_raw / scale
-            call_vega = call_vega_raw / scale
+            scale = np.maximum(np.abs(spot_all_raw[:, :1]), np.asarray(1e-8, dtype=self.np_dtype))
+            spot_all = spot_all_raw / scale
+            call_price_all = call_price_all_raw / scale
+            call_vega_all = call_vega_all_raw / scale
         else:
             scale = np.ones((self.nSamples, 1), dtype=self.np_dtype)
-            spot = spot_raw
-            call_price = call_price_raw
-            call_vega = call_vega_raw
+            spot_all = spot_all_raw
+            call_price_all = call_price_all_raw
+            call_vega_all = call_vega_all_raw
+
+        spot = spot_all[:, :-1]
+        call_price = call_price_all[:, :-1]
+        call_delta = call_delta_all[:, :-1]
+        call_vega = call_vega_all[:, :-1]
+        ivol = ivol_all[:, :-1]
+        spot_raw = spot_all_raw[:, :-1]
+        call_price_raw = call_price_all_raw[:, :-1]
+        call_vega_raw = call_vega_all_raw[:, :-1]
 
         time_left = np.linspace(float(self.nSteps), 1.0, self.nSteps, endpoint=True, dtype=self.np_dtype) * self.dt
         sqrt_time_left = np.sqrt(time_left)
@@ -207,16 +244,13 @@ class RealWorld_Spot_ATM_Torch(object):
 
         hedge_mode = self.hedge_mode
         if hedge_mode in ["step", "period", "one_step"]:
-            dS = np.zeros((self.nSamples, self.nSteps), dtype=self.np_dtype)
-            dS[:, :-1] = spot[:, 1:] - spot[:, :-1]
-            dS[:, -1] = 0.0
-
-            dC = np.zeros((self.nSamples, self.nSteps), dtype=self.np_dtype)
-            dC[:, :-1] = call_price[:, 1:] - call_price[:, :-1]
-            dC[:, -1] = 0.0
+            self.pnl_accounting = "inventory_step"
+            dS = spot_all[:, 1:] - spot_all[:, :-1]
+            dC = call_price_all[:, 1:] - call_price_all[:, :-1]
         elif hedge_mode in ["terminal", "maturity", "to_maturity"]:
-            dS = spot[:, -1:] - spot
-            dC = call_price[:, -1:] - call_price
+            self.pnl_accounting = "trade_to_terminal"
+            dS = spot_all[:, -1:] - spot
+            dC = call_price_all[:, -1:] - call_price
         else:
             raise ValueError(f"Unknown hedge_mode '{hedge_mode}'")
 
@@ -241,14 +275,14 @@ class RealWorld_Spot_ATM_Torch(object):
         lbnd_a[:, :, 1] = lbnd_av
 
         if strike_mode == "atm_start":
-            strike = spot[:, 0]
+            strike = spot_all[:, 0]
         elif strike_mode == "unit":
             strike = np.ones((self.nSamples,), dtype=self.np_dtype)
         else:
             raise ValueError(f"Unknown strike_mode '{strike_mode}'")
 
         payoff, liability_underlying = _compute_short_call_payoff(
-            spot=spot,
+            spot=spot_all,
             strike=strike,
             liability_type=self.liability_type,
             asian_average_type=self.asian_average_type,
@@ -256,6 +290,34 @@ class RealWorld_Spot_ATM_Torch(object):
             asian_end_step=self.asian_end_step,
             dtype=self.np_dtype,
         )
+        if is_asian_liability(self.liability_type):
+            asian_running_average, fixing_count, fixing_fraction = (
+                arithmetic_running_average(
+                    spot_all,
+                    start_step=self.asian_start_step,
+                    end_step=self.asian_end_step,
+                )
+            )
+            asian_running_average = asian_running_average[:, :-1]
+            fixing_count = fixing_count[:-1]
+            fixing_fraction = fixing_fraction[:-1]
+            asian_moneyness = asian_running_average / np.maximum(
+                np.abs(strike[:, np.newaxis]),
+                np.asarray(1e-8, dtype=self.np_dtype),
+            )
+            fixing_count_2d = np.broadcast_to(
+                fixing_count[np.newaxis, :],
+                (self.nSamples, self.nSteps),
+            ).copy()
+            fixing_fraction_2d = np.broadcast_to(
+                fixing_fraction[np.newaxis, :],
+                (self.nSamples, self.nSteps),
+            ).copy()
+        else:
+            asian_running_average = None
+            asian_moneyness = None
+            fixing_count_2d = None
+            fixing_fraction_2d = None
 
         self.data = pdct()
         self.data.market = pdct(
@@ -265,6 +327,10 @@ class RealWorld_Spot_ATM_Torch(object):
             lbnd_a=lbnd_a,
             payoff=payoff,
         )
+        if self.pnl_accounting == "inventory_step":
+            self.data.market[STEP_RETURN_MARKER] = np.ones(
+                (self.nSamples,), dtype=self.np_dtype
+            )
         if position_bounds:
             ubnd_delta = np.zeros((self.nSamples, self.nSteps, 2), dtype=self.np_dtype)
             lbnd_delta = np.zeros((self.nSamples, self.nSteps, 2), dtype=self.np_dtype)
@@ -299,21 +365,35 @@ class RealWorld_Spot_ATM_Torch(object):
         self.data.features.per_path[DIM_DUMMY] = (payoff * 0.0)[:, np.newaxis]
         self.data.features.per_path["strike"] = strike[:, np.newaxis]
         self.data.features.per_path["liability_underlying"] = liability_underlying[:, np.newaxis]
+        if is_asian_liability(self.liability_type):
+            self.data.features.per_step.update(
+                asian_running_average=asian_running_average,
+                asian_moneyness=asian_moneyness,
+                asian_fixing_count=fixing_count_2d,
+                asian_fixing_fraction=fixing_fraction_2d,
+            )
         assert_iter_not_is_nan(self.data, "data")
 
         self.torch_data = dict(features=self.data.features, market=self.data.market)
         self.tf_data = self.torch_data
 
         self.details = pdct(
-            spot_all=spot,
-            spot_raw=spot_raw,
-            call_price_raw=call_price_raw,
+            spot_all=spot_all,
+            spot_raw=spot_all_raw,
+            call_price_raw=call_price_all_raw,
             drift=np.zeros((self.nSamples, self.nSteps), dtype=self.np_dtype),
             rvol=np.zeros((self.nSamples, self.nSteps), dtype=self.np_dtype),
             ivol=ivol,
             strike=strike,
             liability_underlying=liability_underlying,
         )
+        if is_asian_liability(self.liability_type):
+            self.details.update(
+                asian_running_average=asian_running_average,
+                asian_moneyness=asian_moneyness,
+                asian_fixing_count=fixing_count_2d,
+                asian_fixing_fraction=fixing_fraction_2d,
+            )
         assert_iter_not_is_nan(self.details, "details")
 
         self.sample_weights = np.full((self.nSamples, 1), 1.0 / float(self.nSamples), dtype=self.np_dtype)
@@ -322,7 +402,7 @@ class RealWorld_Spot_ATM_Torch(object):
         self.torch_y = np.zeros((self.nSamples,), dtype=self.np_dtype)
         self.tf_sample_weights = self.torch_sample_weights
         self.tf_y = self.torch_y
-        self.inst_names = ["spot", "ATM Call"]
+        self.inst_names = ["spot", "Listed Call"]
 
     def clone(self, config_overwrite=Config(), **kwargs):
         if "seed" not in kwargs:

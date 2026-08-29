@@ -1,0 +1,2 @@
+liability_type,ticker,nominal_k,top1_mass,top3_mass,top5_mass,top10_mass,entropy_effective_k,inverse_concentration_effective_k
+asian_call,QQQ,50,0.8274532556533813,0.8813744410872459,0.9258369822055101,0.9740715720690787,2.4922059200741673,1.4540017574837736

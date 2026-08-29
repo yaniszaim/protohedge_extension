@@ -12,16 +12,50 @@ import torch
 
 from deephedging.proto_analysis_torch import load_prototype_payload
 from deephedging.run_train_torch import build_experiment_components
+from deephedging.hedge_accounting import HEDGE_ACCOUNTING_VERSION
+from deephedging.panel_data_pipeline import (
+    EPISODE_TIMING_VERSION,
+    OPTION_PATH_VERSION,
+    TEMPORAL_SPLIT_VERSION,
+)
+from deephedging.payoff_state import (
+    ASIAN_PAYOFF_FEATURE,
+    ASIAN_PAYOFF_STATE_VERSION,
+    is_asian_liability,
+    payoff_state_version_for_liability,
+)
+from deephedging.outcome_metrics import (
+    OUTCOME_DEFINITION_VERSION,
+    PREMIUM_INCLUDED,
+    summarize_liability_offset,
+)
 
 
 ARTIFACT_META = "artifact_metadata.json"
 ARTIFACT_STATE = "gym_state.pt"
+ARTIFACT_HISTORY = "training_history.json"
 
 
 def _np(x):
     if isinstance(x, torch.Tensor):
         return x.detach().cpu().numpy()
     return np.asarray(x)
+
+
+def _jsonify(x):
+    if isinstance(x, dict):
+        return {str(key): _jsonify(value) for key, value in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [_jsonify(value) for value in x]
+    if isinstance(x, np.ndarray):
+        return x.tolist()
+    if isinstance(x, np.integer):
+        return int(x)
+    if isinstance(x, np.floating):
+        return float(x)
+    if isinstance(x, Path):
+        return str(x)
+    return x
 
 
 def slugify_name(name: str) -> str:
@@ -43,6 +77,7 @@ def save_model_artifact(
     n_prototypes=None,
     weighted_similarity=None,
     learn_distance_feature_weights=None,
+    split_info=None,
 ):
     artifact_root = Path(artifact_root)
     artifact_dir = artifact_root / f"seed_{int(seed)}" / f"risk_{risk_measure}" / slugify_name(model_name)
@@ -58,6 +93,34 @@ def save_model_artifact(
     if hasattr(model, "prototype_actions"):
         np.save(artifact_dir / "prototype_actions.npy", _np(model.prototype_actions))
 
+    full_history = _jsonify(result.get("history", {}))
+    with open(artifact_dir / ARTIFACT_HISTORY, "w", encoding="utf-8") as f:
+        json.dump(full_history, f, indent=2, sort_keys=True)
+        f.write("\n")
+
+    result_config = result.get("config", {})
+    result_world = result.get("world")
+    liability_type = str(
+        getattr(
+            result_world,
+            "liability_type",
+            result_config.get("world", {}).get(
+                "liability_type",
+                world_kwargs.get("liability_type", "european_call"),
+            ),
+        )
+    )
+    model_features = sorted(
+        result_config.get("model", {}).get(
+            "feature_list",
+            ["price", "delta", "time_left"],
+        )
+    )
+    payoff_state_version = getattr(
+        result_world,
+        "payoff_state_version",
+        payoff_state_version_for_liability(liability_type),
+    )
     meta = {
         "model_name": str(model_name),
         "model_family": str(model_family),
@@ -72,11 +135,32 @@ def save_model_artifact(
         "prototype_path": result.get("config", {}).get("model", {}).get("prototype_path"),
         "data_path": str(data_path),
         "world_kwargs": world_kwargs,
+        "liability_type": liability_type,
+        "model_features": model_features,
+        "payoff_state_version": payoff_state_version,
+        "outcome_definition": OUTCOME_DEFINITION_VERSION,
+        "premium_included": PREMIUM_INCLUDED,
+        "hedge_accounting": getattr(result.get("world"), "pnl_accounting", "trade_to_terminal"),
+        "hedge_accounting_version": HEDGE_ACCOUNTING_VERSION,
         "split_indices": {k: [int(i) for i in v] for k, v in split_indices.items()},
-        "config": result.get("config", {}),
+        "temporal_split_version": (
+            None if split_info is None else split_info.get("split_version")
+        ),
+        "option_path_version": (
+            None if split_info is None else split_info.get("option_path_version")
+        ),
+        "episode_timing_version": (
+            None if split_info is None else split_info.get("episode_timing_version")
+        ),
+        "temporal_split": split_info,
+        "config": result_config,
         "history": {
+            "history_file": ARTIFACT_HISTORY,
             "best_epoch": result.get("history", {}).get("best_epoch"),
             "best_score": result.get("history", {}).get("best_score"),
+            "best_val_loss": result.get("history", {}).get("best_val_loss"),
+            "init_loss": result.get("history", {}).get("init_loss"),
+            "init_val_loss": result.get("history", {}).get("init_val_loss"),
             "selection_metric": result.get("history", {}).get("selection_metric"),
             "best_val_action_abs_mean": result.get("history", {}).get("best_val_action_abs_mean"),
             "best_val_delta_abs_mean": result.get("history", {}).get("best_val_delta_abs_mean"),
@@ -94,8 +178,80 @@ def load_model_artifact(artifact_dir, map_location="cpu"):
     with open(artifact_dir / ARTIFACT_META, "r") as f:
         meta = json.load(f)
 
+    world_cfg = meta.get("config", {}).get("world", {})
+    world_type = str(world_cfg.get("world_type", "synthetic")).lower()
+    hedge_mode = str(world_cfg.get("hedge_mode", "terminal")).lower()
+    liability_type = str(
+        meta.get(
+            "liability_type",
+            world_cfg.get("liability_type", "european_call"),
+        )
+    )
+    is_legacy_step_artifact = (
+        world_type in {"real", "real_data", "world_real"}
+        and hedge_mode in {"step", "period", "one_step"}
+        and meta.get("hedge_accounting_version") != HEDGE_ACCOUNTING_VERSION
+    )
+    if is_legacy_step_artifact:
+        raise RuntimeError(
+            f"Artifact '{artifact_dir}' was trained before corrected cumulative-inventory "
+            "P&L accounting was versioned. Retrain this real-data model; evaluating its "
+            "old weights under the corrected equation would not produce a valid result."
+        )
+
+    if (
+        world_type in {"real", "real_data", "world_real"}
+        and meta.get("temporal_split_version") != TEMPORAL_SPLIT_VERSION
+    ):
+        raise RuntimeError(
+            f"Artifact '{artifact_dir}' was not trained with the required fixed "
+            "chronological pre-window split. Retrain it before using it for empirical claims."
+        )
+    if (
+        world_type in {"real", "real_data", "world_real"}
+        and meta.get("option_path_version") != OPTION_PATH_VERSION
+    ):
+        raise RuntimeError(
+            f"Artifact '{artifact_dir}' was not trained on contract-consistent listed-option "
+            "paths. Rebuild the panel and retrain before using it for empirical claims."
+        )
+    if (
+        world_type in {"real", "real_data", "world_real"}
+        and meta.get("episode_timing_version") != EPISODE_TIMING_VERSION
+    ):
+        raise RuntimeError(
+            f"Artifact '{artifact_dir}' was not trained with one terminal observation "
+            "after the final hedge decision. Rebuild the panel and retrain it."
+        )
+    if (
+        world_type in {"real", "real_data", "world_real"}
+        and is_asian_liability(liability_type)
+    ):
+        model_features = sorted(
+            meta.get(
+                "model_features",
+                meta.get("config", {}).get("model", {}).get("feature_list", []),
+            )
+        )
+        if meta.get("payoff_state_version") != ASIAN_PAYOFF_STATE_VERSION:
+            raise RuntimeError(
+                f"Artifact '{artifact_dir}' predates the required observable Asian "
+                "payoff state. Retrain it with running-average moneyness before "
+                "using it for empirical claims."
+            )
+        if ASIAN_PAYOFF_FEATURE not in model_features:
+            raise RuntimeError(
+                f"Artifact '{artifact_dir}' does not include "
+                f"'{ASIAN_PAYOFF_FEATURE}' in the policy state. Retrain it before "
+                "using it for empirical claims."
+            )
+
     components = build_experiment_components(meta["config"])
-    state_dict = torch.load(artifact_dir / ARTIFACT_STATE, map_location=map_location)
+    state_dict = torch.load(
+        artifact_dir / ARTIFACT_STATE,
+        map_location=map_location,
+        weights_only=True,
+    )
     components["gym"].load_state_dict(state_dict)
     components["gym"].eval()
     components["artifact_dir"] = artifact_dir
@@ -121,6 +277,14 @@ def list_saved_artifacts(output_dir):
             "learn_distance_feature_weights": meta.get("learn_distance_feature_weights"),
             "best_epoch": meta.get("history", {}).get("best_epoch"),
             "best_score": meta.get("history", {}).get("best_score"),
+            "temporal_split_version": meta.get("temporal_split_version"),
+            "option_path_version": meta.get("option_path_version"),
+            "episode_timing_version": meta.get("episode_timing_version"),
+            "liability_type": meta.get("liability_type"),
+            "payoff_state_version": meta.get("payoff_state_version"),
+            "model_features": "|".join(meta.get("model_features", [])),
+            "outcome_definition": meta.get("outcome_definition"),
+            "premium_included": meta.get("premium_included"),
         })
     return pd.DataFrame(rows)
 
@@ -163,7 +327,7 @@ def evaluate_saved_baselines(artifact_dir, split="test"):
         meta["split_indices"]["val"],
         world_kwargs,
         band_grid=DEFAULT_SPOT_DELTA_BAND_GRID,
-        selection_metric="gains_mean",
+        selection_metric="liability_offset_mean",
     )
     selected_band = float(band_selection["best_band"])
     test_world, unhedged_result, unhedged_metrics = evaluate_unhedged(meta["data_path"], split_indices, world_kwargs)
@@ -210,30 +374,43 @@ def build_regime_frame(world, result_dict):
     frame["drawdown_regime"] = pd.qcut(frame["max_drawdown"], q=3, labels=["mild_dd", "mid_dd", "deep_dd"], duplicates="drop")
 
     for name, result in result_dict.items():
-        frame[f"{name}_gains"] = _np(result["gains"]).reshape(-1)
-        frame[f"{name}_pnl"] = _np(result["pnl"]).reshape(-1)
+        liability_offset = _np(
+            result.get("liability_offset", result["gains"])
+        ).reshape(-1)
+        frame[f"{name}_liability_offset"] = liability_offset
+        frame[f"{name}_trading_gain"] = _np(result["pnl"]).reshape(-1)
         frame[f"{name}_cost"] = _np(result["cost"]).reshape(-1)
     return frame
 
 
 def summarize_by_regime(frame, regime_col, series_cols=None):
     if series_cols is None:
-        series_cols = [c for c in frame.columns if c.endswith("_gains") or c.endswith("_payoff")]
+        series_cols = [
+            c
+            for c in frame.columns
+            if c.endswith("_liability_offset") or c.endswith("_payoff")
+        ]
     rows = []
     for regime, grp in frame.groupby(regime_col, observed=True):
         for col in series_cols:
             values = grp[col].to_numpy(dtype=float)
-            p05 = float(np.quantile(values, 0.05))
-            cvar05 = float(values[values <= p05].mean()) if np.any(values <= p05) else p05
+            offset_metrics = summarize_liability_offset(values)
             rows.append({
                 "regime_type": regime_col,
                 "regime": str(regime),
                 "series": col,
                 "n": int(len(values)),
-                "mean": float(values.mean()),
-                "p05": p05,
-                "cvar05": cvar05,
-                "shortfall_prob": float(np.mean(values < 0.0)),
+                "mean": offset_metrics["liability_offset_mean"],
+                "p05": offset_metrics["liability_offset_p05"],
+                "cvar05": offset_metrics["liability_offset_cvar05"],
+                "mae": offset_metrics["liability_offset_mae"],
+                "rmse": offset_metrics["liability_offset_rmse"],
+                "downside_deviation": offset_metrics[
+                    "liability_offset_downside_deviation"
+                ],
+                "negative_offset_rate": offset_metrics[
+                    "negative_offset_rate"
+                ],
             })
     return pd.DataFrame(rows)
 
@@ -326,31 +503,34 @@ def prototype_usage_by_regime(result, regime_frame, regime_cols=("return_regime"
 
 
 def build_frontier_candidates(summary_df, vanilla_tol_pct=0.02):
+    """Return only configurations already frozen by validation selection."""
     summary_df = summary_df.copy()
-    vanilla = summary_df[summary_df["model"] == "vanilla"]
-    if vanilla.empty:
-        raise ValueError("summary_df does not contain a vanilla row")
-    vanilla_mean = float(vanilla.iloc[0]["gains_mean_avg"])
-    proto = summary_df[summary_df["model_family"] == "proto"].copy()
-    screened = proto[proto.get("passes_robust_screen", True) == True].copy()
-    near_vanilla = screened[screened["gains_mean_avg"] >= vanilla_mean * (1.0 - float(vanilla_tol_pct))].copy()
-
-    picks = []
-    if not screened.empty:
-        picks.append(("best_screened_mean", screened.sort_values("gains_mean_avg", ascending=False).iloc[0]))
-        picks.append(("best_screened_cvar05", screened.sort_values("gains_cvar05_avg", ascending=False).iloc[0]))
-        picks.append(("best_screened_shortfall", screened.sort_values("shortfall_prob_avg", ascending=True).iloc[0]))
-    for _, row in near_vanilla.sort_values("gains_mean_avg", ascending=False).iterrows():
-        picks.append(("near_vanilla", row))
-
-    seen = set()
+    del vanilla_tol_pct
+    if "selected_for" not in summary_df.columns:
+        raise RuntimeError(
+            "Test-set frontier construction is disabled. Use a sweep produced "
+            "by the validation-only selection protocol."
+        )
+    proto = summary_df[
+        (summary_df.get("model_family", "") == "proto")
+        & summary_df["selected_for"].fillna("").ne("")
+    ].copy()
     rows = []
-    for reason, row in picks:
-        key = str(row["model"])
-        if key in seen:
-            continue
-        seen.add(key)
-        rows.append({"reason": reason, **row.to_dict()})
+    reason_map = {
+        "best_screened_proto_mean": "best_screened_mean",
+        "best_screened_proto_cvar05": "best_screened_cvar05",
+    }
+    for _, row in proto.iterrows():
+        for selection in str(row["selected_for"]).split("|"):
+            if not selection:
+                continue
+            rows.append(
+                {
+                    "reason": reason_map.get(selection, selection),
+                    "selection_split": "validation",
+                    **row.to_dict(),
+                }
+            )
     return pd.DataFrame(rows)
 
 
@@ -361,9 +541,12 @@ def build_paper_model_table(summary_df, frontier_df):
     if vanilla.empty:
         raise ValueError("summary_df does not contain a vanilla row")
     vanilla_row = vanilla.iloc[0]
-    vanilla_mean = float(vanilla_row["gains_mean_avg"])
-    vanilla_cvar = float(vanilla_row["gains_cvar05_avg"])
-    vanilla_shortfall = float(vanilla_row["shortfall_prob_avg"])
+    vanilla_mean = float(vanilla_row["liability_offset_mean_avg"])
+    vanilla_cvar = float(vanilla_row["liability_offset_cvar05_avg"])
+    vanilla_rmse = float(vanilla_row["liability_offset_rmse_avg"])
+    vanilla_downside = float(
+        vanilla_row["liability_offset_downside_deviation_avg"]
+    )
     vanilla_occupancy = float(vanilla_row["pct_at_any_position_bound_avg"])
 
     label_map = {
@@ -371,9 +554,14 @@ def build_paper_model_table(summary_df, frontier_df):
         "spot_delta": ("baseline_spot_delta", "Spot-Delta"),
         "spot_delta_band": ("baseline_spot_delta_band", "Spot-Delta Band"),
         "vanilla": ("vanilla", "Vanilla DH"),
-        "best_screened_mean": ("proto_mean", "ProtoHedge (Mean frontier)"),
-        "best_screened_cvar05": ("proto_tail", "ProtoHedge (Tail frontier)"),
-        "best_screened_shortfall": ("proto_shortfall", "ProtoHedge (Shortfall frontier)"),
+        "best_screened_mean": (
+            "proto_mean",
+            "ProtoHedge (Validation-Mean)",
+        ),
+        "best_screened_cvar05": (
+            "proto_tail",
+            "ProtoHedge (Validation-Tail)",
+        ),
     }
 
     picks = []
@@ -403,10 +591,20 @@ def build_paper_model_table(summary_df, frontier_df):
         return paper_df
 
     paper_df = paper_df.drop_duplicates(subset=["model"], keep="first").copy()
-    paper_df["mean_gap_vs_vanilla"] = paper_df["gains_mean_avg"] - vanilla_mean
+    paper_df["mean_gap_vs_vanilla"] = (
+        paper_df["liability_offset_mean_avg"] - vanilla_mean
+    )
     paper_df["mean_gap_vs_vanilla_pct"] = 100.0 * paper_df["mean_gap_vs_vanilla"] / max(abs(vanilla_mean), 1e-12)
-    paper_df["cvar_gap_vs_vanilla"] = paper_df["gains_cvar05_avg"] - vanilla_cvar
-    paper_df["shortfall_gap_vs_vanilla"] = vanilla_shortfall - paper_df["shortfall_prob_avg"]
+    paper_df["cvar_gap_vs_vanilla"] = (
+        paper_df["liability_offset_cvar05_avg"] - vanilla_cvar
+    )
+    paper_df["rmse_improvement_vs_vanilla"] = (
+        vanilla_rmse - paper_df["liability_offset_rmse_avg"]
+    )
+    paper_df["downside_deviation_improvement_vs_vanilla"] = (
+        vanilla_downside
+        - paper_df["liability_offset_downside_deviation_avg"]
+    )
     paper_df["bound_occupancy_gap_vs_vanilla"] = vanilla_occupancy - paper_df["pct_at_any_position_bound_avg"]
 
     order = {
@@ -416,11 +614,13 @@ def build_paper_model_table(summary_df, frontier_df):
         "vanilla": 3,
         "proto_mean": 4,
         "proto_tail": 5,
-        "proto_shortfall": 6,
-        "proto_candidate": 7,
+        "proto_candidate": 6,
     }
     paper_df["paper_order"] = paper_df["analysis_label"].map(order).fillna(99).astype(int)
-    return paper_df.sort_values(["paper_order", "gains_mean_avg"], ascending=[True, False]).reset_index(drop=True)
+    return paper_df.sort_values(
+        ["paper_order", "liability_offset_mean_avg"],
+        ascending=[True, False],
+    ).reset_index(drop=True)
 
 
 def select_frontier_artifacts_for_all_seeds(artifact_index_df, frontier_df):
@@ -431,9 +631,14 @@ def select_frontier_artifacts_for_all_seeds(artifact_index_df, frontier_df):
 
     label_map = {
         "vanilla": ("vanilla", "Vanilla DH"),
-        "best_screened_mean": ("proto_mean", "ProtoHedge (Mean frontier)"),
-        "best_screened_cvar05": ("proto_tail", "ProtoHedge (Tail frontier)"),
-        "best_screened_shortfall": ("proto_shortfall", "ProtoHedge (Shortfall frontier)"),
+        "best_screened_mean": (
+            "proto_mean",
+            "ProtoHedge (Validation-Mean)",
+        ),
+        "best_screened_cvar05": (
+            "proto_tail",
+            "ProtoHedge (Validation-Tail)",
+        ),
     }
 
     rows = []
@@ -470,41 +675,64 @@ def select_frontier_artifacts_for_all_seeds(artifact_index_df, frontier_df):
     if artifact_df.empty:
         return artifact_df
     artifact_df = artifact_df.drop_duplicates(subset=["analysis_label", "seed", "artifact_dir"]).copy()
-    order = {"vanilla": 0, "proto_mean": 1, "proto_tail": 2, "proto_shortfall": 3, "proto_candidate": 4}
+    order = {
+        "vanilla": 0,
+        "proto_mean": 1,
+        "proto_tail": 2,
+        "proto_candidate": 3,
+    }
     artifact_df["paper_order"] = artifact_df["analysis_label"].map(order).fillna(99).astype(int)
     return artifact_df.sort_values(["seed", "paper_order", "model_name"]).reset_index(drop=True)
 
 
 def paired_result_stats(result_a, result_b, label_a, label_b):
-    gains_a = _np(result_a["gains"]).reshape(-1)
-    gains_b = _np(result_b["gains"]).reshape(-1)
-    if gains_a.shape != gains_b.shape:
-        raise ValueError(f"Result shapes do not match for paired comparison: {gains_a.shape} vs {gains_b.shape}")
+    offset_a = _np(
+        result_a.get("liability_offset", result_a["gains"])
+    ).reshape(-1)
+    offset_b = _np(
+        result_b.get("liability_offset", result_b["gains"])
+    ).reshape(-1)
+    if offset_a.shape != offset_b.shape:
+        raise ValueError(
+            "Result shapes do not match for paired comparison: "
+            f"{offset_a.shape} vs {offset_b.shape}"
+        )
 
-    diff = gains_a - gains_b
-
-    def _cvar05(x):
-        p05 = float(np.quantile(x, 0.05))
-        return float(x[x <= p05].mean()) if np.any(x <= p05) else p05
+    diff = offset_a - offset_b
+    metrics_a = summarize_liability_offset(offset_a)
+    metrics_b = summarize_liability_offset(offset_b)
 
     return {
         "comparison": f"{label_a}_minus_{label_b}",
         "lhs": str(label_a),
         "rhs": str(label_b),
+        "outcome_definition": OUTCOME_DEFINITION_VERSION,
         "n_paths": int(diff.shape[0]),
-        "mean_gap": float(diff.mean()),
-        "median_gap": float(np.median(diff)),
-        "p05_gap": float(np.quantile(diff, 0.05)),
-        "win_rate": float(np.mean(diff > 0.0)),
+        "liability_offset_mean_difference": float(diff.mean()),
+        "liability_offset_median_difference": float(np.median(diff)),
+        "liability_offset_p05_difference": float(np.quantile(diff, 0.05)),
+        "higher_offset_rate": float(np.mean(diff > 0.0)),
         "tie_rate": float(np.mean(np.isclose(diff, 0.0, atol=1e-8, rtol=0.0))),
-        "lhs_mean": float(gains_a.mean()),
-        "rhs_mean": float(gains_b.mean()),
-        "lhs_cvar05": _cvar05(gains_a),
-        "rhs_cvar05": _cvar05(gains_b),
-        "lhs_shortfall": float(np.mean(gains_a < 0.0)),
-        "rhs_shortfall": float(np.mean(gains_b < 0.0)),
-        "cvar05_gap": _cvar05(gains_a) - _cvar05(gains_b),
-        "shortfall_gap": float(np.mean(gains_b < 0.0) - np.mean(gains_a < 0.0)),
+        "lhs_liability_offset_mean": metrics_a["liability_offset_mean"],
+        "rhs_liability_offset_mean": metrics_b["liability_offset_mean"],
+        "lhs_liability_offset_cvar05": metrics_a[
+            "liability_offset_cvar05"
+        ],
+        "rhs_liability_offset_cvar05": metrics_b[
+            "liability_offset_cvar05"
+        ],
+        "liability_offset_cvar05_difference": (
+            metrics_a["liability_offset_cvar05"]
+            - metrics_b["liability_offset_cvar05"]
+        ),
+        "liability_offset_rmse_improvement": (
+            metrics_b["liability_offset_rmse"]
+            - metrics_a["liability_offset_rmse"]
+        ),
+        "liability_offset_downside_deviation_improvement": (
+            metrics_b["liability_offset_downside_deviation"]
+            - metrics_a["liability_offset_downside_deviation"]
+        ),
     }
 
 
@@ -527,7 +755,13 @@ def aggregate_regime_summaries(regime_summary_df):
         p05_std=("p05", "std"),
         cvar05_avg=("cvar05", "mean"),
         cvar05_std=("cvar05", "std"),
-        shortfall_prob_avg=("shortfall_prob", "mean"),
-        shortfall_prob_std=("shortfall_prob", "std"),
+        mae_avg=("mae", "mean"),
+        mae_std=("mae", "std"),
+        rmse_avg=("rmse", "mean"),
+        rmse_std=("rmse", "std"),
+        downside_deviation_avg=("downside_deviation", "mean"),
+        downside_deviation_std=("downside_deviation", "std"),
+        negative_offset_rate_avg=("negative_offset_rate", "mean"),
+        negative_offset_rate_std=("negative_offset_rate", "std"),
     ).reset_index()
     return agg.sort_values(["regime_type", "regime", "paper_label"]).reset_index(drop=True)

@@ -1,0 +1,3 @@
+liability_type,paper_label,n_tickers,mean_difference_vs_deep_hedging,mean_wins,cvar_difference_vs_deep_hedging,cvar_wins,rmse_improvement_vs_deep_hedging,bound_reduction_vs_deep_hedging
+asian_call,ProtoHedge (Validation-Mean),10,0.0037271795838682903,9,-0.0031867744740624467,6,0.00156224050805733,0.3703869657926438
+asian_call,ProtoHedge (Validation-Tail),10,0.0018755040626999002,7,0.004765168427779113,8,0.00424759362462285,0.37715853876377337

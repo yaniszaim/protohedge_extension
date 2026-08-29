@@ -20,6 +20,11 @@ from sklearn.metrics import pairwise_distances_argmin_min
 from sklearn.preprocessing import StandardScaler
 from threadpoolctl import threadpool_limits
 
+from deephedging.payoff_state import (
+    payoff_state_version_for_liability,
+    validate_model_features_for_liability,
+)
+
 
 def _np(x):
     if isinstance(x, torch.Tensor):
@@ -149,6 +154,11 @@ def build_prototype_payload(
         result=result,
         feature_names=feature_names,
     )
+    liability_type = getattr(world, "liability_type", None)
+    sorted_feature_names = validate_model_features_for_liability(
+        liability_type,
+        sorted_feature_names,
+    )
     payload = build_payload_from_feature_matrix(
         x_raw=x_raw,
         n_prototypes=n_prototypes,
@@ -157,6 +167,10 @@ def build_prototype_payload(
     )
     payload["feature_names"] = sorted_feature_names
     payload["input_dim"] = int(x_raw.shape[1])
+    payload["liability_type"] = liability_type
+    payload["payoff_state_version"] = payoff_state_version_for_liability(
+        liability_type
+    )
     return payload
 
 

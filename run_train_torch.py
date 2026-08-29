@@ -11,12 +11,17 @@ from scipy.stats import norm
 
 from deephedging.world_torch import SimpleWorld_Spot_ATM
 from deephedging.world_real_torch import RealWorld_Spot_ATM_Torch
-from deephedging.base_torch import torchCast
+from deephedging.base_torch import resolve_torch_device, torchCast
 from deephedging.agents_torch import ProtoHedgeAgent, VanillaHedgeAgent
 from deephedging.objectives_torch import HedgingObjective
 from deephedging.gym_torch import DeepHedgingGymTorch
 from deephedging.trainer_torch import TrainerTorch
 from deephedging.prototype_extraction_torch import build_payload_from_feature_matrix
+from deephedging.payoff_state import (
+    ASIAN_PAYOFF_STATE_VERSION,
+    is_asian_liability,
+    validate_model_features_for_liability,
+)
 
 
 def default_config():
@@ -46,6 +51,7 @@ def default_config():
         "training": {
             "epochs": 200,
             "lr": 1e-3,
+            "device": "auto",
             "batch_size": None,
             "optimizer": "adam",
             "epoch_refresh": 20,
@@ -228,23 +234,59 @@ def _merged_config(
 def build_experiment_components(config):
     config = copy.deepcopy(config)
 
-    torch.manual_seed(int(config["training"].get("seed", 0)))
+    seed = int(config["training"].get("seed", 0))
+    device = resolve_torch_device(config["training"].get("device", "auto"))
+    torch.manual_seed(seed)
+    if device.type == "cuda":
+        torch.cuda.manual_seed_all(seed)
 
     world = _build_world(config["world"])
     val_world = _build_validation_world(world, config["world"])
 
-    train_data = torchCast(world.torch_data)
-    val_data = torchCast(val_world.torch_data)
+    train_data = torchCast(world.torch_data, device=device)
+    val_data = torchCast(val_world.torch_data, device=device)
     n_inst = int(train_data["market"]["hedges"].shape[-1])
 
     prototype_payload = _load_prototype_payload(config["model"])
-    feature_names = sorted(config["model"].get("feature_list", ["price", "delta", "time_left"]))
+    liability_type = config["world"].get(
+        "liability_type",
+        getattr(world, "liability_type", "european_call"),
+    )
+    feature_names = validate_model_features_for_liability(
+        liability_type,
+        config["model"].get("feature_list", ["price", "delta", "time_left"]),
+    )
     inferred_agent_type = config["model"].get("agent_type")
     if inferred_agent_type is None:
         inferred_agent_type = "protopnet" if (
             prototype_payload is not None or config["model"].get("prototype_path") is not None
         ) else "feed_forward"
     agent_type = str(inferred_agent_type).lower()
+
+    if isinstance(prototype_payload, dict):
+        payload_feature_names = prototype_payload.get("feature_names")
+        if payload_feature_names is None and is_asian_liability(liability_type):
+            raise ValueError(
+                "Asian ProtoHedge payloads must record the feature names used "
+                "for clustering. Re-extract the prototypes with the corrected "
+                "running-average state."
+            )
+        if payload_feature_names is not None:
+            payload_feature_names = sorted(str(name) for name in payload_feature_names)
+            if payload_feature_names != feature_names:
+                raise ValueError(
+                    "Prototype payload features do not match the policy features: "
+                    f"payload={payload_feature_names}, policy={feature_names}"
+                )
+        if (
+            is_asian_liability(liability_type)
+            and prototype_payload.get("payoff_state_version")
+            != ASIAN_PAYOFF_STATE_VERSION
+        ):
+            raise ValueError(
+                "Asian ProtoHedge payload was not extracted with payoff-state "
+                f"version {ASIAN_PAYOFF_STATE_VERSION!r}. Re-extract it before training."
+            )
 
     prototype_path = config["model"].get("prototype_path")
     if (
@@ -312,6 +354,12 @@ def build_experiment_components(config):
     feature_std = None
     if prototype_payload is not None:
         prototype_init = _to_tensor(prototype_payload.get("prototypes"))
+        payload_input_dim = prototype_payload.get("input_dim")
+        if payload_input_dim is not None and int(payload_input_dim) != int(input_dim):
+            raise ValueError(
+                "Prototype payload input dimension does not match the policy: "
+                f"payload={payload_input_dim}, policy={input_dim}"
+            )
         scaler = prototype_payload.get("scaler")
         if scaler is not None:
             feature_mean = _to_tensor(scaler.mean_)
@@ -365,6 +413,7 @@ def build_experiment_components(config):
         feature_names=feature_names,
         action_penalty_weight=float(config["training"].get("action_penalty_weight", 0.0)),
         delta_penalty_weight=float(config["training"].get("delta_penalty_weight", 0.0)),
+        device=device,
     )
 
     trainer = TrainerTorch(
@@ -376,6 +425,7 @@ def build_experiment_components(config):
         lr_decay_patience=config["training"].get("lr_decay_patience"),
         lr_min=config["training"].get("lr_min"),
         scheduler_monitor=config["training"].get("scheduler_monitor", "val"),
+        device=device,
     )
 
     return {
@@ -386,6 +436,7 @@ def build_experiment_components(config):
         "val_data": val_data,
         "gym": gym,
         "trainer": trainer,
+        "device": device,
         "feature_names": feature_names,
         "n_inst": n_inst,
     }
@@ -410,13 +461,16 @@ def run_experiment(
     val_data = components["val_data"]
     gym = components["gym"]
     trainer = components["trainer"]
+    device = components["device"]
     n_inst = components["n_inst"]
 
     print(
         f"\nPyTorch version {torch.__version__} "
         f"running on {torch.get_num_threads()} CPUs "
-        f"and {torch.cuda.device_count()} GPUs"
+        f"and {torch.cuda.device_count()} GPUs | selected device={device}"
     )
+    if device.type == "cuda":
+        print(f"CUDA accelerator: {torch.cuda.get_device_name(device)}")
 
     history = trainer.train(
         train_data=train_data,
@@ -440,6 +494,7 @@ def run_experiment(
 
     results = {
         "config": config,
+        "device": str(device),
         "gym": gym,
         "model": gym.agent,
         "world": world,

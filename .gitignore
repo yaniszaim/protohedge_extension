@@ -140,6 +140,10 @@ notebooks/stoch_results.pkl
 # Checkpoints / training runs
 **/checkpoints/
 **/runs/
+.deephedging_real_runs/
+paper/prewrite_compute_logs/
+paper/original_synthetic_reproduction/source_snapshot/
+paper/original_synthetic_reproduction/**/training_cache/
 
 # Large model files
 *.ckpt

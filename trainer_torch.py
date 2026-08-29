@@ -48,8 +48,8 @@ class TrainerTorch:
         lr_min=None,
         scheduler_monitor="val",
     ):
-        self.gym = gym
-        self.device = device
+        self.device = torch.device(device)
+        self.gym = gym.to(self.device)
         self.optimizer = optim.Adam(self.gym.parameters(), lr=lr)
         self.best_state_dict = None
         self.clipvalue = None if clipvalue is None else float(clipvalue)
@@ -144,6 +144,9 @@ class TrainerTorch:
             "best_score": None,
             "init_loss": None,
             "init_loss_err": None,
+            "init_val_loss": None,
+            "init_val_loss_err": None,
+            "best_val_loss": None,
         }
 
         process = psutil.Process()
@@ -160,6 +163,11 @@ class TrainerTorch:
         history["init_loss_err"] = _weighted_err(train_weights, init_loss_path)
         history["best_loss"] = history["init_loss"]
         init_val_loss = _weighted_mean(val_weights, init_val_loss_path)
+        history["init_val_loss"] = init_val_loss
+        history["init_val_loss_err"] = _weighted_err(
+            val_weights, init_val_loss_path
+        )
+        history["best_val_loss"] = init_val_loss
         init_val_diag = _result_diagnostics(init_val_result, val_data["market"])
         history["best_score"] = _selection_score(history["init_loss"], init_val_loss, init_val_diag)
         self.best_state_dict = self._clone_state_dict(self.gym)
@@ -169,7 +177,7 @@ class TrainerTorch:
 
         for epoch in range(n_epochs):
             self.gym.train()
-            permutation = torch.randperm(n_train)
+            permutation = torch.randperm(n_train, device=self.device)
             batch_losses = []
             batch_sizes = []
 
@@ -234,6 +242,7 @@ class TrainerTorch:
             if selection_score < history["best_score"]:
                 history["best_score"] = float(selection_score)
                 history["best_epoch"] = epoch
+                history["best_val_loss"] = val_loss
                 self.best_state_dict = self._clone_state_dict(self.gym)
 
             if self.scheduler is not None:

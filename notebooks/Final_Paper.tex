@@ -45,6 +45,7 @@
 %%
 %%
 \documentclass[sigconf]{acmart}
+\setlength{\headheight}{15.5pt}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -56,23 +57,14 @@
 %% values in them; it is your responsibility as an author to replace
 %% the commands and values with those provided to you when you
 %% complete the rights form.
-\setcopyright{acmlicensed}
-\copyrightyear{2018}
-\acmYear{2018}
-\acmDOI{XXXXXXX.XXXXXXX}
+\setcopyright{none}
+\copyrightyear{2026}
+\acmYear{2026}
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
 %% These commands are for a PROCEEDINGS abstract or paper.
-\acmConference[Conference acronym 'XX]{Make sure to enter the correct
-  conference title from your rights confirmation email}{June 03--05,
-  2018}{Woodstock, NY}
-%%
-%%  Uncomment \acmBooktitle if the title of the proceedings is different
-%%  from ``Proceedings of ...''!
-%%
-%%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
-%%  June 03--05, 2018, Woodstock, NY}
-\acmISBN{978-1-4503-XXXX-X/2018/06}
-
-
+\acmConference[ICAIF '26]{7th ACM International Conference on AI in
+  Finance}{November 14--17, 2026}{Milan, Italy}
 %%
 %% Submission ID.
 %% Use this when submitting an article to a sponsored event. You'll
@@ -112,7 +104,8 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Empirical Evaluation of ProtoHedge:\\Interpretable Deep Hedging with Real Market Data}
+\title[Empirical Evaluation of ProtoHedge]{Empirical Evaluation of
+ProtoHedge:\\Interpretable Deep Hedging with Real Market Data}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -121,22 +114,6 @@
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
 
-\author{Imon Banerjee}
-\affiliation{%
-  \institution{Northwestern University}
-  \city{Evanston}
-  \country{IL}
-  \country{USA}}
-\email{imon.banerjee@northwestern.edu}
-
-\author{Sayak Chakrabarty}
-\affiliation{%
-  \institution{Northwestern University}
-  \city{Evanston}
-  \country{IL}
-  \country{USA}}
-\email{sayak.chakrabarty@northwestern.edu}
-
 \author{Yanis Zaim}
 \affiliation{%
   \institution{Columbia University}
@@ -144,41 +121,55 @@
   \state{NY}
   \country{USA}}
 \email{ymz2108@columbia.edu}
+
+\author{Sayak Chakrabarty}
+\affiliation{%
+  \institution{Northwestern University}
+  \city{Evanston}
+  \state{IL}
+  \country{USA}}
+\email{sayak.chakrabarty@northwestern.edu}
+
+\author{Imon Banerjee}
+\affiliation{%
+  \institution{Northwestern University}
+  \city{Evanston}
+  \state{IL}
+  \country{USA}}
+\email{imon.banerjee@northwestern.edu}
 %%
 %% By default, the full list of authors will be used in the page
 %% headers. Often, this list is too long, and will overlap
 %% other information printed in the page headers. This command allows
 %% the author to define a more concise list
 %% of authors' names for this purpose.
-\renewcommand{\shortauthors}{Trovato et al.}
+\renewcommand{\shortauthors}{Zaim, Chakrabarty, and Banerjee}
 
 %%
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-\iffalse
-  A clear and well-documented \LaTeX\ document is presented as an
-  article formatted for publication by ACM in a conference proceedings
-  or journal publication. Based on the ``acmart'' document class, this
-  article presents and explains many of the common variations, as well
-  as many of the formatting elements an author may use in the
-  preparation of the documentation of their work.
-\fi
 Deep Hedging learns sequential hedging policies directly from market states,
 transaction costs, and a risk-sensitive objective, but its neural decisions
 are difficult to audit. ProtoHedge addresses this problem by routing each
 hedge through a finite set of representative market states, or prototypes:
 the action is determined by the current state's similarity to those
-prototypes and their associated hedge responses. This paper tests whether that
-interpretability mechanism remains viable on historical option data, where
-market regimes, frictions, and non-stationarity matter. We compare ProtoHedge
-with classical delta-style rules and a matched black-box Deep Hedging benchmark
-under common costs, bounds, accounting, and model-selection controls. In the
-European short-call panel, ProtoHedge produces the strongest mean and tail
-frontiers while using less position-bound occupancy on average. Prototype use
-is concentrated, regime-sensitive, and traceable to concrete historical
-episodes, supporting the claim that interpretability can be added to deep
-hedging without sacrificing empirical competitiveness.
+prototypes and their learned hedge responses. We test whether this
+performance--interpretability tradeoff survives historical option data, where
+frictions, non-stationarity, and path dependence matter. ProtoHedge is compared
+with unhedged exposure, delta rules, and a common-protocol black-box Deep
+Hedging benchmark on European and arithmetic-average Asian short calls. The
+design uses chronological purged splits, one consistent listed hedge contract
+option per episode, cumulative-inventory accounting, payoff-sufficient Asian
+states, hard bounds, and validation selection. The outcome excludes the
+liability premium and therefore is not complete economic profit and loss.
+Across the current ten-underlying panel, validation-selected ProtoHedge
+improves the average mean and lower-tail offset relative to Deep Hedging for
+both liabilities. European policies also reduce average position-bound
+occupancy; the Asian bound result is weaker. Prototype use is concentrated,
+varies with market regimes, and can be traced to historical states. The
+evidence supports ProtoHedge as an inspectable empirical hedge without claiming
+uniform dominance across assets or objectives.
 \end{abstract}
 
 %%
@@ -195,10 +186,6 @@ option hedging, empirical finance}
 
 
 
-\received{20 February 2007}
-\received[revised]{12 March 2009}
-\received[accepted]{5 June 2009}
-
 %%
 %% This command processes the author and affiliation and title
 %% information and builds the first part of the formatted document.
@@ -206,40 +193,66 @@ option hedging, empirical finance}
 
 
 \section{Introduction}
-Deep hedging replaces a prescribed analytical hedge with a policy learned
-from market states, realized trading costs, and a risk-sensitive objective.
-This flexibility is valuable when hedging is discrete, costly, constrained,
-and exposed to dynamics that depart from a stylized pricing model. Its
-central practical weakness is that a neural policy can be difficult to
-audit: strong performance alone does not explain which market states drive a
-hedge, whether comparable states receive comparable actions, or whether a
-model has learned a stable economic rule.
+Deep Hedging replaces a prescribed analytical hedge with a policy learned
+from market states, transaction costs, and a risk-sensitive objective. This
+flexibility is valuable when hedging is discrete, costly, constrained, or
+exposed to dynamics that depart from a stylized pricing model
+\cite{buehler2019deep}. Its central
+practical weakness is auditability. Strong out-of-sample performance alone
+does not reveal which market states drive a hedge, whether comparable states
+receive comparable actions, or whether the policy has learned a stable
+economic rule rather than an opaque statistical association.
 
-ProtoHedge addresses this problem by routing each decision through a finite
-set of representative market states, called prototypes. The original paper
-established that this prototype structure can retain much of the performance
-of an unrestricted neural hedge in Black--Scholes and stochastic-volatility
-simulations. The unresolved question is empirical. Historical options data
-contain non-stationarity, imperfect liquidity, changing volatility, and
-discontinuous episodes that cannot be fully captured by a controlled
-simulator.
+ProtoHedge addresses this limitation by routing each hedge decision through a
+finite set of representative market states, called prototypes. A current
+state is compared with these prototypes, and the resulting similarity weights
+combine prototype-associated hedge responses into the final action. This
+construction makes each action traceable to observed representative states
+while retaining the risk-sensitive learning objective of Deep Hedging. The
+original ProtoHedge study established architectural feasibility in
+Black--Scholes and stochastic-volatility simulations. It did not establish
+whether the same performance--interpretability tradeoff survives historical
+non-stationarity, changing liquidity and volatility, observed option paths,
+and path-dependent liabilities \cite{faloughi2025protohedge}.
 
-This paper evaluates ProtoHedge on historical U.S.\ option-hedging episodes.
-Our contribution is empirical rather than architectural: we preserve the
-fixed-prototype design and test whether its performance--interpretability
-tradeoff survives on real market data. The paper makes four contributions:
+This paper addresses that empirical gap using historical U.S.\ equity and ETF
+option data. We preserve the original fixed-prototype architecture and compare
+it with transparent delta-style rules and a black-box Deep Hedging benchmark
+under a common state space, action space, objective, cost model, and position
+constraints. The evaluation uses chronological train, validation, and test
+periods; constructs rolling episodes only after the calendar is split; follows
+one listed hedge-option contract throughout each episode; selects every model
+configuration without test access; and evaluates uncertainty with paired
+block-bootstrap intervals. We study both a terminal European call and an
+arithmetic-average Asian call whose policy state includes the running payoff
+state.
+
+Under the current empirical results, validation-selected ProtoHedge policies
+remain competitive with the Deep Hedging benchmark across both liabilities.
+On the European panel, separate mean- and tail-oriented selections improve the
+corresponding average liability-offset criteria while contacting hard position
+bounds less frequently on average. The Asian experiment preserves the mean and
+lower-tail competitiveness of ProtoHedge, although its position-bound advantage
+is weaker, showing that the tradeoff changes under path dependence. Prototype
+usage is concentrated, changes across return, volatility, and drawdown regimes,
+and can be traced to concrete historical states. These findings support a
+qualified conclusion: the fixed prototype bottleneck can preserve empirical
+hedging quality while making decisions more inspectable, but its advantage is
+not uniform across liabilities, assets, or evaluation criteria.
+
+The paper makes four contributions:
 \begin{enumerate}
-    \item We construct a ten-ticker panel of 30,797 contiguous 20-step
-    historical option-hedging episodes from WRDS-sourced underlying and option
-    data.
-    \item We evaluate ProtoHedge against unhedged exposure, transparent
-    delta-style rules, and a matched black-box Deep Hedging benchmark under
-    transaction costs, hard bounds, step-wise accounting, and multi-seed
-    validation-based selection.
-    \item We show that ProtoHedge is competitive across the panel while
-    reducing average reliance on hard position bounds.
-    \item We test interpretability directly through prototype concentration,
-    regime-dependent usage, and retrieval of nearest historical episodes.
+    \item We construct 35,987 contract-consistent 20-step episodes for ten
+    U.S.\ equity and ETF underlyings using WRDS spot and option data.
+    \item We evaluate European and Asian short-call liabilities under
+    inventory-based accounting, stylized transaction costs, hard position
+    bounds, and a common-protocol comparison with classical and neural
+    benchmarks.
+    \item We split by calendar, select configurations and checkpoints using
+    validation data only, and apply paired circular-block inference.
+    \item We test interpretability through exact prototype-weighted action
+    structure, prototype concentration, regime-dependent usage, and retrieval
+    of nearest historical episodes.
 \end{enumerate}
 
 
@@ -269,25 +282,42 @@ and outputs a trade increment
 a_t = \pi_\theta(x_t), \qquad
 h_t = \Pi_{\mathcal{H}}(h_{t-1}+a_t),
 \]
-where $\Pi_{\mathcal{H}}$ enforces the admissible position set. For an option
-payoff $H(P_{0:T})$ and per-unit transaction-cost vector $\kappa_t$, the
-terminal gain can be written schematically as
+where $\Pi_{\mathcal{H}}$ enforces the admissible position set. Let
+$H(P_{0:T})\leq 0$ be the terminal cash flow of the short liability and let
+$\kappa_t$ be the per-unit transaction-cost vector. The premium-excluding
+liability offset can be written schematically as
 \[
-G^{\pi_\theta}
+\mathcal{O}^{\pi_\theta}
 =
--H(P_{0:T})
+H(P_{0:T})
 +
 \sum_{t=0}^{T-1} h_t^\top(P_{t+1}-P_t)
 -
 \sum_{t=0}^{T-1}\kappa_t^\top |a_t|.
 \]
-The agent is trained to optimize a risk criterion, for example
+The agent is trained to maximize the optimized-certainty-equivalent monetary
+utility used in the original Deep Hedging framework. For the piecewise-linear
+utility selected in our experiments,
 \[
-\min_\theta \operatorname{CVaR}_{\alpha}\!\left(-G^{\pi_\theta}\right),
+\mathcal{U}_{\lambda}(\mathcal{O})
+=
+\sup_{y\in\mathbb{R}}
+\mathbb{E}\!\left[
+(1+\lambda)\min(\mathcal{O}+y,0)-y
+\right],
+\qquad \lambda=1.
 \]
-rather than to reproduce a model-implied delta exactly. This formulation
+The scalar $y$ is learned jointly with the policy. We call this implementation
+setting the \texttt{cvar} monetary utility because that is its name in the
+original software; it must not be confused with the separately reported
+empirical CVaR$_{5\%}$. The policy optimizes this risk-sensitive objective
+rather than reproducing a model-implied delta exactly. This formulation
 accommodates discrete rebalancing, costs, hard bounds, and dynamics that need
-not follow a stylized pricing model.
+not follow a stylized pricing model \cite{buehler2019deep}. Because
+$\mathcal{O}$ excludes the
+initial premium received for selling the liability, it is not complete
+economic profit and loss; its purpose is to compare how effectively policies
+offset the same liability under a common objective.
 
 A standard, or black-box, Deep Hedging policy represents $\pi_\theta$ by a
 feed-forward neural network. It is a necessary performance benchmark in this
@@ -335,7 +365,7 @@ therefore trace a decision to examples of historically observed states rather
 than only to opaque network parameters. Concentrated use of a small subset of
 prototypes, systematic shifts in $\alpha_{t,k}$ across regimes, and retrieval
 of the nearest historical episodes provide direct, testable forms of
-interpretability.
+interpretability \cite{faloughi2025protohedge}.
 
 The anchors $p_k$ remain fixed during training in the present study; the
 projection $f_\phi$ and the prototype actions $b_k$ are learned. This
@@ -349,7 +379,8 @@ the policy is trained.
 \label{subsec:empirical_gap}
 
 The original ProtoHedge study showed that prototype-based policies can remain
-competitive in Black--Scholes and stochastic-volatility simulations. Historical
+competitive in Black--Scholes and stochastic volatility simulations
+\cite{faloughi2025protohedge}. Historical
 option data pose a materially different test: volatility and liquidity vary
 over time, option observations are noisy, trading is costly and constrained,
 and market paths contain regime shifts and discontinuities. The
@@ -358,7 +389,7 @@ prototype should correspond to a recognizable historical state rather than
 only to a simulator-generated configuration.
 
 Accordingly, this paper evaluates whether ProtoHedge remains competitive with
-matched black-box Deep Hedging and transparent delta-style baselines while
+common-protocol Deep Hedging and transparent delta-style baselines while
 avoiding excessive reliance on hard position bounds. It also tests whether
 prototype use is concentrated, regime-dependent, and retrievable as concrete
 historical episodes. We conduct this evaluation for both terminal European
@@ -380,7 +411,7 @@ distinct liabilities.
 \section{Experimental Framework}
 \label{sec:experimental_framework}
 
-This section describes the empirical design used to evaluate ProtoHedge on historical market data. Our implementation is deliberately conservative. We use fixed-length out-of-sample hedging episodes, explicit transaction costs, bounded trading actions, bounded cumulative hedge positions, validation-based model selection, and multi-seed evaluation. The goal is not merely to train a profitable hedge in sample, but to assess whether ProtoHedge remains competitive with vanilla Deep Hedging under a realistic and reproducible real-data protocol.
+This section describes the empirical design used to evaluate ProtoHedge on historical market data. Our implementation is deliberately conservative. We use fixed-length out-of-sample hedging episodes, explicit transaction costs, bounded trading actions, bounded cumulative hedge positions, validation-only model selection, and multi-seed evaluation. The goal is not merely to optimize a policy in sample, but to assess whether ProtoHedge remains competitive with Deep Hedging under a realistic and reproducible real-data protocol.
 
 \subsection{Data and Episode Construction}
 \label{subsec:data_episode_construction}
@@ -389,9 +420,23 @@ Our real-data experiments are based on historical U.S. equity and ETF option dat
 \[
 \{\texttt{AAPL}, \texttt{IWM}, \texttt{NVDA}, \texttt{QQQ}, \texttt{SPY}, \texttt{TLT}, \texttt{XLE}, \texttt{XLF}, \texttt{XLK}, \texttt{XLV}\}.
 \]
-For each ticker, the cleaned feature panel runs from 2005-01-11 to 2024-12-31.
+The available histories begin between January and February 2005, depending on
+the ticker, and end in December 2024.
 
-The raw option-chain data are filtered to call options and aligned with the corresponding daily spot series. For each date, we select a single liquid near-at-the-money call contract by sorting candidate options according to:
+The raw OptionMetrics chain is restricted to American-style calls with finite
+vendor Greeks and implied volatility, positive bids, non-crossed offers, and
+sufficient initial liquidity, and is aligned with the corresponding CRSP
+daily spot series. Midquotes define the listed option price. We split the
+calendar before creating any
+rolling window: training observations end on December 31, 2018, validation
+observations run through December 31, 2021, and test observations begin in
+2022. A 19-observation embargo, equal to the overlap of adjacent 20-step
+windows, is removed after each boundary. Windows are then generated
+independently inside each period, so no date can occur in more than one of the
+training, validation, and test sets.
+
+For every eligible 20-step spot window, we select the listed hedge option on
+the first date according to:
 \begin{enumerate}
     \item absolute distance between strike and spot,
     \item absolute distance between the contract's days-to-expiration and a 30-day target maturity,
@@ -399,7 +444,17 @@ The raw option-chain data are filtered to call options and aligned with the corr
     \item open interest (descending), and
     \item volume (descending),
 \end{enumerate}
-subject to a maturity filter of 20 to 40 calendar days to expiration. This yields a daily panel of one representative short-dated near-ATM call per underlying.
+subject to an initial maturity filter of 20 to 40 calendar days, positive open
+interest, relative bid--ask spread no greater than one, and absolute moneyness
+no greater than 10\%. Crucially, we retain an episode only if the same
+\texttt{optionid}, expiration, and strike remain valid on every episode date
+and the contract expires after the liability horizon. Thus
+\[
+C_{i,t}=C(j_i,t), \qquad t=0,\ldots,T,
+\]
+for one fixed listed contract $j_i$ per episode. The option hedge is distinct
+from the synthetic European or Asian liability, and no unmodeled option roll
+occurs inside an episode.
 
 The resulting per-date feature vector is
 \[
@@ -410,17 +465,65 @@ where $S_t$ is the underlying spot, $C_t$ is the selected call price, $\Delta^{\
 (\texttt{spot},\; \texttt{call\_price},\; \texttt{call\_delta},\; \texttt{call\_vega},\; \texttt{ivol}).
 \]
 
-Historical hedging episodes are constructed as rolling 20-step windows. Importantly, windows are created only within contiguous trading-date blocks: whenever the gap between consecutive observation dates exceeds four calendar days, a new block is started. This prevents the episode builder from stitching together disjoint option cycles separated by large holes in the cleaned panel. Letting $\tau=20$ denote the episode length, each final sample is a tensor in
+Historical hedging episodes are constructed as rolling 20-step windows within
+each chronological period. A new block begins whenever consecutive
+observations are more than four calendar days apart, preventing windows from
+joining disjoint histories. Letting $\tau=20$ denote the episode length, each
+sample is a tensor in
 \[
 \mathbb{R}^{\tau \times 5}.
 \]
-Across the ten-ticker panel, this procedure yields 30{,}797 usable 20-step episodes in total.
+Across the ten-ticker panel, the corrected contract-consistent procedure yields
+35{,}987 episodes: 21{,}996 training, 6{,}955 validation, and 7{,}036 test
+episodes.
 
-Although the raw episode tensor contains five market features, the learning models do not consume all five directly. The hedging agents are trained on the state representation used by the deep hedging gym, namely current hedgeable prices, current hedge inventory, and time remaining. Concretely, the learned policies use the feature list
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Ticker & Train & Validation & Test \\
+\midrule
+AAPL & 2,230 & 693 & 714 \\
+IWM  & 2,501 & 701 & 715 \\
+NVDA & 1,944 & 678 & 659 \\
+QQQ  & 2,491 & 716 & 695 \\
+SPY  & 2,531 & 718 & 715 \\
+TLT  & 2,156 & 713 & 714 \\
+XLE  & 2,369 & 655 & 713 \\
+XLF  & 2,100 & 691 & 713 \\
+XLK  & 1,781 & 704 & 707 \\
+XLV  & 1,893 & 686 & 691 \\
+\midrule
+Total & 21,996 & 6,955 & 7,036 \\
+\bottomrule
+\end{tabular}
+\caption{Contract-consistent 20-step episodes after the chronological split
+and 19-observation boundary embargo. Windows may overlap within a period but
+never across train, validation, and test periods.}
+\label{tab:panel-counts}
+\end{table}
+
+Although the raw episode tensor contains five market features, the European
+policies consume the state used by the Deep Hedging gym:
 \[
 (\texttt{price},\; \texttt{delta},\; \texttt{time\_left}),
 \]
-where \texttt{price} is the two-dimensional vector of current spot and current selected call price, \texttt{delta} denotes the current cumulative hedge position in the two traded instruments, and \texttt{time\_left} is the remaining time to maturity. The richer market panel remains important because it defines the liability, the classical baselines, the transaction-cost model, and the regime-analysis variables.
+where \texttt{price} contains current spot and the price of the fixed listed
+call, \texttt{delta} is the current cumulative inventory in both hedge
+instruments, and \texttt{time\_left} is time to the liability horizon. For the
+Asian liability, the policy additionally observes running-average moneyness,
+\[
+m^{\mathrm{Asian}}_{i,t}
+=
+\frac{\bar S_{i,t}}{K_i},
+\qquad
+\bar S_{i,t}=\frac{1}{t+1}\sum_{u=0}^{t}S_{i,u}.
+\]
+The same feature is included in Deep Hedging, ProtoHedge, prototype
+clustering, similarity calculation, and prototype interpretation. This
+prevents two paths with identical current prices and inventories but different
+accumulated averages from being treated as the same liability state.
 
 Finally, for numerical stability and cross-path comparability, the real-data world normalizes spot, call price, and call vega by each path's initial spot level. Under this normalization, a liability struck at-the-money at inception has normalized strike one, while remaining equivalent to a strike of $S_0$ in raw price units.
 
@@ -467,14 +570,31 @@ where each component denotes a trade increment rather than an absolute target po
 \]
 
 \paragraph{Step-wise hedge accounting.}
-All reported experiments use step-wise hedge accounting rather than a terminal shortcut. If $\Delta S_t$ and $\Delta C_t$ denote the next-step changes in the spot and option hedge instruments, then the pathwise hedge P\&L is accumulated as
+All reported experiments use step-wise inventory accounting. If
+$\delta_{i,t}^{(S)}$ and $\delta_{i,t}^{(C)}$ are the cumulative positions
+held after trading at $t$, and $\Delta S_{i,t}=S_{i,t+1}-S_{i,t}$ and
+$\Delta C_{i,t}=C(j_i,t+1)-C(j_i,t)$ are one-step changes, then the trading
+gain is
 \[
-\mathrm{PnL}_i = \sum_{t=1}^{T} \left(a_{i,t}^{(S)} \Delta S_{i,t} + a_{i,t}^{(C)} \Delta C_{i,t}\right).
+\mathrm{TG}_i
+=
+\sum_{t=0}^{T-1}
+\left(
+\delta_{i,t}^{(S)}\Delta S_{i,t}
++
+\delta_{i,t}^{(C)}\Delta C_{i,t}
+\right).
 \]
-This choice is important empirically. In earlier exploratory real-data runs, more permissive accounting and looser constraints could produce apparently strong results together with unrealistic cumulative-bound saturation. The current step-wise setup is intentionally stricter and better aligned with the actual sequence of hedge rebalancing decisions.
+The use of cumulative inventory is essential because the real-data world
+provides one-step price changes. It is algebraically equivalent to the
+return-to-terminal accounting in the original synthetic ProtoHedge world, but
+it does not incorrectly discard positions established at earlier dates.
 
 \paragraph{Transaction costs.}
-Trading costs are imposed separately on spot and option trades. The per-unit spot trading-cost coefficient is
+We impose the stylized transaction-cost specification inherited from the
+experimental framework separately on spot and option trades. It is a
+deterministic friction proxy rather than reconstructed executable bid--ask
+slippage. The per-unit spot trading-cost coefficient is
 \[
 c_{i,t}^{(S)} = 0.0002\,|S_{i,t}|.
 \]
@@ -486,7 +606,7 @@ The realized trading cost on episode $i$ is therefore
 \[
 \mathrm{Cost}_i
 =
-\sum_{t=1}^{T}
+\sum_{t=0}^{T-1}
 \left(
 |a_{i,t}^{(S)}|\,c_{i,t}^{(S)}
 +
@@ -494,12 +614,25 @@ The realized trading cost on episode $i$ is therefore
 \right).
 \]
 
-\paragraph{Gains.}
-For both liabilities, the terminal hedging gain is defined as
+\paragraph{Liability offset and premium convention.}
+For both liabilities, the empirical outcome is
 \[
-G_i = H_i + \mathrm{PnL}_i - \mathrm{Cost}_i.
+\mathcal{O}_i = H_i + \mathrm{TG}_i - \mathrm{Cost}_i.
 \]
-This is the central outcome used throughout the empirical evaluation.
+The initial premium of the synthetic liability is not observed. In
+particular, the listed call used as a hedge is a distinct contract and its
+initial quote is not the premium of the European or Asian liability. We
+therefore do not add that quote to $\mathcal{O}_i$ and do not call
+$\mathcal{O}_i$ economic profit and loss. Higher values instead mean that the
+trading strategy offsets more of the common short liability after costs. A
+complete terminal P\&L would require an independently specified liability
+premium $V_{i,0}$:
+\[
+\mathrm{P\&L}^{\mathrm{terminal}}_i
+=
+V_{i,0}+\mathcal{O}_i.
+\]
+All model comparisons in this paper use $\mathcal{O}_i$ consistently.
 
 \subsection{Models and Baselines}
 \label{subsec:models_baselines}
@@ -511,7 +644,7 @@ This baseline takes no hedge action:
 \[
 a_t \equiv 0.
 \]
-Its gain is simply the liability payoff.
+Its liability offset is simply the liability payoff.
 
 \paragraph{Spot-Delta.}
 This is a rule-based baseline that hedges only with the underlying spot instrument. At each step, the target cumulative spot position is set equal to the observed delta of the selected near-ATM call. The option hedge position remains zero. This baseline uses the market-provided option delta directly and therefore provides a transparent classical reference point.
@@ -525,23 +658,31 @@ where $b \ge 0$ is a band width. If the current position exits the band, it is p
 \[
 b \in \{0.00,\;0.01,\;0.02,\;0.05,\;0.10,\;0.15\},
 \]
-selecting the band that maximizes validation mean gains.
+selecting the band that maximizes validation mean liability offset.
+This provides a friction-aware transparent comparator in the spirit of
+classical no-transaction-region hedging \cite{whalley1997}.
 
-\paragraph{Vanilla Deep Hedging.}
-The main black-box benchmark is a feed-forward neural hedging policy trained end-to-end under the same world, friction model, and objective as ProtoHedge. The vanilla agent uses the state representation
+\paragraph{Deep Hedging benchmark.}
+The main black-box benchmark is a feed-forward Deep Hedging policy trained end-to-end under the same world, friction model, and objective as ProtoHedge. For the European task, the agent uses
 \[
 (\texttt{price},\; \texttt{delta},\; \texttt{time\_left}),
 \]
-and outputs a two-dimensional trade increment. In the reported panel runs, the vanilla network has width 20, depth 3, and Softplus activations.
+and outputs a two-dimensional trade increment. The Asian version adds
+$m_t^{\mathrm{Asian}}$. In the panel runs, the benchmark network has width 20,
+depth 3, and Softplus activations.
 
 \paragraph{ProtoHedge.}
-ProtoHedge uses the same state representation and output space as vanilla Deep Hedging, but constrains action generation through a prototype layer. Each current state is compared to a finite collection of stored prototypes, and the resulting similarity pattern determines the hedge action. In the reported full grid, we vary:
+ProtoHedge uses the same task-specific state representation and output space as
+the Deep Hedging benchmark, but constrains action generation through a
+prototype layer. In the full grid, we vary:
 \begin{enumerate}
     \item the number of prototypes
     \[
     K \in \{10, 25, 50, 100\},
     \]
-    \item the prototype source policy, using either a trained vanilla hedge or the Spot-Delta baseline as the source from which prototypes are extracted, and
+    \item the prototype source policy, using either the trained Deep Hedging
+    benchmark or the Spot-Delta baseline as the source from which prototypes
+    are extracted, and
     \item whether similarity is weighted or unweighted.
 \end{enumerate}
 
@@ -549,12 +690,25 @@ Prototype extraction follows the same reusable pipeline throughout the repo. For
 \begin{enumerate}
     \item construct the flattened feature matrix seen by the policy,
     \item standardize it with a \texttt{StandardScaler},
-    \item apply $K$-means clustering in standardized feature space, and
+    \item apply $K$-means clustering in standardized feature space
+    \cite{macqueen1967}, and
     \item store, for each cluster, the nearest real standardized feature vector rather than the raw cluster centroid.
 \end{enumerate}
 This last step matters because it keeps each stored prototype tied to an actually observed market state rather than to an abstract average point with no direct empirical counterpart.
 
-In the reported real-data panel runs, learned distance-feature weights are held fixed, i.e.\ we do not yet let prototypes or feature-weight vectors move during training. This keeps the present paper focused on empirical validation of the original fixed-prototype design.
+The shared projection $f_\phi$ is a two-layer map
+\[
+D\longrightarrow 32\longrightarrow D
+\]
+with a ReLU between layers. Similarity uses unit temperature. In the
+unweighted specification, all feature-distance weights equal one. In the
+weighted specification, time remaining receives weight five and all other
+state components receive weight one. These weights and the prototypes remain
+fixed; the projection and bounded prototype actions are trainable. The action
+bounds are implemented with the same smooth soft-clipping logic as the
+original ProtoHedge layer. This keeps the present paper focused on empirical
+validation of the original fixed-anchor design rather than the separate
+question of moving prototypes.
 
 \subsection{Training and Model Selection Protocol}
 \label{subsec:training_protocol}
@@ -562,24 +716,35 @@ In the reported real-data panel runs, learned distance-feature weights are held 
 All real-data neural models are trained under the same multi-seed protocol.
 
 \paragraph{Train/validation/test splits.}
-For each ticker and each random seed, the episode tensor is randomly permuted at the path level and split into
+The split is fixed by calendar and is identical across random seeds:
 \[
-70\% \text{ train}, \qquad 15\% \text{ validation}, \qquad 15\% \text{ test}.
+\begin{aligned}
+\text{training:} &\quad \text{through 2018-12-31},\\
+\text{validation:} &\quad \text{2019 through 2021},\\
+\text{test:} &\quad \text{2022 through 2024}.
+\end{aligned}
 \]
-The main reported panel uses the three seeds
+The calendar is split before windows are constructed, and the 19-observation
+embargo at each boundary prevents a 20-step window from crossing periods.
+Random seeds therefore affect neural initialization and prototype clustering,
+not test membership. The main panel uses the three seeds
 \[
 (1234,\;2345,\;3456).
 \]
 
 \paragraph{Optimization.}
-All neural models are trained for 800 epochs using the same CVaR-based deep hedging objective with risk-aversion parameter one. The optimizer uses learning rate
+All neural models are trained for 800 epochs using the same
+optimized-certainty-equivalent \texttt{cvar} monetary utility described in
+Section~\ref{subsec:deep_hedging_background}, with risk-aversion parameter
+one. This training objective is distinct from the empirical 5\% tail metric
+used for evaluation. The optimizer uses learning rate
 \[
 10^{-3},
 \]
 together with clipping safeguards already built into the training pipeline. Classical baselines are not trained in the neural sense, but they are evaluated on exactly the same splits and under the same friction model.
 
 \paragraph{Feature normalization and state semantics.}
-The real-data world is run in normalized mode. Spot, call price, and call vega are divided pathwise by the initial spot, while the state passed to the learning agent at each step consists of current hedgeable prices, current hedge inventory, and time remaining. This keeps the neural state compact and comparable across underlyings while preserving the original market information needed for payoff definition, baseline construction, and regime analysis.
+The real-data world is run in normalized mode. Spot, call price, and call vega are divided pathwise by the initial spot. European policies observe current hedgeable prices, current hedge inventory, and time remaining; Asian policies also observe running-average moneyness. This keeps the neural state comparable across underlyings while supplying the payoff-relevant state of each liability.
 
 \paragraph{Validation-based checkpoint selection.}
 Model selection is based on the validation split, not on the training loss alone. Let $L_{\mathrm{val}}$ denote the validation objective. For the final robust panel runs, checkpoints are ranked by the selection score
@@ -604,6 +769,28 @@ where $\overline{|a|}$ is mean absolute action magnitude on the validation set, 
 \alpha_p = 0.
 \]
 Thus, validation selection explicitly favors models that do not rely excessively on large actions, large cumulative positions, or persistent boundary saturation.
+
+\paragraph{Validation-only configuration selection.}
+Checkpoint selection and architecture selection are separate. First, every
+candidate is trained on the training period, and its checkpoint is chosen by
+the validation score above. Second, candidate-level validation metrics are
+averaged across the three seeds. We apply the prespecified validation bound
+screen and freeze two prespecified selections:
+\begin{enumerate}
+    \item \emph{Validation-Mean}: maximize validation mean liability offset,
+    with validation CVaR, lower bound occupancy, smaller $K$, and model name as
+    deterministic tie-breakers;
+    \item \emph{Validation-Tail}: maximize validation
+    CVaR$_{5\%}$ of liability offset, with validation mean, lower bound
+    occupancy, smaller $K$, and model name as tie-breakers.
+\end{enumerate}
+This selection covers $K$, weighted versus unweighted similarity, and
+prototype-source policy. Regularization coefficients, action bounds, position
+bounds, selection objectives, and the validation robustness threshold are
+prespecified before the test stage. Candidate ProtoHedge models are not
+evaluated on test. After both selectors are written to disk, the baselines,
+the validation-selected Deep Hedging checkpoint, and only the frozen
+ProtoHedge configurations are evaluated once on the test period.
 
 \paragraph{Regularization.}
 In addition to validation-time selection penalties, the training loss includes mild regularization terms on action and cumulative-position magnitude:
@@ -636,7 +823,38 @@ and cumulative hedge positions are also constrained to
 These bounds are scientifically important. In exploratory unconstrained runs, apparent performance improvements could be accompanied by heavy saturation at the position boundaries. The bounded protocol is designed to test whether ProtoHedge remains competitive without relying on unrealistic edge-of-feasible-region behavior.
 
 \paragraph{Paper sweep design.}
-For the European-call panel, the final full sweep evaluates the full ProtoHedge grid described above across all ten tickers and all three seeds. The Asian-call extension uses the same empirical framework and, in the final notebook implementation, can be run with the same grid and the same seed schedule. This allows direct comparison between terminal and path-dependent liabilities without changing the training pipeline.
+For each ticker and liability, the full sweep evaluates the complete
+ProtoHedge grid across all three seeds on training and validation data.
+Selection is performed separately by ticker and liability using the fixed
+rules above. Only the resulting validation-selected configurations enter that
+ticker's test comparison.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+Component & Prespecified value \\
+\midrule
+Episode length & 20 observations \\
+Train / validation / test & 2005--18 / 2019--21 / 2022--24 \\
+Boundary embargo & 19 observations \\
+Random seeds & 1234, 2345, 3456 \\
+Neural epochs & 800 \\
+Learning rate & $10^{-3}$ \\
+Deep Hedging network & width 20, depth 3, Softplus \\
+Prototype counts & 10, 25, 50, 100 \\
+Prototype sources & Deep Hedging, Spot-Delta \\
+Similarity & weighted, unweighted \\
+Trade / position bounds & $[-1,1]$ per instrument \\
+Validation occupancy screen & $\mathrm{BO}\leq 0.50$ \\
+\bottomrule
+\end{tabular}
+\caption{Common experimental protocol. Hyperparameter and checkpoint choices
+are made on training and validation data; the test calendar is fixed across
+seeds.}
+\label{tab:protocol}
+\end{table}
 
 \subsection{Evaluation Metrics}
 \label{subsec:evaluation_metrics}
@@ -646,22 +864,37 @@ We evaluate models at both the hedging-performance level and the interpretabilit
 \paragraph{Primary performance metrics.}
 For each fitted model and each test split, we compute:
 \begin{enumerate}
-    \item mean gains,
+    \item mean liability offset,
     \[
-    \mathbb{E}[G],
+    \mathbb{E}[\mathcal{O}],
     \]
-    \item the empirical 5\% Value-at-Risk and Conditional Value-at-Risk of gains,
+    \item empirical lower-tail Value-at-Risk and Conditional Value-at-Risk,
     \[
-    \mathrm{VaR}_{5\%}(G), \qquad \mathrm{CVaR}_{5\%}(G),
+    \mathrm{VaR}_{5\%}(\mathcal{O}), \qquad
+    \mathrm{CVaR}_{5\%}(\mathcal{O}),
     \]
-    \item shortfall probability,
+    \item root mean squared liability offset,
     \[
-    \mathbb{P}(G<0),
+    \mathrm{RMSE}(\mathcal{O})
+    =
+    \sqrt{\mathbb{E}[\mathcal{O}^2]},
     \]
-    and
-    \item realized mean trading-cost and hedge-P\&L summaries.
+    \item downside deviation,
+    \[
+    \mathrm{DD}(\mathcal{O})
+    =
+    \sqrt{\mathbb{E}[\min(\mathcal{O},0)^2]},
+    \]
+    and realized mean trading-cost and trading-gain summaries.
 \end{enumerate}
-In the paper narrative, mean gains and $\mathrm{CVaR}_{5\%}$ are the headline performance measures. Shortfall probability is retained as a secondary summary rather than the sole criterion of success.
+Higher mean and CVaR are better; lower RMSE and downside deviation are better.
+We use the lower-tail empirical expected-shortfall convention for gains
+\cite{rockafellar2000}.
+We record the negative-offset rate only as an implementation diagnostic. We
+do not present it as shortfall probability or a headline economic metric:
+because the premium is excluded, zero is not a break-even P\&L threshold, and
+an unhedged out-of-the-money liability mechanically produces many zeros while
+a hedge incurs trading costs.
 
 \paragraph{Position-bound diagnostics.}
 Because constrained hedging behavior is a central part of the empirical question, we also record:
@@ -673,7 +906,23 @@ Because constrained hedging behavior is a central part of the empirical question
 We refer to the first quantity as \emph{bound occupancy}. Lower bound occupancy is interpreted as evidence that a model is operating more consistently in the interior of the feasible region, which is economically preferable all else equal.
 
 \paragraph{Robust-screen criterion.}
-When constructing paper frontiers among ProtoHedge models, we apply a robustness screen based on average bound occupancy and path-touch behavior. In the final reported panel setup, models with excessive bound saturation are excluded from the empirical frontier even if they perform well on raw mean gains. This prevents the final comparison from being driven by unrealistic edge-seeking solutions.
+The prespecified screen is calculated on validation data only. A candidate
+passes when average validation bound occupancy is no greater than 0.50; the
+path-touch threshold is recorded but not binding in the reported setup. Test
+bound occupancy remains a diagnostic outcome and cannot determine whether a
+model enters the paper comparison.
+
+\paragraph{Dependence-aware uncertainty.}
+Adjacent episodes within a period may share 19 of 20 dates, so individual
+windows are not treated as independent observations. For each
+validation-selected ProtoHedge policy and its matched Deep Hedging benchmark,
+we first average the pathwise test offsets across seeds and then construct
+paired 95\% circular-block bootstrap intervals with block length 20 and 2,000
+replicates. We report intervals for differences in mean offset and
+CVaR$_{5\%}$ and for improvements in RMSE and downside deviation; all are
+oriented so positive values favor ProtoHedge. Panel intervals independently
+block-resample within ticker, calculate each ticker statistic, and average
+with equal ticker weight \cite{politis1992}.
 
 \paragraph{Prototype concentration metrics.}
 For ProtoHedge models, we further compute:
@@ -693,11 +942,16 @@ To test whether prototype use changes systematically with market conditions, we 
 \end{itemize}
 This yields labels of the form
 \[
-\{\text{down},\text{middle},\text{up}\},\quad
-\{\text{low\_vol},\text{mid\_vol},\text{high\_vol}\},\quad
-\{\text{mild\_dd},\text{mid\_dd},\text{deep\_dd}\}.
+\begin{aligned}
+&\{\text{down},\text{middle},\text{up}\},\\
+&\{\text{low\_vol},\text{mid\_vol},\text{high\_vol}\},\\
+&\{\text{mild\_dd},\text{mid\_dd},\text{deep\_dd}\}.
+\end{aligned}
 \]
-Within each regime, we summarize gains, tail risk, shortfall, and average prototype weights. This lets us test whether the same few prototypes dominate everywhere, or whether ProtoHedge reallocates attention across market states in a regime-sensitive way.
+Within each regime, we summarize mean offset, tail risk, RMSE, downside
+deviation, and average prototype weights. This lets us test whether the same
+few prototypes dominate everywhere, or whether ProtoHedge reallocates
+attention across market states in a regime-sensitive way.
 
 \paragraph{Nearest historical states.}
 Finally, for the dominant prototypes, we recover the nearest historical feature vectors and corresponding underlying paths. This allows us to move beyond abstract prototype coordinates and ask whether the most-used prototypes correspond to recognizable empirical market scenarios. This step is central to the interpretability claim of the paper: the prototype mechanism is not merely sparse, but empirically inspectable.
@@ -710,546 +964,627 @@ Finally, for the dominant prototypes, we recover the nearest historical feature 
 
 
 
+
 \section{Real-Data Empirical Results}
 \label{sec:empirical_results}
 
-This section evaluates whether ProtoHedge preserves a favorable
-performance--interpretability tradeoff on historical option-hedging
-episodes. All reported European-option results use the common protocol
-described in Section~\ref{sec:experimental_framework}: three random
-seeds, held-out test episodes, step-wise hedge accounting, transaction
-costs, hard trade and cumulative-position bounds, and validation-based
-checkpoint selection. For each ticker, results are first averaged over
-seeds and then aggregated with equal weight across the ten tickers.
+We now examine whether the fixed-prototype restriction preserves hedging
+quality on historical data and whether it produces an inspectable policy. All
+numbers are reported as normalized liability offsets, not complete economic
+P\&L. Consequently, a value closer to zero is better for the mean and lower-tail
+statistics, but zero is not a break-even threshold. Comparisons are made under
+the same liability, hedge instruments, costs, and bounds. The numerical tables
+report the current panel estimates and are interpreted descriptively; the
+protocol-locked rerun will add the paired circular-block intervals specified in
+Section~\ref{subsec:evaluation_metrics} before inferential claims are made.
 
 \subsection{European-Option Panel Results}
+\label{subsec:european_results}
 
-Table~\ref{tab:european-panel-average} reports the main panel-level
-comparison. The mean-oriented ProtoHedge frontier achieves the best
-average mean gains across the ten-ticker panel, while the tail-oriented
-ProtoHedge frontier achieves the best average empirical
-CVaR$_{5\%}$. The result is therefore not that one ProtoHedge
-configuration dominates every criterion. Rather, the prototype model
-produces an interpretable mean--tail frontier that is at least as
-competitive as vanilla Deep Hedging under both objectives.
-
-All models face the same short-call liability, transaction-cost model,
-and position constraints. Thus, the relative comparison is the central
-object of interest. The negative level of average gains reflects the
-conservative constrained evaluation environment and should not be
-interpreted as evidence that the ordering among hedges is uninformative.
-Under this common protocol, a less negative gain or CVaR value is better.
+Table~\ref{tab:european-panel-average} gives the equal-ticker average for the
+European short-call task. The two ProtoHedge rows correspond to configurations
+chosen by the prespecified mean- and tail-oriented validation rules. This is
+important: they represent two ex ante decision objectives, not two models
+chosen after viewing the test metric.
 
 \begin{table*}[t]
 \centering
 \small
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrr}
 \toprule
-Model & Mean gains & CVaR$_{5\%}$ & Shortfall probability & Bound occupancy \\
+Model & Mean offset & Offset CVaR$_{5\%}$ & Bound occupancy \\
 \midrule
-Unhedged
-    & -0.030502 & -0.140291 & \textbf{0.615941} & \textbf{0.000000} \\
-Spot-Delta
-    & -0.030331 & -0.137235 & 0.815792 & \textbf{0.000000} \\
-Spot-Delta Band
-    & -0.030295 & -0.137247 & 0.815806 & \textbf{0.000000} \\
-Vanilla Deep Hedging
-    & -0.030277 & -0.134793 & 0.979211 & 0.077515 \\
-ProtoHedge (Mean frontier)
-    & \textbf{-0.029651} & -0.133763 & \textbf{0.896937} & 0.048616 \\
-ProtoHedge (Tail frontier)
-    & -0.030145 & \textbf{-0.132121} & 0.918602 & 0.030434 \\
+Unhedged & -0.030502 & -0.140291 & 0.000000 \\
+Spot-Delta & -0.030331 & -0.137235 & 0.000000 \\
+Spot-Delta Band & -0.030295 & -0.137247 & 0.000000 \\
+Deep Hedging & -0.030277 & -0.134793 & 0.077515 \\
+ProtoHedge (Validation-Mean) & \textbf{-0.029651} & -0.133763 & 0.048616 \\
+ProtoHedge (Validation-Tail) & -0.030145 & \textbf{-0.132121} & \textbf{0.030434} \\
 \bottomrule
 \end{tabular}
-\caption{Average European-option results across the ten-ticker panel.
-Higher mean gains and higher CVaR$_{5\%}$ values are better; lower
-bound occupancy is better. Shortfall probability is reported as a
-secondary distributional diagnostic and should be interpreted jointly
-with the mean and tail-loss measures.}
+\caption{European short-call results, averaged across seeds within ticker and
+then equally across ten tickers. Higher mean offset and CVaR$_{5\%}$ are
+better. Bound occupancy is the fraction of path--time--instrument inventories
+at a hard cumulative-position limit; lower is better among learned policies.}
 \label{tab:european-panel-average}
 \end{table*}
 
-Relative to vanilla Deep Hedging, the mean-oriented ProtoHedge frontier
-has a positive average mean-gain difference of $0.000625$ and a positive
-average CVaR$_{5\%}$ difference of $0.001030$. The tail-oriented
-frontier has a positive average mean-gain difference of $0.000132$ and
-a larger average CVaR$_{5\%}$ improvement of $0.002672$. The
-mean-oriented frontier exceeds vanilla on mean gains in all ten tickers
-and on CVaR$_{5\%}$ in seven tickers. The tail-oriented frontier exceeds
-vanilla on mean gains in six tickers and improves CVaR$_{5\%}$ in all
-ten tickers.
+The first result is that the neural policies improve lower-tail offset relative
+to the transparent baselines. Deep Hedging increases average CVaR$_{5\%}$ from
+$-0.137235$ under Spot-Delta to $-0.134793$. ProtoHedge improves it further:
+the Validation-Mean policy reaches $-0.133763$, while the Validation-Tail policy
+reaches $-0.132121$. Thus the interpretation constraint does not produce a
+visible panel-level tail penalty in this experiment.
 
-Table~\ref{tab:european-ticker-comparison} gives the ticker-level
-comparison underlying these aggregate statements. The mean frontier is
-reported beside vanilla for average gains, while the tail frontier is
-reported beside vanilla for CVaR$_{5\%}$ and bound occupancy. This
-presentation makes the intended tradeoff explicit: ProtoHedge is not
-being evaluated only on a pooled average, but across broad-market,
-sector, fixed-income, and single-stock underlyings.
+The mean-oriented ProtoHedge policy also has the highest average offset. Its
+improvement over Deep Hedging is $0.000625$, or approximately $2.07\%$ relative
+to the magnitude of the Deep Hedging mean offset. The tail-oriented policy
+sacrifices some of that mean advantage but remains $0.000132$ above Deep
+Hedging while improving CVaR$_{5\%}$ by $0.002672$, approximately $1.98\%$ of
+the Deep Hedging tail-loss magnitude. The two selections therefore expose a
+small but economically coherent mean--tail tradeoff rather than a universal
+winner.
+
+Table~\ref{tab:european-ticker} checks whether these averages are driven by a
+small subset of assets. The Validation-Mean policy has a higher mean offset
+than Deep Hedging for all ten tickers. The Validation-Tail policy has a higher
+CVaR$_{5\%}$ for all ten. The absolute improvements are largest for the most
+volatile single-name series, NVDA, but the direction also holds for broad
+market, sector, and Treasury ETFs.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{Mean offset} & \multicolumn{2}{c}{CVaR$_{5\%}$} &
+\multicolumn{2}{c}{Bound occupancy} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Ticker & DH & Proto-Mean & DH & Proto-Tail & DH & Proto-Tail \\
+\midrule
+AAPL & -0.0396 & -0.0379 & -0.1479 & -0.1464 & 0.1250 & 0.0096 \\
+IWM  & -0.0271 & -0.0270 & -0.1240 & -0.1225 & 0.0907 & 0.0028 \\
+NVDA & -0.0724 & -0.0699 & -0.3265 & -0.3204 & 0.1744 & 0.0116 \\
+QQQ  & -0.0288 & -0.0286 & -0.1104 & -0.1069 & 0.1660 & 0.0304 \\
+SPY  & -0.0217 & -0.0216 & -0.0859 & -0.0840 & 0.1927 & 0.0001 \\
+TLT  & -0.0143 & -0.0134 & -0.0819 & -0.0811 & 0.0000 & 0.0835 \\
+XLE  & -0.0286 & -0.0285 & -0.1705 & -0.1688 & 0.0000 & 0.0151 \\
+XLF  & -0.0238 & -0.0237 & -0.1048 & -0.1021 & 0.0000 & 0.1361 \\
+XLK  & -0.0281 & -0.0277 & -0.1093 & -0.1064 & 0.0264 & 0.0119 \\
+XLV  & -0.0184 & -0.0182 & -0.0866 & -0.0827 & 0.0000 & 0.0032 \\
+\bottomrule
+\end{tabular}
+\caption{Ticker-level European comparison. Proto-Mean is the
+validation-mean selection and Proto-Tail is the validation-tail selection.
+The paired columns deliberately show the criterion targeted by each selector.
+Higher offsets and lower occupancy are preferable.}
+\label{tab:european-ticker}
+\end{table*}
+
+These differences are modest, which is consistent with the objective of the
+paper. ProtoHedge is not intended to obtain large gains by solving a different
+hedging problem; it is intended to retain the quality of a black-box policy
+while exposing a finite set of representative states. The relevant empirical
+finding is therefore that the prototype bottleneck remains competitive across
+the panel, not that it creates a new source of arbitrage.
+
+\subsection{Position-Bound Analysis}
+\label{subsec:bound_results}
+
+The performance result is more credible if it is not generated by persistent
+saturation at the hard inventory limits. In the European task, average bound
+occupancy is $0.0775$ for Deep Hedging, $0.0486$ for Validation-Mean
+ProtoHedge, and $0.0304$ for Validation-Tail ProtoHedge. These correspond to
+average reductions of approximately $37.3\%$ and $60.7\%$, respectively. The
+prototype policies therefore achieve their panel-level mean and tail results
+while operating more often in the interior of the feasible set.
+
+The ticker-level pattern is not uniform. The tail-oriented ProtoHedge policy
+has lower occupancy than Deep Hedging for six of ten underlyings, including
+large reductions for AAPL, IWM, NVDA, QQQ, and SPY. It has higher occupancy for
+TLT, XLE, XLF, and XLV, where the Deep Hedging benchmark is at zero or close to
+it. This heterogeneity is why occupancy is reported beside performance rather
+than used as a stand-alone measure of model quality. A lower-bound policy is
+not automatically a better hedge; it is favorable only when offset quality is
+preserved.
+
+The Asian task produces a different boundary pattern, discussed below. This
+cross-liability contrast is informative: the prototype bottleneck appears to
+regularize inventory in the European experiment, but path dependence can
+require a different use of the feasible action region.
+
+\subsection{Interpretability Verification: QQQ Case Study}
+\label{subsec:interpretability_results}
+
+Interpretability requires evidence about the prototype mechanism itself, not
+only competitive performance. For a detailed case study, we examine policies
+for the Invesco QQQ Trust (QQQ), a highly traded exchange-traded fund that
+tracks the Nasdaq-100. QQQ provides a long and liquid option history and has
+complete representative artifacts for both liabilities, allowing the effect
+of path dependence on prototype use to be studied on the same underlying. It
+is used for interpretability illustration, not because it had the strongest
+test performance; panel-level performance claims continue to use all available
+tickers. Table~\ref{tab:prototype-concentration}
+reports cumulative prototype-assignment mass and two effective-library-size
+statistics. The entropy effective size is
+\[
+K_{\mathrm{ent}}=\exp\!\left(-\sum_{k=1}^{K}\bar\alpha_k
+\log\bar\alpha_k\right),
+\]
+and the inverse-concentration size is
+\[
+K_{\mathrm{inv}}=\left(\sum_{k=1}^{K}\bar\alpha_k^2\right)^{-1},
+\]
+where $\bar\alpha_k$ is the prototype's mean assignment weight over test paths
+and decision times. Both equal $K$ under perfectly uniform use and approach
+one as assignment mass concentrates.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{llrrrrrrr}
+\toprule
+Liability & Representative policy & $K$ & Top 1 & Top 3 & Top 5 & Top 10 &
+$K_{\mathrm{ent}}$ & $K_{\mathrm{inv}}$ \\
+\midrule
+European & QQQ ProtoHedge & 25 & 0.208 & 0.584 & 0.747 & 0.996 & 8.29 & 7.04 \\
+Asian & QQQ ProtoHedge & 50 & 0.199 & 0.352 & 0.480 & 0.713 & 18.78 & 13.04 \\
+\bottomrule
+\end{tabular}
+\caption{Concentration of prototype assignment mass for the representative QQQ
+case study. Top-$k$ columns report cumulative mass after sorting prototypes by
+mean use. Effective sizes below the nominal $K$ indicate non-uniform use.}
+\label{tab:prototype-concentration}
+\end{table*}
+
+The European model uses a compact effective dictionary. Three of its 25
+prototypes explain $58.4\%$ of assignment mass, ten explain $99.6\%$, and its
+effective size is between seven and eight. The prototype layer is therefore
+not a decorative uniform mixture: most decisions pass through a substantially
+smaller set of recurring states. The Asian model uses more of its available
+library. Its top ten prototypes explain $71.3\%$ and its effective size is
+between 13 and 19. This is still concentrated relative to 50 uniform
+prototypes, but it suggests that a path-dependent payoff requires a richer set
+of state representatives.
+
+Table~\ref{tab:prototype-regimes} reports the most heavily weighted prototype
+within return, volatility, and drawdown terciles. In the European model,
+prototype 21 dominates down-return, high-volatility, and mild-drawdown states,
+whereas prototype 8 dominates middle/up returns, low/middle volatility, and
+middle/deep drawdowns. This systematic switch is consistent with regime-aware
+example use. In the Asian model, prototype 10 remains the single most-used
+anchor in every tercile, but its weight falls from $0.215$ in low volatility to
+$0.182$ in high volatility while the remaining assignment mass redistributes.
+The Asian evidence therefore supports state-dependent weighting, but not the
+stronger claim that the identity of the top prototype changes in every regime.
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{llccc}
+\toprule
+Liability & Regime partition & Low / Down / Mild & Middle & High / Up / Deep \\
+\midrule
+European & Return & P21 (0.206) & P8 (0.250) & P8 (0.242) \\
+European & Volatility & P8 (0.313) & P8 (0.203) & P21 (0.208) \\
+European & Drawdown & P21 (0.210) & P8 (0.225) & P8 (0.295) \\
+Asian & Return & P10 (0.199) & P10 (0.204) & P10 (0.193) \\
+Asian & Volatility & P10 (0.215) & P10 (0.200) & P10 (0.182) \\
+Asian & Drawdown & P10 (0.190) & P10 (0.200) & P10 (0.206) \\
+\bottomrule
+\end{tabular}
+\caption{Dominant prototype and mean assignment weight in the QQQ case study.
+Regimes are test-period terciles defined separately for terminal return,
+average implied volatility, and maximum drawdown.}
+\label{tab:prototype-regimes}
+\end{table*}
+
+Nearest-state retrieval supplies the final link from model internals to market
+states. Table~\ref{tab:nearest-states} reports the closest observed QQQ state
+for four highly used European prototypes. For example, P8 represents a state
+with normalized spot above inception and a moderate positive spot inventory,
+whereas P21 is associated with normalized spot near $0.85$, a more expensive
+listed call, and a larger spot inventory. P11 and P16 occupy intermediate
+price and inventory regions. These are concrete observed states, not latent
+centroids. The retrieved path identifiers allow the complete 20-step histories
+to be inspected and, in the locked rerun, mapped to calendar dates.
 
 \begin{table*}[t]
 \centering
 \small
 \begin{tabular}{lrrrrrr}
 \toprule
-& \multicolumn{2}{c}{Mean gains} &
-  \multicolumn{2}{c}{CVaR$_{5\%}$} &
-  \multicolumn{2}{c}{Bound occupancy} \\
-\cmidrule(lr){2-3}
-\cmidrule(lr){4-5}
-\cmidrule(lr){6-7}
-Ticker & Vanilla & Proto Mean & Vanilla & Proto Tail & Vanilla & Proto Tail \\
+Prototype & Path & Step & Spot position & Option position & Norm. spot & Norm. option \\
 \midrule
-AAPL & -0.03963 & -0.03787 & -0.14793 & -0.14637 & 0.12504 & 0.00959 \\
-IWM  & -0.02711 & -0.02699 & -0.12398 & -0.12251 & 0.09070 & 0.00275 \\
-NVDA & -0.07238 & -0.06988 & -0.32653 & -0.32036 & 0.17440 & 0.01160 \\
-QQQ  & -0.02881 & -0.02863 & -0.11040 & -0.10687 & 0.16596 & 0.03044 \\
-SPY  & -0.02168 & -0.02162 & -0.08590 & -0.08397 & 0.19267 & 0.00015 \\
-TLT  & -0.01430 & -0.01339 & -0.08194 & -0.08115 & 0.00000 & 0.08351 \\
-XLE  & -0.02856 & -0.02851 & -0.17052 & -0.16881 & 0.00000 & 0.01507 \\
-XLF  & -0.02381 & -0.02367 & -0.10478 & -0.10208 & 0.00000 & 0.13615 \\
-XLK  & -0.02809 & -0.02773 & -0.10933 & -0.10643 & 0.02638 & 0.01186 \\
-XLV  & -0.01842 & -0.01822 & -0.08661 & -0.08266 & 0.00000 & 0.00323 \\
+P8  & 315 & 11 & 0.5612 & -0.0012 & 1.0464 & 0.0183 \\
+P11 & 497 & 5  & 0.4701 & -0.0013 & 0.9940 & 0.0600 \\
+P16 & 36  & 5  & 0.5232 & -0.0011 & 1.0129 & 0.0255 \\
+P21 & 372 & 7  & 0.6582 & -0.0018 & 0.8492 & 0.0673 \\
 \bottomrule
 \end{tabular}
-\caption{Ticker-level European-option comparison with vanilla Deep
-Hedging. Higher mean gains and CVaR$_{5\%}$ are better, while lower
-bound occupancy is better. The two ProtoHedge columns use the
-screened mean and tail frontiers, respectively.}
-\label{tab:european-ticker-comparison}
+\caption{Nearest observed states in the QQQ case study for four dominant
+European prototypes. Prices are normalized by episode-initial spot. These
+state summaries support example-based inspection; calendar-event labels will
+be added from the contract-consistent rerun rather than inferred from path
+shape alone.}
+\label{tab:nearest-states}
 \end{table*}
 
-Figure~\ref{fig:european-mean-heatmap} visualizes the mean-gain results
-by ticker and model. Each row should be read horizontally: the cell
-values are seed-averaged held-out gains for one ticker, and less negative
-values indicate better performance. The figure shows that the
-mean-oriented ProtoHedge frontier tracks or improves on vanilla Deep
-Hedging across the panel, with the clearest gains on AAPL, NVDA, TLT,
-and XLK.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../paper/final_notebook_assets/real_data_panel/panel_mean_heatmap.png}
-\caption{Mean gains by ticker and model for European short-call hedging.
-Each row is a ticker and each cell is the mean held-out gain averaged
-over seeds. Comparisons should be made horizontally within a ticker:
-higher, or less negative, values are better.}
-\Description{Heatmap of average mean gains for six model families across
-ten tickers.}
-\label{fig:european-mean-heatmap}
-\end{figure*}
-
-Figure~\ref{fig:european-cvar-heatmap} gives the corresponding
-tail-risk comparison. It shows that a ProtoHedge frontier is the
-strongest CVaR$_{5\%}$ model for every ticker in the panel. In
-particular, the tail-oriented configuration improves on vanilla in all
-ten direct comparisons, which is the strongest panel-level evidence
-that prototype structure need not come at the cost of tail behavior.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../paper/final_notebook_assets/real_data_panel/panel_cvar_heatmap.png}
-\caption{Empirical CVaR$_{5\%}$ by ticker and model for European
-short-call hedging. Less negative CVaR$_{5\%}$ values indicate smaller
-average losses in the worst five percent of held-out episodes. A
-ProtoHedge frontier provides the strongest CVaR$_{5\%}$ result for
-every ticker.}
-\Description{Heatmap of empirical CVaR at the five percent level for
-six model families across ten tickers.}
-\label{fig:european-cvar-heatmap}
-\end{figure*}
-
-\subsection{Position-Bound Analysis}
-
-Position bounds prevent a learned hedge from taking unrealistically
-large cumulative exposures. Bound occupancy therefore measures how
-often a policy is effectively pressed against the edge of the feasible
-trading region. A policy with strong performance but persistent
-bound-saturation is less economically credible, because its apparent
-performance may depend heavily on the imposed constraint rather than on
-a stable hedge rule.
-
-The aggregate evidence favors ProtoHedge. Vanilla Deep Hedging has mean
-bound occupancy of $0.0775$, compared with $0.0486$ for the
-mean-oriented ProtoHedge frontier and $0.0304$ for the tail-oriented
-frontier. These correspond to average reductions of approximately
-$37\%$ and $61\%$, respectively, relative to vanilla. The improvement
-is not universal: for TLT, XLE, XLF, and XLV, the selected tail frontier
-has higher occupancy than vanilla. This heterogeneity is important and
-shows why the paper reports per-ticker diagnostics rather than only a
-pooled average.
-
-Figure~\ref{fig:european-bound-heatmap} makes this diagnostic
-transparent. The learned-model columns should be compared within each
-row; darker or larger values correspond to more frequent contact with a
-hard cumulative-position limit. ProtoHedge often achieves competitive
-mean or tail performance without greater bound reliance, particularly
-for AAPL, IWM, NVDA, QQQ, and SPY.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../paper/final_notebook_assets/real_data_panel/panel_bound_heatmap.png}
-\caption{Cumulative position-bound occupancy by ticker and model.
-Each cell is the fraction of held-out decision times at which the
-cumulative hedge is at a hard position limit. Lower values are more
-economically credible. The comparison among learned policies shows that
-ProtoHedge often reduces reliance on the hard bounds relative to vanilla
-Deep Hedging.}
-\Description{Heatmap of cumulative position-bound occupancy for six
-model families across ten tickers.}
-\label{fig:european-bound-heatmap}
-\end{figure*}
-
-The bound analysis strengthens the main performance result. ProtoHedge
-does not obtain its favorable panel-level mean and CVaR performance by
-systematically taking more extreme feasible positions. Instead, the
-prototype bottleneck is consistent with a less boundary-driven policy
-on average, while preserving competitive hedging outcomes.
-
-\subsection{Interpretability Verification}
-
-Performance alone does not establish that ProtoHedge is interpretable.
-We therefore inspect the learned prototype mechanism directly using a
-representative QQQ frontier model with $25$ prototypes. The goal is not
-to claim that a small number of states completely explains every
-decision, but to test whether the policy actually routes decisions
-through a sparse and inspectable set of recurring empirical states.
-
-Figure~\ref{fig:qqq-prototype-concentration} reports cumulative
-prototype usage after sorting prototypes from most to least used. The
-three most-used prototypes account for $58.4\%$ of total assignment
-mass, and the ten most-used prototypes account for approximately
-$99.6\%$. Thus, although the model is supplied with 25 prototypes, its
-decisions are effectively concentrated in a much smaller subset of
-recurrently used state representatives.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{../paper/final_notebook_assets/real_data_panel/qqq_prototype_concentration.png}
-\caption{Prototype concentration for a representative QQQ ProtoHedge
-model with 25 prototypes. The horizontal axis gives the number of
-most-used prototypes retained, and the vertical axis gives their
-cumulative assignment mass. The steep initial increase shows that a
-small subset of prototypes explains most decisions.}
-\Description{Cumulative prototype-usage curve for the representative QQQ
-ProtoHedge model.}
-\label{fig:qqq-prototype-concentration}
-\end{figure}
-
-Figure~\ref{fig:qqq-volatility-usage} tests whether this usage is
-state-dependent rather than static. Each row is a volatility regime and
-each column is a prototype; color denotes the average similarity weight
-assigned in that regime. Several dominant prototypes change
-substantially across regimes. For example, prototype 8 is most prominent
-in low-volatility episodes, whereas prototypes 18 and 23 receive
-substantially more weight in high-volatility episodes. This behavior is
-consistent with the intended interpretation of ProtoHedge: distinct
-representative states become relevant under different market
-conditions.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../paper/final_notebook_assets/real_data_panel/qqq_vol_regime_prototype_usage.png}
-\caption{Prototype usage by realized-volatility regime for the
-representative QQQ model. Rows correspond to low-, medium-, and
-high-volatility held-out episodes; columns correspond to individual
-prototypes; color represents average prototype-assignment weight.
-Regime-specific changes in the dominant columns show that the prototype
-layer responds to market conditions rather than applying a fixed
-mixture of prototypes.}
-\Description{Heatmap of prototype-assignment weights across volatility
-regimes for the representative QQQ ProtoHedge model.}
-\label{fig:qqq-volatility-usage}
-\end{figure*}
-
-Finally, Figure~\ref{fig:qqq-nearest-episodes} grounds the dominant
-prototypes in actual historical episodes. Each panel shows the
-normalized spot path nearest to one of the most-used prototypes, and
-the dashed vertical line marks the time step at which the prototype
-match occurs. The retrieved examples are recognizable market
-configurations---including moderately rising, recovering, and sharply
-drawn-down paths---rather than abstract latent coordinates. This
-retrieval property is the practical interpretability advantage of
-ProtoHedge: a hedge decision can be linked back to concrete historical
-situations that a domain expert can inspect.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../paper/final_notebook_assets/real_data_panel/qqq_nearest_historical_episodes.png}
-\caption{Nearest historical QQQ episodes for four dominant prototypes.
-Each subplot shows a normalized 20-step spot path; the dashed line marks
-the state that is nearest to the corresponding prototype. These
-retrievals connect the learned prototype representation to concrete
-historical market trajectories.}
-\Description{Four normalized historical QQQ paths nearest to dominant
-prototypes, with dashed lines marking the matched decision times.}
-\label{fig:qqq-nearest-episodes}
-\end{figure*}
-
-Together, the concentration, regime-usage, and nearest-episode
-diagnostics provide direct evidence that the prototype layer is active
-and inspectable in the real-data setting. They do not prove that every
-prototype has a unique economic interpretation, but they rule out the
-simpler concern that prototypes are merely decorative parameters with
-diffuse or state-invariant usage.
+Together, concentration, regime use, and nearest-state retrieval verify three
+different aspects of interpretability: the policy uses a finite and non-uniform
+state dictionary, the assignment mechanism responds to market conditions, and
+dominant anchors can be inspected as observed states. They do not yet establish
+that professional hedgers find the explanations operationally useful, nor do
+they justify labeling a retrieved state as a crisis or flash crash without its
+calendar metadata.
 
 \subsection{Asian-Option Results}
+\label{subsec:asian_results}
 
-The final empirical extension applies the same framework to an
-at-the-money short Asian call. Unlike the European liability, the Asian
-payoff depends on the arithmetic average of the underlying over the
-specified averaging window. This experiment therefore tests whether
-ProtoHedge remains competitive when the liability depends on the path
-rather than solely on the terminal underlying price.
+The Asian experiment changes the liability and adds running-average moneyness
+to every learned policy and prototype state, while preserving the data split,
+hedge instruments, costs, candidate grid, and selection rules. It therefore
+tests whether ProtoHedge remains competitive when current prices alone are not
+a sufficient liability state.
 
-The Asian-option panel will use the same ten tickers, episode
-construction, train--validation--test splits, three-seed protocol,
-transaction costs, position constraints, model grid, and
-interpretability diagnostics as the European experiment. The analysis
-will answer two questions:
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & Mean offset & Offset CVaR$_{5\%}$ & Bound occupancy & Tickers \\
+\midrule
+Unhedged & -0.016479 & -0.078681 & 0.000000 & 10 \\
+Spot-Delta & -0.016265 & -0.074999 & 0.000000 & 10 \\
+Spot-Delta Band & -0.016240 & -0.074893 & 0.000000 & 10 \\
+Deep Hedging & -0.015801 & -0.074384 & 0.018519 & 9 \\
+ProtoHedge (Validation-Mean) & \textbf{-0.015530} & -0.073844 & 0.019606 & 9 \\
+ProtoHedge (Validation-Tail) & -0.015786 & \textbf{-0.071501} & 0.038187 & 9 \\
+\bottomrule
+\end{tabular}
+\caption{Asian short-call results averaged across the available ticker runs.
+The final column reports the number of tickers contributing to each row.}
+\label{tab:asian-panel-average}
+\end{table*}
 
-\begin{enumerate}
-    \item Does ProtoHedge remain competitive with vanilla Deep Hedging
-    and the delta baselines on mean gains and CVaR$_{5\%}$ when hedging a
-    path-dependent liability?
-    \item Do the learned prototypes remain concentrated, regime-aware,
-    and traceable to coherent historical paths when the payoff depends
-    on path history?
-\end{enumerate}
+The principal performance conclusion survives path dependence. Relative to
+Deep Hedging, the mean-selected policy improves average mean offset by
+$0.000271$ and CVaR$_{5\%}$ by $0.000541$. It wins seven of nine available
+ticker comparisons on each metric. The tail-selected policy has essentially
+the same mean offset as Deep Hedging, a difference of $0.000015$, while
+improving average CVaR$_{5\%}$ by $0.002883$, or approximately $3.88\%$ of the
+Deep Hedging tail-loss magnitude. Its CVaR is higher for all nine available
+tickers. This is the strongest current evidence that the prototype bottleneck
+remains useful when the liability is path-dependent.
 
-% INSERT AFTER THE FINAL 10-TICKER ASIAN SWEEP:
-% 1. Asian panel-average table.
-% 2. Asian mean, CVaR, and bound-occupancy heatmaps.
-% 3. One representative prototype concentration/regime/nearest-path
-%    interpretability figure.
-% 4. A concise comparison with the European-option findings.
+The position result does not carry over unchanged. The mean-selected policy
+has average occupancy $0.0196$ versus $0.0185$ for Deep Hedging, and the
+tail-selected policy reaches $0.0382$. Unlike the European task, neither Asian
+selection lowers occupancy ticker by ticker. The path-dependent liability can
+therefore preserve the performance--interpretability tradeoff without
+preserving the same inventory-regularization pattern. This distinction is more
+informative than a blanket claim that ProtoHedge always trades less
+aggressively.
 
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{Mean offset} & \multicolumn{2}{c}{CVaR$_{5\%}$} &
+\multicolumn{2}{c}{Bound occupancy} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Ticker & DH & Proto-Mean & DH & Proto-Tail & DH & Proto-Tail \\
+\midrule
+IWM  & -0.0154 & -0.0151 & -0.0751 & -0.0715 & 0.0000 & 0.0000 \\
+NVDA & -0.0375 & -0.0364 & -0.1672 & -0.1635 & 0.1667 & 0.1949 \\
+QQQ  & -0.0154 & -0.0156 & -0.0627 & -0.0583 & 0.0000 & 0.0000 \\
+SPY  & -0.0120 & -0.0120 & -0.0532 & -0.0519 & 0.0000 & 0.0573 \\
+TLT  & -0.0080 & -0.0073 & -0.0449 & -0.0427 & 0.0000 & 0.0068 \\
+XLE  & -0.0154 & -0.0153 & -0.0882 & -0.0855 & 0.0000 & 0.0814 \\
+XLF  & -0.0133 & -0.0132 & -0.0643 & -0.0616 & 0.0000 & 0.0014 \\
+XLK  & -0.0149 & -0.0148 & -0.0618 & -0.0591 & 0.0000 & 0.0007 \\
+XLV  & -0.0103 & -0.0101 & -0.0522 & -0.0493 & 0.0000 & 0.0012 \\
+\bottomrule
+\end{tabular}
+\caption{Ticker-level Asian comparison across the available learned-policy
+runs.}
+\label{tab:asian-ticker}
+\end{table*}
 
+Table~\ref{tab:cross-liability-summary} summarizes the central comparison with
+Deep Hedging. Across both liabilities, the validation-tail policy provides the
+most consistent lower-tail improvement. The mean selector provides the larger
+average-offset gain. The European and Asian occupancy columns then show why
+performance and constraint use must be assessed jointly rather than collapsed
+into one score.
 
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Liability & Selection & $N$ & $\Delta$Mean & Mean wins & $\Delta$CVaR & CVaR wins & $\Delta$Bound \\
+\midrule
+European & Validation-Mean & 10 & 0.000625 & 10 & 0.001030 & 7 & -0.028898 \\
+European & Validation-Tail & 10 & 0.000132 & 6 & 0.002672 & 10 & -0.047081 \\
+Asian & Validation-Mean & 9 & 0.000271 & 7 & 0.000541 & 7 & 0.001087 \\
+Asian & Validation-Tail & 9 & 0.000015 & 5 & 0.002883 & 9 & 0.019669 \\
+\bottomrule
+\end{tabular}
+\caption{ProtoHedge minus Deep Hedging, averaged equally across available
+tickers. Positive mean and CVaR differences favor ProtoHedge; negative bound
+differences favor ProtoHedge. ``Wins'' counts tickers with a favorable paired
+point estimate. Statistical claims require the locked block-bootstrap
+intervals.}
+\label{tab:cross-liability-summary}
+\end{table*}
 
-
-
-
-
-
-
+Overall, the Asian experiment extends rather than merely repeats the European
+finding. The learned policy receives the payoff state that makes the Asian
+problem Markov in the supplied information, the tail-oriented prototype policy
+remains competitive on every available ticker, and its prototype library is
+inspectable but less concentrated. At the same time, higher boundary use shows
+that path dependence changes the economic behavior of the selected policy.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-The evidence in this paper supports the empirical-validation motivation
-of ProtoHedge. On a ten-ticker panel of historical European-option
-hedging episodes, ProtoHedge remains competitive with standard Deep
-Hedging while retaining a directly inspectable prototype layer. The
-mean-oriented ProtoHedge frontier achieves the strongest average mean
-gains across the panel, while the tail-oriented frontier achieves the
-strongest average empirical CVaR$_{5\%}$. Both ProtoHedge frontiers also
-have lower average position-bound occupancy than standard Deep Hedging.
+The results answer the paper's central empirical question in qualified but
+favorable terms. A fixed prototype bottleneck can remain competitive with a
+common-protocol Deep Hedging network on historical data. In the European task,
+the mean-oriented and tail-oriented selectors improve the corresponding panel
+averages and reduce average use of hard position limits. In the Asian task,
+the same selectors preserve mean and lower-tail competitiveness after adding
+the running payoff state, but the reduction in boundary use disappears. The
+interpretability evidence also changes with the liability: the European policy
+uses a compact effective dictionary and switches its dominant anchor across
+several regimes, whereas the Asian policy distributes mass across a larger
+library while retaining one dominant prototype.
 
-The appropriate interpretation is not that ProtoHedge universally
-dominates all hedging methods. Rather, the results show that imposing a
-prototype bottleneck need not cause a large empirical performance loss.
-In the present setting, the bottleneck can coincide with slightly better
-average gains or tail outcomes, while making the learned policy more
-auditable. This is the central performance--interpretability tradeoff
-that ProtoHedge was designed to deliver.
+\subsection{Economic and Modeling Interpretation}
 
-\subsection{Where ProtoHedge Works}
+The magnitude of the performance differences should be interpreted in the
+context of the research objective. All learned models trade the same two
+instruments, observe the same task-relevant information, optimize the same
+monetary utility, and face the same costs and bounds. ProtoHedge's contribution
+is therefore not a fundamentally different source of hedging returns. It is a
+restriction on how a neural action is represented. Preserving or slightly
+improving offset quality under that restriction is evidence that the black-box
+benchmark may use more representational freedom than this empirical task
+requires.
 
-ProtoHedge performs particularly well on the criteria most closely
-aligned with the paper's motivation. First, the mean-oriented frontier
-improves on standard Deep Hedging in average mean gains for all ten
-tickers. Second, the tail-oriented frontier improves empirical
-CVaR$_{5\%}$ relative to standard Deep Hedging for all ten tickers.
-These results span broad-market ETFs, sector ETFs, a Treasury ETF, and
-large-cap individual equities, suggesting that the finding is not tied
-to a single underlying.
+The separate validation selectors are also informative. The mean-oriented
+configuration yields the larger average-offset improvement, while the
+tail-oriented configuration yields the more consistent CVaR improvement. This
+means that ``best ProtoHedge'' is not a single economically neutral concept.
+The appropriate model depends on whether a decision maker prioritizes average
+liability offset or severe-loss mitigation. The prototype layer makes this
+choice easier to audit because the selected policy can be examined through its
+prototype actions, assignment concentration, and representative states.
 
-The position-bound analysis provides a second positive result. On
-average, both ProtoHedge frontiers spend less time at hard cumulative
-position limits than standard Deep Hedging. This matters because a
-policy that repeatedly sits at a constraint may derive apparent
-performance from extreme feasible exposures rather than from a stable
-hedging rule. The lower average bound occupancy of ProtoHedge therefore
-strengthens, rather than weakens, the interpretation of its competitive
-performance.
+Position-bound occupancy adds a behavioral dimension that is invisible in
+mean and CVaR alone. Lower European occupancy suggests that the prototype
+restriction can act as an inventory regularizer. The Asian result prevents us
+from generalizing that claim: path-dependent hedging uses the feasible region
+more aggressively even when performance remains competitive. The practical
+lesson is that interpretability, tail protection, and conservative inventory
+use are related but distinct properties. They should be reported jointly, not
+combined into a single ranking.
 
-Finally, the prototype diagnostics show that the interpretability
-mechanism remains active on real data. In the representative QQQ
-analysis, most prototype usage mass is concentrated in a small subset
-of the available prototypes, the dominant prototypes shift across
-return, volatility, and drawdown regimes, and prototype matches can be
-retrieved as concrete historical price paths. This does not mean that
-every prototype has a single universal economic label. It does mean
-that the policy can be examined through recurring market states instead
-of only through opaque neural-network weights.
+\subsection{Limitations and Cases Without Dominance}
 
-\subsection{Where ProtoHedge Does Not Dominate}
+ProtoHedge does not dominate every model, asset, or criterion. The
+mean-oriented and tail-oriented policies are different validation selections;
+neither is claimed to optimize all metrics simultaneously. European occupancy
+is higher than Deep Hedging for several individual tickers even though the
+panel average is lower, and both Asian selections have higher average
+occupancy. Some per-ticker mean comparisons also favor Deep Hedging. These
+exceptions are part of the empirical result rather than failures to be hidden:
+they identify settings in which the prototype restriction or the selected
+objective trades flexibility for auditability.
 
-The results do not support a claim of universal superiority. The
-relative advantage varies by ticker, metric, and selected frontier. For
-example, the tail-oriented ProtoHedge frontier has higher bound
-occupancy than standard Deep Hedging for several tickers, including TLT,
-XLE, XLF, and XLV. Similarly, the simple unhedged and delta-style
-baselines remain competitive on some secondary metrics, particularly
-shortfall probability under the current gain definition.
+Several broader limitations remain. First, the reported outcome excludes the
+initial liability premium. It is a liability-offset measure for controlled
+policy comparison, not a complete terminal P\&L, and zero does not represent
+economic break-even. A complete P\&L study would require an observed or
+independently priced liability premium under a clearly stated valuation rule.
+This is also why the negative-offset frequency is not a headline metric.
 
-This variation is economically plausible. Hedging performance depends
-on the underlying's return distribution, implied-volatility behavior,
-liquidity, option-market quality, and the interaction between
-transaction costs and position constraints. ProtoHedge should
-therefore be understood as an interpretable alternative with a
-favorable average tradeoff, not as a replacement for every black-box or
-classical hedge in every market.
+Second, the transaction-cost formula is explicit and applied consistently but
+is stylized. The backtest does not reconstruct executable bid and ask trades,
+market impact, funding, margin, assignment risk, or desk-level risk limits. It
+also assumes that the selected listed hedge option remains tradable at the
+observed daily midpoint throughout an episode. Contract continuity corrects
+the self-financing identity, but it does not eliminate execution uncertainty.
 
-The current results also do not establish that a single fixed
-ProtoHedge configuration is optimal across all assets. The reported
-mean and tail frontiers summarize screened configurations within each
-ticker. A practitioner seeking to deploy one model specification across
-markets would need an additional validation exercise that fixes the
-architecture and hyperparameters before the final test evaluation.
+Third, the panel is broad relative to a single-ticker case study but remains
+limited to liquid U.S. equities and ETFs. It does not establish external
+validity for index options, foreign exchange, commodities, rates, digital
+assets, or less liquid single names. The 20-step horizon and near-ATM call
+selection similarly cover only one part of the option surface.
 
-\subsection{Limitations}
+Fourth, windows overlap within each calendar period. Splitting before window
+construction and imposing a 19-observation embargo eliminate shared dates
+across train, validation, and test sets, but they do not make adjacent test
+windows independent. The final claims must therefore use the paired
+circular-block intervals specified in Section~\ref{subsec:evaluation_metrics},
+not standard errors that treat all episodes as independent. The current point
+estimates should not be described as statistically significant until those
+intervals are populated.
 
-Several limitations define the scope of the present contribution.
+Fifth, the final protocol-locked run is required to regenerate every table
+under cumulative
+inventory accounting, chronological purged splits, fixed hedge contracts,
+payoff-sufficient Asian state, and validation-only configuration selection.
+The paper is structured so those results replace numerical cells without
+changing definitions or claims logic.
 
-First, the study uses a historical U.S. equity and ETF option panel.
-Although the ten-ticker design is materially broader than a
-single-underlying study, it does not establish robustness across
-international equities, equity indices, commodities, foreign exchange,
-rates, or cryptocurrency markets. The results should therefore not be
-read as evidence that ProtoHedge is already asset-class invariant.
+Sixth, inspectability is not the same as practitioner validation. Concentrated
+weights and nearest historical states show what the model uses, but the present
+study does not ask professional hedgers whether those explanations improve
+model review or trading decisions. Likewise, the retrieved-state artifact does
+not yet attach calendar dates and event annotations. We therefore do not claim
+that the current prototypes have already been verified as financial-crisis or
+flash-crash states. Date-aware retrieval and a prespecified event study are
+needed for that stronger claim.
 
-Second, the hedging environment is realistic in important respects---it
-uses historical option observations, transaction costs, step-wise
-accounting, and hard trading constraints---but it remains a controlled
-backtest. It does not fully model bid--ask execution uncertainty,
-market impact, funding costs, changing liquidity, margin requirements,
-or the operational constraints of a live trading desk. The short-call
-liability is also stylized rather than a complete portfolio of actual
-client positions.
+Finally, the benchmark set is intentionally focused: transparent delta rules
+and a common-protocol feed-forward Deep Hedging network. It does not include the
+full range of recurrent, transformer, distributional, or dynamics-aware deep
+hedging methods, including Deeper Hedging under Chiarella--Heston dynamics
+\cite{gao2023deeper}. Nor does the paper complete the original scalability
+agenda. The grid varies $K$, source policy, and similarity weighting, but it
+does not systematically isolate wall-clock complexity, memory use, feature
+dimension, or approximate nearest-neighbor search. Those are distinct
+comparative and systems studies rather than evidence already supplied by this
+run.
 
-Third, the current rolling 20-step episode design is well suited to
-controlled comparison, but future work should include strictly
-time-ordered out-of-sample tests with non-overlapping evaluation
-periods. Such tests would provide a stronger assessment of robustness
-to non-stationarity and would better isolate performance during
-specific stress events.
+\subsection{Relation to the ProtoHedge Research Agenda}
 
-Fourth, the interpretability analysis is evidence of inspectability,
-not external validation of usability. Prototype concentration,
-regime-dependent usage, and nearest historical states demonstrate that
-the model exposes meaningful internal structure. However, this paper
-does not include an evaluation by professional hedgers, portfolio
-managers, or risk officers. Whether practitioners find the retrieved
-prototype states useful for actual decision support remains an open
-question.
+The original ProtoHedge paper identified empirical validation,
+path-dependent instruments, historical-scenario interpretation, scalability,
+and broader model comparison as future work \cite{faloughi2025protohedge}. The
+present study directly advances the first two items: it constructs a real-data
+panel, enforces historical out-of-sample evaluation, and adds an Asian
+liability with a payoff-sufficient state. It partially advances historical
+interpretation by measuring concentration, regime use, and nearest-state
+retrieval. It does not claim to complete the professional-user, scalability,
+or broad-benchmark components.
 
-Fifth, the study compares ProtoHedge with standard Deep Hedging and
-classical delta-style baselines, but not with the full range of recent
-deep-hedging architectures. In particular, future work should compare
-against deeper or recurrent hedging networks, alternative risk-aware
-objectives, and models evaluated under richer dynamics such as
-Chiarella--Heston-type environments. Those comparisons are necessary
-to locate ProtoHedge more precisely within the broader deep-hedging
-literature.
-
-Finally, the present work does not provide a systematic scalability
-study. We evaluate several prototype counts and similarity
-specifications, but we do not yet fully characterize how computational
-cost, prototype count, feature dimensionality, and performance interact
-as the problem grows. This is especially relevant for high-dimensional
-hedging tasks involving multiple correlated assets, richer option
-surfaces, or longer horizons. Approximate nearest-neighbor methods,
-more efficient prototype-selection procedures, and trainable prototype
-locations are promising directions for addressing this limitation.
-
-\subsection{Path-Dependent and Practical Extensions}
-
-The final Asian-option experiment directly addresses the next empirical
-extension proposed in the original ProtoHedge research agenda. Because
-an Asian payoff depends on the trajectory of the underlying rather than
-only its terminal value, it provides a more demanding test of whether
-prototype-based decisions remain useful under path dependence. Once the
-full ten-ticker Asian panel is complete, it should be evaluated using
-the same performance, bound-occupancy, and interpretability framework
-as the European-option results.
-
-Beyond Asian options, barrier options and other path-dependent
-liabilities would provide natural stress tests of the framework.
-Further empirical work should also identify whether dominant prototypes
-correspond to recognizable market events, including crisis periods,
-volatility shocks, and rapid drawdowns. The strongest eventual external
-validation would combine this quantitative analysis with structured
-feedback from professional hedgers who can assess whether prototype
-retrievals are economically meaningful and operationally useful.
-
+This distinction keeps the paper's contribution clear. A single additional
+run cannot credibly ``solve'' every future-work axis because each requires a
+different experimental design. Scalability requires controlled timing and
+memory experiments as dimensionality and $K$ vary. Comparative evaluation
+requires faithful implementation and tuning of additional models. Practitioner
+validation requires a human-subject or structured expert protocol. These are
+natural follow-on projects, but they should not dilute the central contribution
+of the present empirical test.
 
 \section{Conclusion}
 
-Each author must be defined separately for accurate metadata
-identification.  As an exception, multiple authors may share one
-affiliation. Authors' names should not be abbreviated; use full first
-names wherever possible. Include authors' e-mail addresses whenever
-possible.
+This paper tests whether ProtoHedge's fixed, example-based representation
+survives the transition from simulation to historical option data. The
+framework uses one consistent listed hedge contract per episode, chronological
+purged splits, and cumulative-inventory accounting. It also imposes stylized
+costs, hard action and position bounds, validation-only selection, and a
+payoff-sufficient state for the Asian liability. The reported outcome excludes
+the liability premium and therefore is not complete economic P\&L.
 
+Across the current panel estimates, ProtoHedge remains competitive with Deep
+Hedging on both liabilities. The European mean and tail selections improve
+their targeted average offset metrics while reducing average bound occupancy.
+The Asian selections preserve the performance result, particularly in the
+lower tail, but use the hard bounds more frequently. Prototype assignments are
+non-uniform, respond to market regimes, and map back to observed historical
+states; the Asian policy uses a larger effective dictionary than the European
+policy. These findings support the original ProtoHedge thesis in a qualified
+empirical form: interpretability can be introduced at little apparent cost to
+hedging quality, but its effects on inventory behavior and prototype
+concentration depend on the liability.
 
+The remaining work before submission is finite and explicit: complete the
+protocol-locked rerun, populate paired circular-block confidence intervals,
+attach dates to nearest historical states, and update the numerical cells
+without changing the prespecified analysis. Subject to those checks, the paper
+provides the first
+systematic real-data validation of the fixed-prototype hedging framework and a
+foundation for subsequent work on scalable comparison and trainable prototype
+locations.
 \section*{Ethics and Privacy Statement}
 
-This section of your ACM work should discuss the potential societal
-risks that might result from its publication; two to three sentences
-related to the findings of your study, or new advancements made
-possible by their developed methods. The privacy and ethics statement
-should clearly address the broader impacts of their work as it relates
-to the authors' interpretation of privacy, fairness, safety, human
-rights, data sovereignty, or future misuse and any benefit/risk
-trade-off resulting from this research. We acknowledge that some
-papers may have minimal societal risks beyond those considered by
-institutional review boards, and the dimensions considered by any
-review of the user study design or dataset licenses could be provided
-in this statement.
+This study uses licensed historical market data and does not involve human
+subjects or personal data. A principal risk is that backtest results could be
+misinterpreted as evidence of live-trading profitability; we therefore state
+the premium convention, execution assumptions, uncertainty, and external
+validity limitations explicitly. Prototype explanations may improve model
+auditability, but they should support rather than replace professional risk
+management, independent validation, and applicable regulatory controls.
 
 %%
 %% The next two lines define the bibliography style to be used, and
 %% the bibliography file.
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{sample-base}
-
-
 %%
-%% If your work has an appendix, this is the place to put it.
+%% The next two lines define the bibliography style to be used, and
+%% the bibliography file.
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
 \appendix
 
-\section{Research Methods}
+\section{Outcome and Inference Details}
+\label{app:inference}
 
-\subsection{Part One}
+For a set of test offsets $\{\mathcal{O}_i\}_{i=1}^{n}$, let
+$q_{0.05}$ be the empirical fifth percentile. The reported lower-tail
+statistic is
+\[
+\widehat{\mathrm{CVaR}}_{5\%}
+=
+\frac{1}{|\mathcal{I}_{0.05}|}
+\sum_{i\in\mathcal{I}_{0.05}}\mathcal{O}_i,
+\qquad
+\mathcal{I}_{0.05}=\{i:\mathcal{O}_i\leq q_{0.05}\}.
+\]
+Because the outcome is a gain-like offset, a larger value is preferable. For
+RMSE and downside deviation, the comparison signs are reversed before
+reporting a ProtoHedge improvement so that every paired effect has the same
+orientation.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
-malesuada, quam in pulvinar varius, metus nunc fermentum urna, id
-sollicitudin purus odio sit amet enim. Aliquam ullamcorper eu ipsum
-vel mollis. Curabitur quis dictum nisl. Phasellus vel semper risus, et
-lacinia dolor. Integer ultricies commodo sem nec semper.
+For each ticker, liability, selector, and test episode, offsets are first
+averaged across available training seeds. ProtoHedge and Deep Hedging are then
+kept paired on the same episode indices. A circular block sample concatenates
+random blocks of 20 adjacent episode indices, wrapping at the end of the test
+sequence, until the original sample length is reached. The paired statistic is
+recomputed for each of 2,000 replicates. Panel replicates resample within every
+ticker independently and then take the equal-ticker average. Percentile 2.5\%
+and 97.5\% quantiles define the reported interval.
 
-\subsection{Part Two}
+\section{Data-Integrity Checks}
+\label{app:data_checks}
 
-Etiam commodo feugiat nisl pulvinar pellentesque. Etiam auctor sodales
-ligula, non varius nibh pulvinar semper. Suspendisse nec lectus non
-ipsum convallis congue hendrerit vitae sapien. Donec at laoreet
-eros. Vivamus non purus placerat, scelerisque diam eu, cursus
-ante. Etiam aliquam tortor auctor efficitur mattis.
+The final data artifact records the following checks for every retained
+sample:
+\begin{enumerate}
+    \item all 20 observations belong to one chronological split and one
+    contiguous date block;
+    \item the 19-observation embargo is applied after each split boundary;
+    \item one \texttt{optionid}, strike, and expiration are used throughout
+    the episode;
+    \item the listed hedge option remains unexpired after the liability
+    horizon and passes the initial liquidity and moneyness filters;
+    \item one-step listed-option returns are multiplied by cumulative option
+    inventory, not only the newest trade;
+    \item Asian policies and prototype features contain running average
+    moneyness at every decision time; and
+    \item model configuration files identify whether an artifact was produced
+    by the corrected scientific protocol, preventing reuse of superseded
+    random-split or contract-switching results.
+\end{enumerate}
 
-\section{Online Resources}
+\section{Recommended Supplementary Reporting}
+\label{app:supplementary}
 
-Nam id fermentum dui. Suspendisse sagittis tortor a nulla mollis, in
-pulvinar ex pretium. Sed interdum orci quis metus euismod, et sagittis
-enim maximus. Vestibulum gravida massa ut felis suscipit
-congue. Quisque mattis elit a risus ultrices commodo venenatis eget
-dui. Etiam sagittis eleifend elementum.
+The main paper emphasizes compact tables. The accompanying supplementary
+artifact should archive, without adding visual clutter to the core argument:
+\begin{enumerate}
+    \item full per-ticker results for every classical baseline, Deep Hedging,
+    and both validation-selected ProtoHedge policies;
+    \item validation-only candidate tables over prototype count, source
+    policy, and similarity weighting;
+    \item per-ticker paired circular-block intervals for mean offset,
+    CVaR$_{5\%}$, RMSE, and downside deviation;
+    \item prototype actions, assignment frequencies, concentration curves,
+    and regime-conditioned assignment tables for each selected model; and
+    \item nearest historical states with ticker, date, contract identifier,
+    strike, expiration, payoff state, and complete 20-step price trajectory.
+\end{enumerate}
 
-Nam interdum magna at lectus dignissim, ac dignissim lorem
-rhoncus. Maecenas eu arcu ac neque placerat aliquam. Nunc pulvinar
-massa et mattis lacinia.
+These materials separate model selection from final test reporting and permit
+readers to inspect the evidence underlying every aggregate claim.
 
 \end{document}
 \endinput
 %%
-%% End of file `sigconf.tex'.
+%% End of file `Final_Paper.tex'.

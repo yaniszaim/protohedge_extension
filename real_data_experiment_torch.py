@@ -23,13 +23,26 @@ if __package__ in [None, ""]:
         sys.path.insert(0, str(parent))
 
 from deephedging.base_torch import torchCast
+from deephedging.outcome_metrics import (
+    OUTCOME_DEFINITION_VERSION,
+    PREMIUM_INCLUDED,
+    summarize_liability_offset,
+)
+from deephedging.panel_data_pipeline import load_chronological_splits
 from deephedging.prototype_extraction_torch import build_prototype_payload, save_prototype_payload
 from deephedging.run_train_torch import run_experiment
 from deephedging.world_real_torch import RealWorld_Spot_ATM_Torch
 
 
-REQUIRED_RESULT_KEYS = ["utility", "utility0", "pnl", "gains", "actions", "payoff"]
-SUMMARY_KEYS = ["utility", "utility0", "gains", "payoff", "pnl", "cost"]
+REQUIRED_RESULT_KEYS = [
+    "utility",
+    "utility0",
+    "pnl",
+    "liability_offset",
+    "actions",
+    "payoff",
+]
+SUMMARY_KEYS = ["utility", "utility0", "payoff", "cost"]
 
 
 def _resolve_existing_path(path):
@@ -78,34 +91,10 @@ def _validate_data_file(data_path):
 
 
 def _split_indices(n_paths, train_frac, val_frac, seed, samples=None):
-    n_paths = int(n_paths)
-    train_frac = float(train_frac)
-    val_frac = float(val_frac)
-
-    if train_frac <= 0.0 or val_frac <= 0.0 or train_frac + val_frac >= 1.0:
-        raise ValueError("Require train_frac > 0, val_frac > 0, and train_frac + val_frac < 1")
-
-    rng = np.random.default_rng(int(seed))
-    indices = rng.permutation(n_paths)
-    if samples is not None:
-        samples = int(samples)
-        if samples <= 2:
-            raise ValueError("--samples must leave room for train, validation, and test splits")
-        if samples > n_paths:
-            raise ValueError(f"--samples={samples} exceeds available paths {n_paths}")
-        indices = indices[:samples]
-
-    n_selected = int(indices.shape[0])
-    n_train = max(1, int(np.floor(n_selected * train_frac)))
-    n_val = max(1, int(np.floor(n_selected * val_frac)))
-    if n_train + n_val >= n_selected:
-        raise ValueError("Split fractions leave no test paths; increase --samples or reduce fractions")
-
-    return {
-        "train": indices[:n_train].astype(np.int64),
-        "val": indices[n_train:n_train + n_val].astype(np.int64),
-        "test": indices[n_train + n_val:].astype(np.int64),
-    }
+    raise RuntimeError(
+        "Random historical episode splitting is disabled. Use the chronological "
+        "pre-window split artifacts created by panel_data_pipeline.py."
+    )
 
 
 def _world_cfg(data_path, indices, val_indices=None, seed=1234):
@@ -121,14 +110,16 @@ def _world_cfg(data_path, indices, val_indices=None, seed=1234):
     return cfg
 
 
-def _training_cfg(epochs, batch_size, lr):
+def _training_cfg(epochs, batch_size, lr, seed, device="auto"):
     return {
         "epochs": int(epochs),
         "lr": float(lr),
+        "device": str(device),
         "batch_size": batch_size,
         "epoch_refresh": max(1, int(epochs)),
         "clipvalue": 1.0,
         "global_clipnorm": 1.0,
+        "seed": int(seed),
         "lr_decay_factor": None,
         "lr_decay_patience": None,
     }
@@ -178,6 +169,19 @@ def _summarize_result(result):
         metrics[f"{key}_min"] = float(np.min(values))
         metrics[f"{key}_max"] = float(np.max(values))
 
+    liability_offset = _as_numpy(
+        result.get("liability_offset", result["gains"])
+    ).reshape(-1)
+    metrics.update(summarize_liability_offset(liability_offset))
+    trading_gain = _as_numpy(result["pnl"]).reshape(-1)
+    metrics.update(
+        {
+            "trading_gain_mean": float(np.mean(trading_gain)),
+            "trading_gain_std": float(np.std(trading_gain)),
+            "trading_gain_min": float(np.min(trading_gain)),
+            "trading_gain_max": float(np.max(trading_gain)),
+        }
+    )
     actions = _as_numpy(result["actions"])
     metrics["action_abs_mean"] = float(np.mean(np.abs(actions)))
     metrics["action_abs_max"] = float(np.max(np.abs(actions)))
@@ -187,7 +191,7 @@ def _summarize_result(result):
 
 def _evaluate(gym, data_path, split_name, indices):
     world = RealWorld_Spot_ATM_Torch(_world_cfg(data_path, indices))
-    data = torchCast(world.torch_data)
+    data = torchCast(world.torch_data, device=getattr(gym, "device", "cpu"))
 
     gym.eval()
     with torch.no_grad():
@@ -221,15 +225,16 @@ def _write_metrics_csv(path, summary):
 
 
 def run_real_data_pilot(
-    data_path="Data/training_paths.npy",
+    data_path="Data/NEW_PANEL_DECISION_V2/episodes/SPY_training_paths.npy",
+    split_path=None,
+    episode_metadata_path=None,
     output_dir=".deephedging_real_runs/first_real_data_pilot",
     samples=None,
-    train_frac=0.70,
-    val_frac=0.15,
     epochs=5,
     n_prototypes=25,
     batch_size=None,
     lr=1e-3,
+    device="auto",
     seed=1234,
     max_points=None,
 ):
@@ -238,11 +243,10 @@ def run_real_data_pilot(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     data_shape = _validate_data_file(data_path)
-    splits = _split_indices(
-        n_paths=data_shape[0],
-        train_frac=train_frac,
-        val_frac=val_frac,
-        seed=seed,
+    splits, split_info, _ = load_chronological_splits(
+        data_path=data_path,
+        split_path=split_path,
+        episode_metadata_path=episode_metadata_path,
         samples=samples,
     )
     np.savez(
@@ -263,7 +267,13 @@ def run_real_data_pilot(
         val_indices=splits["val"],
         seed=seed,
     )
-    training_cfg = _training_cfg(epochs=epochs, batch_size=batch_size, lr=lr)
+    training_cfg = _training_cfg(
+        epochs=epochs,
+        batch_size=batch_size,
+        lr=lr,
+        seed=seed,
+        device=device,
+    )
 
     print("\n=== training vanilla real-data baseline ===")
     vanilla = run_experiment(
@@ -317,15 +327,21 @@ def run_real_data_pilot(
         "seed": int(seed),
         "samples": None if samples is None else int(samples),
         "split_counts": {name: int(len(indices)) for name, indices in splits.items()},
-        "train_frac": float(train_frac),
-        "val_frac": float(val_frac),
+        "temporal_split": split_info,
         "epochs": int(epochs),
         "batch_size": batch_size,
         "lr": float(lr),
+        "device": str(device),
         "n_prototypes": int(n_prototypes),
         "prototype_path": str(prototype_path),
         "prototype_shape": list(np.asarray(payload["prototypes"]).shape),
         "prototype_feature_names": payload.get("feature_names"),
+        "outcome_definition": OUTCOME_DEFINITION_VERSION,
+        "premium_included": PREMIUM_INCLUDED,
+        "test_evaluation_policy": (
+            "single prespecified ProtoHedge configuration and matched "
+            "benchmark; no test-set model selection"
+        ),
         "metrics": metrics,
     }
 
@@ -339,29 +355,31 @@ def run_real_data_pilot(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-path", default="Data/training_paths.npy")
+    parser.add_argument("--data-path", default="Data/NEW_PANEL_DECISION_V2/episodes/SPY_training_paths.npy")
+    parser.add_argument("--split-path", default=None)
+    parser.add_argument("--episode-metadata-path", default=None)
     parser.add_argument("--output-dir", default=".deephedging_real_runs/first_real_data_pilot")
     parser.add_argument("--samples", type=int, default=None)
-    parser.add_argument("--train-frac", type=float, default=0.70)
-    parser.add_argument("--val-frac", type=float, default=0.15)
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--n-prototypes", type=int, default=25)
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--device", default="auto")
     parser.add_argument("--seed", type=int, default=1234)
     parser.add_argument("--max-points", type=int, default=None)
     args = parser.parse_args()
 
     run_real_data_pilot(
         data_path=args.data_path,
+        split_path=args.split_path,
+        episode_metadata_path=args.episode_metadata_path,
         output_dir=args.output_dir,
         samples=args.samples,
-        train_frac=args.train_frac,
-        val_frac=args.val_frac,
         epochs=args.epochs,
         n_prototypes=args.n_prototypes,
         batch_size=args.batch_size,
         lr=args.lr,
+        device=args.device,
         seed=args.seed,
         max_points=args.max_points,
     )

@@ -10,6 +10,7 @@ from cdxbasics.prettydict import PrettyOrderedDict as pdct  # NOQA
 from cdxbasics.util import isAtomic
 
 from collections.abc import Mapping
+import os
 import numpy as np
 import torch
 import math
@@ -24,9 +25,31 @@ _log = Logger(__file__)
 
 TORCH_VERSION = torch.__version__
 
-DEVICE = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
+
+def resolve_torch_device(device="auto"):
+    """Resolve a portable device setting and fail clearly on unavailable CUDA."""
+    requested = "auto" if device is None else str(device).strip().lower()
+    if requested == "auto":
+        requested = os.environ.get("PROTOHEDGE_DEVICE", "auto").strip().lower()
+    if requested == "auto":
+        requested = "cuda" if torch.cuda.is_available() else "cpu"
+
+    resolved = torch.device(requested)
+    if resolved.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError(
+            f"CUDA device {requested!r} was requested, but this PyTorch build "
+            "cannot access CUDA. Install a CUDA-enabled PyTorch wheel and verify "
+            "the VM GPU with `nvidia-smi`."
+        )
+    if resolved.type not in {"cpu", "cuda"}:
+        raise ValueError(
+            f"Unsupported ProtoHedge device {requested!r}; use 'auto', 'cpu', "
+            "'cuda', or 'cuda:<index>'."
+        )
+    return resolved
+
+
+DEVICE = resolve_torch_device("auto")
 
 NUM_GPU = torch.cuda.device_count()
 NUM_CPU = 1  # torch does not expose this the same way TF does
@@ -48,10 +71,6 @@ DIM_DUMMY = "_dimension_dummy"
 # -------------------------------------------------
 # Torch <--> Numpy
 # -------------------------------------------------
-
-import torch
-import numpy as np
-from collections.abc import Mapping
 
 def torchCast(x, dtype=torch.float32, device="cpu", native=False):
 

@@ -10,6 +10,13 @@ from .base import (
     assert_iter_not_is_nan,
     DIM_DUMMY,
 )
+from .hedge_accounting import STEP_RETURN_MARKER
+from .payoff_state import (
+    arithmetic_running_average,
+    is_asian_liability,
+    payoff_state_version_for_liability,
+    resolve_asian_window,
+)
 
 _log = Logger(__file__)
 
@@ -26,14 +33,16 @@ def _compute_short_call_payoff(
     liability_type = str(liability_type).lower()
     if liability_type in ["european", "european_call", "atm_short_call"]:
         underlying = spot[:, -1]
-    elif liability_type in ["asian", "asian_call", "asian_short_call"]:
+    elif is_asian_liability(liability_type):
         avg_type = str(asian_average_type).lower()
         if avg_type not in ["arithmetic", "mean"]:
             _log.throw("Unsupported asian_average_type '%s'", asian_average_type)
         n_steps = int(spot.shape[1])
-        start = max(0, int(asian_start_step))
-        end = n_steps if asian_end_step in [None, ""] else min(n_steps, int(asian_end_step))
-        _log.verify(end > start, "Invalid Asian averaging window start=%ld end=%ld n_steps=%ld", start, end, n_steps)
+        start, end = resolve_asian_window(
+            n_steps,
+            start_step=asian_start_step,
+            end_step=asian_end_step,
+        )
         underlying = spot[:, start:end].mean(axis=1)
     else:
         _log.throw("Unknown liability_type '%s'", liability_type)
@@ -82,6 +91,11 @@ class RealWorld_Spot_ATM(object):
         asian_average_type = config("asian_average_type", "arithmetic", str, help="Asian averaging type (currently arithmetic only)")
         asian_start_step = config("asian_start_step", 0, int, help="First step index included in the Asian averaging window")
         asian_end_step = config("asian_end_step", None, help="Exclusive end step of the Asian averaging window; defaults to full path")
+        configured_payoff_state_version = config(
+            "payoff_state_version",
+            None,
+            help="Version marker for observable path-dependent liability state",
+        )
         config.done()
 
         # -------------------------
@@ -96,6 +110,25 @@ class RealWorld_Spot_ATM(object):
         self.nSteps = int(data.shape[1])
         self.nInst = 2
         self.dt = float(dt)
+        self.pnl_accounting = "inventory_step"
+        self.liability_type = str(liability_type).lower()
+        self.asian_average_type = str(asian_average_type).lower()
+        self.asian_start_step = int(asian_start_step)
+        self.asian_end_step = asian_end_step
+        self.payoff_state_version = payoff_state_version_for_liability(
+            self.liability_type
+        )
+        if (
+            configured_payoff_state_version not in (None, "")
+            and configured_payoff_state_version != self.payoff_state_version
+        ):
+            _log.throw(
+                "Configured payoff-state version '%s' does not match '%s' "
+                "for liability '%s'",
+                configured_payoff_state_version,
+                self.payoff_state_version,
+                self.liability_type,
+            )
         self.timeline = np.linspace(0.0, self.nSteps * self.dt, self.nSteps + 1, dtype=np.float32)
 
         spot = data[:, :, 0]
@@ -174,6 +207,31 @@ class RealWorld_Spot_ATM(object):
             asian_end_step=asian_end_step,
             dtype=self.np_dtype,
         )
+        if is_asian_liability(self.liability_type):
+            asian_running_average, fixing_count, fixing_fraction = (
+                arithmetic_running_average(
+                    spot,
+                    start_step=self.asian_start_step,
+                    end_step=self.asian_end_step,
+                )
+            )
+            asian_moneyness = asian_running_average / np.maximum(
+                np.abs(strike[:, np.newaxis]),
+                np.asarray(1e-8, dtype=self.np_dtype),
+            )
+            fixing_count_2d = np.broadcast_to(
+                fixing_count[np.newaxis, :],
+                (self.nSamples, self.nSteps),
+            ).copy()
+            fixing_fraction_2d = np.broadcast_to(
+                fixing_fraction[np.newaxis, :],
+                (self.nSamples, self.nSteps),
+            ).copy()
+        else:
+            asian_running_average = None
+            asian_moneyness = None
+            fixing_count_2d = None
+            fixing_fraction_2d = None
 
         # -------------------------
         # Store world data
@@ -186,6 +244,11 @@ class RealWorld_Spot_ATM(object):
             ubnd_a=ubnd_a,
             lbnd_a=lbnd_a,
             payoff=payoff,
+        )
+        # The generic gym otherwise assumes the original ProtoHedge convention
+        # in which each hedge return runs from trade time to liquidation.
+        self.data.market[STEP_RETURN_MARKER] = np.ones(
+            (self.nSamples,), dtype=self.np_dtype
         )
 
         self.data.features = pdct(
@@ -209,6 +272,13 @@ class RealWorld_Spot_ATM(object):
         self.data.features.per_path[DIM_DUMMY] = (payoff * 0.0)[:, np.newaxis]
         self.data.features.per_path["strike"] = strike[:, np.newaxis]
         self.data.features.per_path["liability_underlying"] = liability_underlying[:, np.newaxis]
+        if is_asian_liability(self.liability_type):
+            self.data.features.per_step.update(
+                asian_running_average=asian_running_average,
+                asian_moneyness=asian_moneyness,
+                asian_fixing_count=fixing_count_2d,
+                asian_fixing_fraction=fixing_fraction_2d,
+            )
 
         assert_iter_not_is_nan(self.data, "data")
 
@@ -225,6 +295,13 @@ class RealWorld_Spot_ATM(object):
             strike=strike,
             liability_underlying=liability_underlying,
         )
+        if is_asian_liability(self.liability_type):
+            self.details.update(
+                asian_running_average=asian_running_average,
+                asian_moneyness=asian_moneyness,
+                asian_fixing_count=fixing_count_2d,
+                asian_fixing_fraction=fixing_fraction_2d,
+            )
 
         assert_iter_not_is_nan(self.details, "details")
 
@@ -233,7 +310,7 @@ class RealWorld_Spot_ATM(object):
         self.sample_weights = self.sample_weights.reshape((self.nSamples,))
         self.tf_y = tf.zeros((self.nSamples,), dtype=self.tf_dtype)
 
-        self.inst_names = ["spot", "ATM Call"]
+        self.inst_names = ["spot", "Listed Call"]
 
     def clone(self, config_overwrite=Config(), **kwargs):
         config = self.config.copy()

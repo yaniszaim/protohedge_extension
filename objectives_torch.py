@@ -60,7 +60,8 @@ class MonetaryUtilityTorch(nn.Module):
 class HedgingObjective(nn.Module):
     """
     Wrapper that mirrors the original TensorFlow gym setup:
-    one utility for hedged gains and one baseline utility for the unhedged payoff.
+    one utility for the hedged liability offset and one baseline utility for
+    the unhedged payoff.
     """
 
     def __init__(self, risk_measure="exp2", risk_aversion=1.0):
@@ -69,8 +70,10 @@ class HedgingObjective(nn.Module):
         self.utility0 = MonetaryUtilityTorch(risk_measure, risk_aversion)
 
     def forward(self, payoff, pnl, cost):
-        gains = payoff + pnl - cost
-        utility = self.utility(gains)
+        # This excludes any premium received for selling the liability. The
+        # real-data paper therefore reports it as liability offset, not P&L.
+        liability_offset = payoff + pnl - cost
+        utility = self.utility(liability_offset)
         utility0 = self.utility0(payoff)
         loss_path = -utility - utility0
 
@@ -79,5 +82,6 @@ class HedgingObjective(nn.Module):
             "loss_path": loss_path,
             "utility": utility,
             "utility0": utility0,
-            "gains": gains,
+            "liability_offset": liability_offset,
+            "gains": liability_offset,
         }
