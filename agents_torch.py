@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from deephedging.softclip_torch import legacy_proto_softclip, tfp_softclip
+
 
 def _activation_module(name):
     name = str(name).lower()
@@ -90,6 +92,7 @@ class ProtoHedgeAgent(nn.Module):
         action_high=None,
         distance_feature_weights_init=None,
         learn_distance_feature_weights=False,
+        softclip_mode="legacy_approx",
     ):
         super().__init__()
 
@@ -115,6 +118,11 @@ class ProtoHedgeAgent(nn.Module):
             num_prototypes = int(prototype_tensor.shape[0])
 
         self.num_prototypes = int(num_prototypes)
+        self.softclip_mode = str(softclip_mode).lower()
+        if self.softclip_mode not in {"legacy_approx", "tfp_exact"}:
+            raise ValueError(
+                "softclip_mode must be 'legacy_approx' or 'tfp_exact'"
+            )
 
         if feature_mean is None:
             feature_mean = torch.zeros(self.input_dim, dtype=torch.float32)
@@ -191,18 +199,17 @@ class ProtoHedgeAgent(nn.Module):
         return similarities
 
     def _bounded_prototype_actions(self):
-        # TensorFlow uses DHSoftClip inside ClusteredProtoLayer rather than tanh.
-        # This two-stage softplus implementation mirrors the same "identity in the
-        # middle, soft saturation near bounds" behavior closely.
-        low = self.action_low
-        high = self.action_high
-        action = self.prototype_actions_unbounded
-        action = torch.minimum(action, high * 10.0)
-        action = torch.maximum(action, low * 10.0)
-        hinge_softness = 1.0
-        action = low + hinge_softness * F.softplus((action - low) / hinge_softness)
-        action = high - hinge_softness * F.softplus((high - action) / hinge_softness)
-        return action
+        if self.softclip_mode == "tfp_exact":
+            return tfp_softclip(
+                self.prototype_actions_unbounded,
+                self.action_low,
+                self.action_high,
+            )
+        return legacy_proto_softclip(
+            self.prototype_actions_unbounded,
+            self.action_low,
+            self.action_high,
+        )
 
     def forward(self, features, return_weights=False):
         similarities = self.compute_similarity(features, return_distances=False)

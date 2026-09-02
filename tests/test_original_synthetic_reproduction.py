@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from argparse import Namespace
 
 import numpy as np
 
@@ -38,10 +39,23 @@ class OriginalSyntheticReproductionTests(unittest.TestCase):
             self.assertIn("objectives.py", names)
             self.assertIn(MODULE.PROTOTYPE_PATHS["black_scholes"], names)
             self.assertIn(MODULE.PROTOTYPE_PATHS["stochastic_volatility"], names)
+            self.assertIn(MODULE.NOTEBOOK_REFERENCE_PATH, names)
             on_disk = json.loads(
                 (Path(temp_dir) / "source_snapshot_manifest.json").read_text()
             )
             self.assertEqual(on_disk["source_commit"], manifest["source_commit"])
+
+    def test_notebook_profile_resolves_to_saved_black_scholes_configuration(self):
+        args = Namespace(
+            profile="notebook-black-scholes",
+            source_commit=None,
+            models=None,
+            output_dir=None,
+        )
+        args = MODULE._resolve_profile_args(args)
+        self.assertEqual(args.source_commit, MODULE.NOTEBOOK_SOURCE_COMMIT)
+        self.assertEqual(args.models, list(MODULE.NOTEBOOK_BLACK_SCHOLES_MODELS))
+        self.assertIn("black_scholes_notebook_confirmation", str(args.output_dir))
 
 
 if __name__ == "__main__":

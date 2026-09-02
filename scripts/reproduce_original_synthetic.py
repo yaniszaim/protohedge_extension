@@ -25,6 +25,16 @@ import numpy as np
 
 
 PAPER_SOURCE_COMMIT = "aedb450"
+NOTEBOOK_SOURCE_COMMIT = "983da37"
+NOTEBOOK_REFERENCE_PATH = "notebooks/proto-trainer.ipynb"
+NOTEBOOK_BLACK_SCHOLES_MODELS = (
+    "black_scholes:deep_hedging",
+    "black_scholes:protohedge",
+)
+NOTEBOOK_SAVED_UTILITIES = {
+    "deep_hedging": -0.05816568,
+    "protohedge": -0.05842079,
+}
 PAPER_TARGET_GAPS = {
     "black_scholes": -0.00023,
     "stochastic_volatility": -0.00030,
@@ -92,6 +102,12 @@ def _sha256_file(path):
     return digest.hexdigest()
 
 
+def _json_hash(value):
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+
+
 def _repo_root():
     return Path(__file__).resolve().parents[1]
 
@@ -152,6 +168,9 @@ def prepare_source_snapshot(repo, output_dir, commit=PAPER_SOURCE_COMMIT):
         name for name in names if "/" not in name and name.endswith(".py")
     )
     selected = source_names + list(PROTOTYPE_PATHS.values())
+    if NOTEBOOK_REFERENCE_PATH in names:
+        selected.append(NOTEBOOK_REFERENCE_PATH)
+    selected = list(dict.fromkeys(selected))
     package_root = output_dir / "source_snapshot" / full_commit[:12] / "deephedging"
     records = []
     for source_name in selected:
@@ -351,7 +370,12 @@ def _worker(args):
     tf.keras.utils.set_random_seed(seed)
 
     if environment == "black_scholes":
-        prototype_path = output_dir / BLACK_SCHOLES_GENERATED_PROTOTYPES
+        if protocol["black_scholes_prototype_mode"] == "committed":
+            prototype_path = (
+                source_parent / "deephedging" / PROTOTYPE_PATHS[environment]
+            )
+        else:
+            prototype_path = output_dir / BLACK_SCHOLES_GENERATED_PROTOTYPES
     else:
         prototype_path = source_parent / "deephedging" / PROTOTYPE_PATHS[environment]
     if model == "protohedge" and not prototype_path.is_file():
@@ -376,7 +400,11 @@ def _worker(args):
     train(gym=gym, world=world, val_world=val_world, config=config.trainer)
 
     generated_prototype_metadata = None
-    if environment == "black_scholes" and model == "deep_hedging":
+    if (
+        environment == "black_scholes"
+        and model == "deep_hedging"
+        and protocol["black_scholes_prototype_mode"] == "regenerated_zero_drift"
+    ):
         generated_prototype_metadata = _generate_black_scholes_prototypes(
             gym=gym,
             world=world,
@@ -386,8 +414,12 @@ def _worker(args):
             model_seed=seed,
         )
 
-    test_seed = int(protocol["test_seed_by_environment"][environment])
-    test_world = world.clone(samples=int(protocol["test_samples"]), seed=test_seed)
+    test_seed = protocol["test_seed_by_environment"][environment]
+    test_world_kwargs = {"samples": int(protocol["test_samples"])}
+    if test_seed is not None:
+        test_seed = int(test_seed)
+        test_world_kwargs["seed"] = test_seed
+    test_world = world.clone(**test_world_kwargs)
     result = gym(test_world.tf_data)
     weights = np.asarray(test_world.sample_weights, dtype=np.float64)
     gains = np.asarray(result["gains"], dtype=np.float64)
@@ -407,6 +439,14 @@ def _worker(args):
         "world_seed": int(protocol["world_seed"]),
         "model_seed": seed,
         "test_seed": test_seed,
+        "protocol_profile": protocol["profile"],
+        "world_drift": float(
+            protocol[
+                "black_scholes_drift"
+                if environment == "black_scholes"
+                else "stochastic_volatility_drift"
+            ]
+        ),
         "expected_utility_frozen_training_y": weighted_mean(utility, weights),
         "expected_utility_empirical_cvar50": weighted_lower_tail_mean(gains, weights),
         "unhedged_utility_frozen_training_y": weighted_mean(utility0, weights),
@@ -445,7 +485,9 @@ def _worker(args):
 def _aggregate(output_dir, selected_specs):
     output_dir = Path(output_dir)
     protocol = json.loads((output_dir / "protocol.json").read_text())
-    paper_assessment_applicable = protocol["protocol_mode"] == "paper-reproduction"
+    paper_assessment_applicable = bool(
+        protocol.get("paper_reference_assessment_applicable", False)
+    )
     rows = []
     for spec in selected_specs:
         environment, model = spec.split(":", 1)
@@ -486,6 +528,12 @@ def _aggregate(output_dir, selected_specs):
                 "paper_ordering_reproduced": (
                     gap <= 0.0 if paper_assessment_applicable else None
                 ),
+                "notebook_saved_gap": (
+                    NOTEBOOK_SAVED_UTILITIES["protohedge"]
+                    - NOTEBOOK_SAVED_UTILITIES["deep_hedging"]
+                    if environment == "black_scholes"
+                    else None
+                ),
             }
         )
     _json_dump(
@@ -517,6 +565,33 @@ def _write_checksums(output_dir):
 
 def _protocol_for_args(args, source_manifest):
     protocol = dict(PAPER_PROTOCOL)
+    protocol["profile"] = args.profile
+    if args.profile == "notebook-black-scholes":
+        protocol.update(
+            {
+                "test_samples": 10000,
+                "black_scholes_drift": 0.1,
+                "black_scholes_prototype_mode": "committed",
+                "protocol_mode": "notebook-faithful-black-scholes",
+                "paper_reference_assessment_applicable": True,
+                "notebook_reference": {
+                    "path": NOTEBOOK_REFERENCE_PATH,
+                    "saved_expected_utility": NOTEBOOK_SAVED_UTILITIES,
+                    "saved_proto_minus_deep_hedging": (
+                        NOTEBOOK_SAVED_UTILITIES["protohedge"]
+                        - NOTEBOOK_SAVED_UTILITIES["deep_hedging"]
+                    ),
+                },
+            }
+        )
+    else:
+        protocol.update(
+            {
+                "black_scholes_prototype_mode": "regenerated_zero_drift",
+                "protocol_mode": "paper-reproduction",
+                "paper_reference_assessment_applicable": True,
+            }
+        )
     if args.smoke_test:
         protocol.update(
             {
@@ -524,7 +599,8 @@ def _protocol_for_args(args, source_manifest):
                 "validation_samples": 32,
                 "test_samples": 256,
                 "epochs": 2,
-                "protocol_mode": "smoke-test",
+                "protocol_mode": f"{args.profile}-smoke-test",
+                "paper_reference_assessment_applicable": False,
             }
         )
     elif args.runtime_probe:
@@ -534,11 +610,10 @@ def _protocol_for_args(args, source_manifest):
                 "validation_samples": 1000,
                 "test_samples": 256,
                 "epochs": 5,
-                "protocol_mode": "runtime-probe",
+                "protocol_mode": f"{args.profile}-runtime-probe",
+                "paper_reference_assessment_applicable": False,
             }
         )
-    else:
-        protocol["protocol_mode"] = "paper-reproduction"
     protocol["source_commit"] = source_manifest["source_commit"]
     protocol["source_commit_requested"] = args.source_commit
     protocol["selected_models"] = list(args.models)
@@ -547,12 +622,23 @@ def _protocol_for_args(args, source_manifest):
         "The notebooks did not lock TensorFlow initialization before training; "
         "this reproduction explicitly locks model_seed=1."
     )
-    protocol["prototype_provenance_note"] = (
-        "The committed stochastic-volatility K=500 asset is used directly. "
-        "The paper's zero-drift Black-Scholes K=100 asset was not committed, "
-        "so it is regenerated from the reproduced DH checkpoint using the "
-        "paper notebook's deterministic extraction procedure."
+    protocol["test_seed_note"] = (
+        "The final notebook comparison used an unrecorded random clone seed. "
+        "This deterministic confirmation uses the same fixed test seed for both "
+        "models so their pathwise comparison is paired and reproducible."
     )
+    if protocol["black_scholes_prototype_mode"] == "committed":
+        protocol["prototype_provenance_note"] = (
+            "The authors' executed Black-Scholes notebook used the committed "
+            "K=100 prototype asset with the simulator's default drift 0.1."
+        )
+    else:
+        protocol["prototype_provenance_note"] = (
+            "The committed stochastic-volatility K=500 asset is used directly. "
+            "The paper's zero-drift Black-Scholes K=100 asset was not committed, "
+            "so it is regenerated from the reproduced DH checkpoint using the "
+            "paper notebook's deterministic extraction procedure."
+        )
     reference_pdf = Path(args.reference_pdf).expanduser()
     protocol["reference_pdf"] = (
         {
@@ -566,18 +652,41 @@ def _protocol_for_args(args, source_manifest):
     return protocol
 
 
+def _resolve_profile_args(args):
+    if args.profile == "notebook-black-scholes":
+        if args.source_commit is None:
+            args.source_commit = NOTEBOOK_SOURCE_COMMIT
+        if args.models is None:
+            args.models = list(NOTEBOOK_BLACK_SCHOLES_MODELS)
+        if args.output_dir is None:
+            args.output_dir = Path("paper/black_scholes_notebook_confirmation")
+    else:
+        if args.source_commit is None:
+            args.source_commit = PAPER_SOURCE_COMMIT
+        if args.models is None:
+            args.models = list(MODEL_SPECS)
+        if args.output_dir is None:
+            args.output_dir = Path("paper/original_synthetic_reproduction")
+    return args
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output-dir",
-        default="paper/original_synthetic_reproduction",
+        default=None,
         type=Path,
     )
-    parser.add_argument("--source-commit", default=PAPER_SOURCE_COMMIT)
+    parser.add_argument(
+        "--profile",
+        choices=("paper-spec", "notebook-black-scholes"),
+        default="paper-spec",
+    )
+    parser.add_argument("--source-commit", default=None)
     parser.add_argument(
         "--reference-pdf", default="/Users/yaniszaim/Downloads/ProtoHedge.pdf"
     )
-    parser.add_argument("--models", nargs="+", choices=MODEL_SPECS, default=list(MODEL_SPECS))
+    parser.add_argument("--models", nargs="+", choices=MODEL_SPECS, default=None)
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--smoke-test", action="store_true")
     parser.add_argument("--runtime-probe", action="store_true")
@@ -585,6 +694,7 @@ def main(argv=None):
     parser.add_argument("--source-parent", help=argparse.SUPPRESS)
     parser.add_argument("--protocol-json", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
+    args = _resolve_profile_args(args)
     if args.smoke_test and args.runtime_probe:
         parser.error("--smoke-test and --runtime-probe are mutually exclusive")
     if args.worker:
@@ -599,7 +709,14 @@ def main(argv=None):
     )
     protocol = _protocol_for_args(args, source_manifest)
     protocol_path = output_dir / "protocol.json"
-    _json_dump(protocol, protocol_path)
+    if protocol_path.is_file():
+        previous = json.loads(protocol_path.read_text(encoding="utf-8"))
+        if _json_hash(previous) != _json_hash(protocol):
+            raise RuntimeError(
+                f"Existing output uses a different frozen protocol: {output_dir}"
+            )
+    else:
+        _json_dump(protocol, protocol_path)
     _json_dump(_environment_record(), output_dir / "launcher_environment.json")
     requirements = repo / "requirements-original-synthetic.txt"
     if requirements.is_file():

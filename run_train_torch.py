@@ -390,6 +390,7 @@ def build_experiment_components(config):
             action_high=action_high,
             distance_feature_weights_init=distance_feature_weights,
             learn_distance_feature_weights=config["model"].get("learn_distance_feature_weights", False),
+            softclip_mode=config["model"].get("softclip_mode", "legacy_approx"),
         )
     elif agent_type in ["feed_forward", "feedforward", "vanilla", "dense"]:
         agent = VanillaHedgeAgent(

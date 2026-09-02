@@ -107,6 +107,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv-original-synthetic/
 env/
 venv/
 ENV/
@@ -144,6 +145,8 @@ notebooks/stoch_results.pkl
 paper/prewrite_compute_logs/
 paper/original_synthetic_reproduction/source_snapshot/
 paper/original_synthetic_reproduction/**/training_cache/
+paper/black_scholes_notebook_confirmation/source_snapshot/
+paper/black_scholes_notebook_confirmation/**/training_cache/
 
 # Large model files
 *.ckpt
