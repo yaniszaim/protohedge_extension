@@ -1,0 +1,115 @@
+{
+  "analysis_arguments": {
+    "bootstrap_block_length": 20,
+    "bootstrap_confidence": 0.95,
+    "bootstrap_repetitions": 2000,
+    "random_state": 20260828
+  },
+  "analysis_version": "historical-evidence-v1",
+  "archive_created_utc": "2026-08-29T06:12:54.658241+00:00",
+  "archive_environment": {
+    "cuda_available": false,
+    "cuda_device": null,
+    "cuda_version": null,
+    "executable": "/opt/anaconda3/bin/python",
+    "machine": "arm64",
+    "packages": {
+      "cdxbasics": "0.2.141",
+      "matplotlib": "3.9.2",
+      "numpy": "1.26.4",
+      "pandas": "2.2.3",
+      "scikit-learn": "1.8.0",
+      "scipy": "1.13.1",
+      "torch": "2.11.0"
+    },
+    "platform": "macOS-26.3.1-arm64-arm-64bit",
+    "python": "3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:54:21) [Clang 16.0.6 ]"
+  },
+  "archive_operation_was_read_only_for_raw_outputs": true,
+  "git": {
+    "branch": "main",
+    "head_at_archive_time": "0863faf621227f78111cdb606f3bc37c1a35a8c7",
+    "porcelain_status": [
+      "M .gitignore",
+      " M base_torch.py",
+      " M gym.py",
+      " M gym_torch.py",
+      " M notebooks/.tmp_protohedge-paper-asian-panel-smoke.ipynb",
+      " M notebooks/Final_Paper.aux",
+      " M notebooks/Final_Paper.fdb_latexmk",
+      " M notebooks/Final_Paper.fls",
+      " M notebooks/Final_Paper.out",
+      " M notebooks/Final_Paper.pdf",
+      " M notebooks/Final_Paper.tex",
+      " M notebooks/protohedge-paper-asian-panel.ipynb",
+      " M notebooks/protohedge-paper-final.ipynb",
+      " M notebooks/real-data-panel-tests-torch.ipynb",
+      " M notebooks/real-data-tests-torch.ipynb",
+      " M objectives_torch.py",
+      " M panel_data_pipeline.py",
+      " M prototype_extraction_torch.py",
+      " M real_data_analysis_torch.py",
+      " M real_data_experiment_torch.py",
+      " M real_data_sweep_torch.py",
+      " M run_train_torch.py",
+      " M trainer_torch.py",
+      " M world_real.py",
+      " M world_real_torch.py",
+      "?? CLOUD_RUN.md",
+      "?? cloud_empirical_runner.py",
+      "?? cloud_setup.sh",
+      "?? hedge_accounting.py",
+      "?? historical_evidence.py",
+      "?? make_cloud_bundle.py",
+      "?? notebooks/Final_Paper.bbl",
+      "?? notebooks/Final_Paper.blg",
+      "?? notebooks/protohedge-definitive-empirical-rerun.ipynb",
+      "?? notebooks/references.bib",
+      "?? outcome_metrics.py",
+      "?? paper/submission_rerun_scientific_v3/",
+      "?? paper/submission_rerun_scientific_v4/",
+      "?? payoff_state.py",
+      "?? requirements-cloud.txt",
+      "?? requirements-original-synthetic.txt",
+      "?? scripts/",
+      "?? tests/"
+    ],
+    "provenance_note": "The completed artifacts did not embed a Git commit. The HEAD and source checksums recorded here describe the archive-time workspace; regenerate this manifest after the planned commit.",
+    "training_commit_embedded_in_historical_artifacts": false,
+    "worktree_dirty": true
+  },
+  "liabilities": [
+    "asian_call",
+    "european_call"
+  ],
+  "panel_input_manifest": {
+    "file_count": 53,
+    "total_bytes": 135720231
+  },
+  "panel_root": "/Users/yaniszaim/deephedging/Data/NEW_PANEL_DECISION_V2",
+  "raw_output_checksums_are_integrity_baseline": true,
+  "raw_output_manifest": {
+    "file_count": 4025,
+    "total_bytes": 132043913
+  },
+  "run_root": "/Users/yaniszaim/deephedging/.deephedging_real_runs/submission_rerun_scientific_v4",
+  "source_file_count": 73,
+  "task_count": 20,
+  "tickers": [
+    "AAPL",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "XLE",
+    "XLF",
+    "XLK",
+    "XLV"
+  ],
+  "training_environment": {
+    "embedded_in_artifacts": false,
+    "locked_requirements_file": "requirements-cloud.txt",
+    "note": "Package versions were not serialized by the historical runner. Do not relabel archive-time package versions as training versions."
+  }
+}

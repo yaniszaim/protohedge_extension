@@ -1,0 +1,88 @@
+[1/3] Verifying the exact SoftClip implementation
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.192s
+
+OK
+[2/3] Running two matched ProtoHedge fits on European SPY
+[start] european_call/SPY/seed-2345/tfp_exact
+
+PyTorch version 2.5.1 running on 8 CPUs and 0 GPUs | selected device=cpu
+epoch 0 | batch 0.1023 | train 0.0950 | val 0.1439 | select 0.1439
+epoch 25 | batch 0.0541 | train 0.0531 | val 0.0829 | select 0.0829
+epoch 50 | batch 0.0534 | train 0.0529 | val 0.0852 | select 0.0852
+epoch 75 | batch 0.0528 | train 0.0520 | val 0.0816 | select 0.0816
+epoch 100 | batch 0.0529 | train 0.0520 | val 0.0815 | select 0.0815
+epoch 125 | batch 0.0525 | train 0.0520 | val 0.0833 | select 0.0833
+epoch 150 | batch 0.0519 | train 0.0513 | val 0.0842 | select 0.0842
+epoch 175 | batch 0.0518 | train 0.0513 | val 0.0824 | select 0.0824
+epoch 200 | batch 0.0513 | train 0.0509 | val 0.0800 | select 0.0800
+epoch 225 | batch 0.0521 | train 0.0522 | val 0.0860 | select 0.0860
+epoch 250 | batch 0.0513 | train 0.0508 | val 0.0814 | select 0.0814
+epoch 275 | batch 0.0514 | train 0.0508 | val 0.0810 | select 0.0810
+epoch 300 | batch 0.0511 | train 0.0504 | val 0.0806 | select 0.0806
+epoch 325 | batch 0.0507 | train 0.0497 | val 0.0794 | select 0.0794
+epoch 350 | batch 0.0505 | train 0.0496 | val 0.0804 | select 0.0804
+epoch 375 | batch 0.0508 | train 0.0499 | val 0.0798 | select 0.0798
+epoch 400 | batch 0.0507 | train 0.0499 | val 0.0819 | select 0.0819
+epoch 425 | batch 0.0505 | train 0.0496 | val 0.0820 | select 0.0820
+epoch 450 | batch 0.0510 | train 0.0498 | val 0.0806 | select 0.0806
+epoch 475 | batch 0.0505 | train 0.0495 | val 0.0776 | select 0.0776
+epoch 500 | batch 0.0504 | train 0.0493 | val 0.0804 | select 0.0804
+epoch 525 | batch 0.0507 | train 0.0499 | val 0.0792 | select 0.0792
+epoch 550 | batch 0.0502 | train 0.0495 | val 0.0798 | select 0.0798
+epoch 575 | batch 0.0501 | train 0.0494 | val 0.0788 | select 0.0788
+epoch 600 | batch 0.0502 | train 0.0493 | val 0.0822 | select 0.0822
+epoch 625 | batch 0.0510 | train 0.0497 | val 0.0820 | select 0.0820
+epoch 650 | batch 0.0506 | train 0.0502 | val 0.0830 | select 0.0830
+epoch 675 | batch 0.0502 | train 0.0497 | val 0.0821 | select 0.0821
+epoch 700 | batch 0.0503 | train 0.0502 | val 0.0823 | select 0.0823
+epoch 725 | batch 0.0506 | train 0.0496 | val 0.0802 | select 0.0802
+epoch 750 | batch 0.0505 | train 0.0498 | val 0.0796 | select 0.0796
+epoch 775 | batch 0.0498 | train 0.0490 | val 0.0817 | select 0.0817
+[complete] tfp_exact epoch=532 minutes=35.8
+[start] european_call/SPY/seed-2345/legacy_approx
+
+PyTorch version 2.5.1 running on 8 CPUs and 0 GPUs | selected device=cpu
+epoch 0 | batch 0.1025 | train 0.0889 | val 0.1350 | select 0.1350
+epoch 25 | batch 0.0531 | train 0.0522 | val 0.0814 | select 0.0814
+epoch 50 | batch 0.0517 | train 0.0512 | val 0.0827 | select 0.0827
+epoch 75 | batch 0.0518 | train 0.0509 | val 0.0825 | select 0.0825
+epoch 100 | batch 0.0508 | train 0.0499 | val 0.0816 | select 0.0816
+epoch 125 | batch 0.0503 | train 0.0495 | val 0.0820 | select 0.0820
+epoch 150 | batch 0.0499 | train 0.0498 | val 0.0843 | select 0.0843
+epoch 175 | batch 0.0498 | train 0.0489 | val 0.0814 | select 0.0814
+epoch 200 | batch 0.0498 | train 0.0487 | val 0.0807 | select 0.0807
+epoch 225 | batch 0.0494 | train 0.0485 | val 0.0819 | select 0.0819
+epoch 250 | batch 0.0496 | train 0.0485 | val 0.0794 | select 0.0794
+epoch 275 | batch 0.0494 | train 0.0487 | val 0.0809 | select 0.0809
+epoch 300 | batch 0.0493 | train 0.0487 | val 0.0801 | select 0.0801
+epoch 325 | batch 0.0496 | train 0.0482 | val 0.0792 | select 0.0792
+epoch 350 | batch 0.0498 | train 0.0489 | val 0.0800 | select 0.0800
+epoch 375 | batch 0.0491 | train 0.0480 | val 0.0782 | select 0.0782
+epoch 400 | batch 0.0490 | train 0.0485 | val 0.0795 | select 0.0795
+epoch 425 | batch 0.0490 | train 0.0481 | val 0.0815 | select 0.0815
+epoch 450 | batch 0.0490 | train 0.0490 | val 0.0806 | select 0.0806
+epoch 475 | batch 0.0491 | train 0.0478 | val 0.0789 | select 0.0789
+epoch 500 | batch 0.0491 | train 0.0485 | val 0.0813 | select 0.0813
+epoch 525 | batch 0.0491 | train 0.0483 | val 0.0796 | select 0.0796
+epoch 550 | batch 0.0489 | train 0.0482 | val 0.0782 | select 0.0782
+epoch 575 | batch 0.0486 | train 0.0476 | val 0.0795 | select 0.0795
+epoch 600 | batch 0.0488 | train 0.0477 | val 0.0803 | select 0.0803
+epoch 625 | batch 0.0488 | train 0.0477 | val 0.0796 | select 0.0796
+epoch 650 | batch 0.0487 | train 0.0481 | val 0.0821 | select 0.0821
+epoch 675 | batch 0.0488 | train 0.0480 | val 0.0786 | select 0.0786
+epoch 700 | batch 0.0485 | train 0.0477 | val 0.0788 | select 0.0788
+epoch 725 | batch 0.0484 | train 0.0475 | val 0.0779 | select 0.0779
+epoch 750 | batch 0.0489 | train 0.0480 | val 0.0779 | select 0.0779
+epoch 775 | batch 0.0483 | train 0.0472 | val 0.0786 | select 0.0786
+[complete] legacy_approx epoch=356 minutes=33.3
+SPY confirmation complete: /Users/yaniszaim/deephedging/.deephedging_real_runs/spy_european_softclip_confirmation_v1
+Read: /Users/yaniszaim/deephedging/.deephedging_real_runs/spy_european_softclip_confirmation_v1/SPY_CONFIRMATION_INTERPRETATION.md
+[3/3] Running the notebook-faithful Black-Scholes DH/PH pair
+[start] black_scholes:deep_hedging | log=/Users/yaniszaim/deephedging/paper/black_scholes_notebook_confirmation/models/black_scholes/deep_hedging/training.log
+[complete] black_scholes:deep_hedging
+[start] black_scholes:protohedge | log=/Users/yaniszaim/deephedging/paper/black_scholes_notebook_confirmation/models/black_scholes/protohedge/training.log
+[complete] black_scholes:protohedge
+Synthetic reproduction complete: /Users/yaniszaim/deephedging/paper/black_scholes_notebook_confirmation
+Final confirmation workflow complete.

@@ -1,0 +1,96 @@
+{
+  "files": [
+    {
+      "bytes": 29,
+      "git_path": "__init__.py",
+      "sha256": "e0335b249224b6bb986376f42cde1594b51cf127f84b3b837835ebf8c749adc0",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/__init__.py"
+    },
+    {
+      "bytes": 19478,
+      "git_path": "agents.py",
+      "sha256": "eca2a1acf1bb4981eba6f01f91d41543861879034fa16aabe9736f0e7f69ed15",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/agents.py"
+    },
+    {
+      "bytes": 18516,
+      "git_path": "base.py",
+      "sha256": "bd7b950fc48e73e40210db8d0ead47a23db37843ea48f32531bf9e9af4c71d96",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/base.py"
+    },
+    {
+      "bytes": 9825,
+      "git_path": "fd.py",
+      "sha256": "9d20c102f3c6d0e522817b76b2c46326a456b4866ba940be526ddddf81f60c60",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/fd.py"
+    },
+    {
+      "bytes": 21509,
+      "git_path": "gym.py",
+      "sha256": "a29f7aa01c8096073da1169c8c9d37b94dcb0ce48eead451bd24292088c0c1bf",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/gym.py"
+    },
+    {
+      "bytes": 14415,
+      "git_path": "layers.py",
+      "sha256": "43d4574101ddb3eed1d165361a362a166696dcafcb1467b03e4e36b24df9d2dc",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/layers.py"
+    },
+    {
+      "bytes": 43756,
+      "git_path": "model_base.py",
+      "sha256": "b4643dcbf4ab2553332366a4507bcdae7f0867a6cc3f92cc6c1d843cb6172294",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/model_base.py"
+    },
+    {
+      "bytes": 18992,
+      "git_path": "objectives.py",
+      "sha256": "f6cd8bec3c98a963e133d074800529115bbac5cb166ef9f04b30870f049ed949",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/objectives.py"
+    },
+    {
+      "bytes": 10480,
+      "git_path": "plot_bs_hedge.py",
+      "sha256": "2180a5406c4b26c4198934a5e73ac2921bd8156c4002ee29ac66441eb5178cf9",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/plot_bs_hedge.py"
+    },
+    {
+      "bytes": 34023,
+      "git_path": "plot_training.py",
+      "sha256": "2c59c2672b493dbf69b025dda76333ac2d2fd7732c6f637140a83b1bae04b2f4",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/plot_training.py"
+    },
+    {
+      "bytes": 3779,
+      "git_path": "softclip.py",
+      "sha256": "3dd02affdf86cf0d98a8b232811af54bd720b8e7743461126b8a06356d133ceb",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/softclip.py"
+    },
+    {
+      "bytes": 23211,
+      "git_path": "trainer.py",
+      "sha256": "f0c798e5b79a92dd84938539b442d55e564ffb96a6587d2f7b26c13559eda8a6",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/trainer.py"
+    },
+    {
+      "bytes": 27465,
+      "git_path": "world.py",
+      "sha256": "6fbffaea96b1b4b0797829677d70708234df868ad41fb8f9327ba44b28a98777",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/world.py"
+    },
+    {
+      "bytes": 1816,
+      "git_path": "notebooks/prototypes_storage/prototypes_100.pkl",
+      "sha256": "41520c568f94d30804964bc3335132ac9283ebf0683afaca973541681a0a1a2b",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/notebooks/prototypes_storage/prototypes_100.pkl"
+    },
+    {
+      "bytes": 10665,
+      "git_path": "notebooks/prototypes_storage/prototypes_stochastic_500.pkl",
+      "sha256": "ba4f26418b53378bb0f6f6cb2a788894b0a3e193752b286640f145612dfc8753",
+      "snapshot_path": "source_snapshot/983da37765b0/deephedging/notebooks/prototypes_storage/prototypes_stochastic_500.pkl"
+    }
+  ],
+  "source_commit": "983da37765b0afe9de0407a6cd7cd38002ec62da",
+  "source_commit_requested": "983da37"
+}

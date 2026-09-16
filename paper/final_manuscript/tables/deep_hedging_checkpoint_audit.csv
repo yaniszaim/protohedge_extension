@@ -1,0 +1,4 @@
+liability,n_seed_fits,n_initial_untrained_selected,fraction_initial_untrained_selected,n_epoch_zero_or_initial,fraction_epoch_zero_or_initial,median_selected_epoch_trained_only,mean_selected_val_bound_occupancy,mean_test_bound_occupancy,mean_test_path_bound_touch,fraction_test_bound_occupancy_ge_0_49,fraction_test_paths_all_touch_bound,liability_label
+ALL,60,12,0.2,20,0.3333333333333333,38.0,0.386361322555005,0.391928811763915,0.6908204361288426,0.4,0.65,All
+asian_call,30,1,0.0333333333333333,2,0.0666666666666666,70.0,0.388647096068124,0.3933940898691931,0.7165266820729407,0.4,0.7,Asian
+european_call,30,11,0.3666666666666666,18,0.6,16.0,0.3840755490418863,0.3904635336586369,0.6651141901847445,0.4,0.6,European

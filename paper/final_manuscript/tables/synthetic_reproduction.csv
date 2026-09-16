@@ -1,0 +1,3 @@
+environment,deep_hedging,protohedge,proto_minus_dh,paper_proto_minus_dh,dh_parameters,ph_parameters,test_samples
+Black--Scholes,-0.0581023944243803,-0.0590125401571412,-0.0009101457327608947,-0.00023,943,102,10000
+Stochastic volatility,-0.0901501082599172,-0.0902985450133675,-0.00014843675345029006,-0.0003,1004,1359,5000

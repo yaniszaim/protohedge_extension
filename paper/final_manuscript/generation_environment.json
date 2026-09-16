@@ -1,0 +1,22 @@
+{
+  "created_utc": "2026-09-10T01:10:11.700936+00:00",
+  "git_head": "47c80a2b210d8317adb621d726e51082c3d8c850",
+  "git_branch": "main",
+  "git_status_at_generation": [
+    "?? paper/black_scholes_notebook_confirmation/",
+    "?? paper/black_scholes_reproduction_audit/",
+    "?? paper/final_manuscript/",
+    "?? paper/original_synthetic_reproduction/artifact_checksums.sha256",
+    "?? paper/original_synthetic_reproduction/models/stochastic_volatility/protohedge/",
+    "?? paper/original_synthetic_reproduction/reproduction_assessment.json",
+    "?? paper/original_synthetic_reproduction/synthetic_summary.csv"
+  ],
+  "python": "3.10.20 (main, Mar 11 2026, 17:43:48) [Clang 20.1.8 ]",
+  "platform": "macOS-26.3.1-arm64-arm-64bit",
+  "numpy": "2.2.5",
+  "pandas": "2.3.3",
+  "matplotlib": "3.10.8",
+  "generator": "paper/final_manuscript/generate_assets.py",
+  "generator_sha256": "a603b501ee89084b010fc6967242cf0d29add8e007d775b0c4ee900d8f69f281",
+  "source_file_count": 43
+}

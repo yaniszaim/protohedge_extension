@@ -1,0 +1,2 @@
+liability_type,ticker,nominal_k,top1_mass_mean,top1_mass_std,top3_mass_mean,top3_mass_std,top5_mass_mean,top5_mass_std,top10_mass_mean,top10_mass_std,entropy_effective_k_mean,entropy_effective_k_std,inverse_concentration_effective_k_mean,inverse_concentration_effective_k_std
+european_call,QQQ,10,0.2444214584465033,0.01682688735947372,0.5819151646235481,0.016445959574385088,0.831396899704839,0.0587062600387889,1.0,1.3597399555105182e-16,7.309614445838502,0.5104715742411163,6.32295536429033,0.35844583271922603

@@ -1,0 +1,7 @@
+liability,model_family,selection,n_seed_fits,n_initial_untrained_selected,selected_epoch_median,selected_val_bound_occupancy_mean,test_bound_occupancy_mean,test_path_bound_touch_mean
+asian_call,Deep Hedging,fixed_original_architecture,30,1,59.5,0.3886470960681239,0.3933940898691931,0.7165266820729407
+asian_call,ProtoHedge,best_screened_proto_cvar05,30,0,85.0,0.007554645670110934,0.0162355511054198,0.09929909451572402
+asian_call,ProtoHedge,best_screened_proto_mean,30,0,241.5,0.013246950798705952,0.02300712407654933,0.1355101208557072
+european_call,Deep Hedging,fixed_original_architecture,30,11,0.0,0.38407554904188623,0.3904635336586369,0.6651141901847445
+european_call,ProtoHedge,best_screened_proto_cvar05,30,0,52.0,0.02772117170878237,0.041902375631637824,0.2386912628219657
+european_call,ProtoHedge,best_screened_proto_mean,30,0,158.0,0.0339523587311283,0.05343987136389112,0.3369847111454096

@@ -1,0 +1,19 @@
+\begin{tabular}{lp{0.67\columnwidth}}
+\toprule
+Component & Locked value \\
+\midrule
+Underlyings & AAPL, IWM, NVDA, QQQ, SPY, TLT, XLE, XLF, XLK, XLV \\
+Liabilities & European and arithmetic-average Asian ATM short calls \\
+Episode timing & 20 decisions, 21 observations \\
+Train / validation / test & 2005--2018 / 2019--2021 / 2022--2024 \\
+Boundary embargo & 20 observations \\
+Training seeds & 1234, 2345, 3456 \\
+Epochs / learning rate & 800 / 0.001 \\
+DH architecture & width 20, depth 3, Softplus \\
+Prototype counts & 10, 25, 50, 100 \\
+Prototype sources & Deep Hedging and Spot-Delta \\
+Similarity variants & unweighted and hand-weighted \\
+Trade / position bounds & [-1,1] per instrument \\
+Bootstrap & 2000 paired circular-block draws; block 20 \\
+\bottomrule
+\end{tabular}

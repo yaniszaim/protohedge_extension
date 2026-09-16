@@ -1,0 +1,41 @@
+liability,ticker,selection,model,prototype_source,n_prototypes,weighted_similarity,learn_distance_feature_weights,paper_faithful_family,extension_reasons
+asian_call,AAPL,best_screened_proto_mean,proto_source=spot_delta_k=25_weighted=0_learnw=0,spot_delta,25.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,AAPL,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=0_learnw=0,spot_delta,10.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,IWM,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+asian_call,IWM,best_screened_proto_cvar05,proto_source=vanilla_k=10_weighted=0_learnw=0,vanilla,10.0,False,False,True,
+asian_call,NVDA,best_screened_proto_mean,proto_source=spot_delta_k=10_weighted=0_learnw=0,spot_delta,10.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,NVDA,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=0_learnw=0,spot_delta,10.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,QQQ,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+asian_call,QQQ,best_screened_proto_cvar05,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+asian_call,SPY,best_screened_proto_mean,proto_source=spot_delta_k=25_weighted=0_learnw=0,spot_delta,25.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,SPY,best_screened_proto_cvar05,proto_source=vanilla_k=10_weighted=0_learnw=0,vanilla,10.0,False,False,True,
+asian_call,TLT,best_screened_proto_mean,proto_source=vanilla_k=10_weighted=1_learnw=0,vanilla,10.0,True,False,False,hand-weighted similarity
+asian_call,TLT,best_screened_proto_cvar05,proto_source=spot_delta_k=50_weighted=0_learnw=0,spot_delta,50.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,XLE,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+asian_call,XLE,best_screened_proto_cvar05,proto_source=spot_delta_k=50_weighted=0_learnw=0,spot_delta,50.0,False,False,False,Spot-Delta-derived prototypes
+asian_call,XLF,best_screened_proto_mean,proto_source=vanilla_k=100_weighted=0_learnw=0,vanilla,100.0,False,False,True,
+asian_call,XLF,best_screened_proto_cvar05,proto_source=vanilla_k=100_weighted=0_learnw=0,vanilla,100.0,False,False,True,
+asian_call,XLK,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+asian_call,XLK,best_screened_proto_cvar05,proto_source=spot_delta_k=100_weighted=1_learnw=0,spot_delta,100.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+asian_call,XLV,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+asian_call,XLV,best_screened_proto_cvar05,proto_source=spot_delta_k=25_weighted=0_learnw=0,spot_delta,25.0,False,False,False,Spot-Delta-derived prototypes
+european_call,AAPL,best_screened_proto_mean,proto_source=spot_delta_k=100_weighted=1_learnw=0,spot_delta,100.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+european_call,AAPL,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=0_learnw=0,spot_delta,10.0,False,False,False,Spot-Delta-derived prototypes
+european_call,IWM,best_screened_proto_mean,proto_source=spot_delta_k=25_weighted=0_learnw=0,spot_delta,25.0,False,False,False,Spot-Delta-derived prototypes
+european_call,IWM,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=1_learnw=0,spot_delta,10.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+european_call,NVDA,best_screened_proto_mean,proto_source=spot_delta_k=50_weighted=1_learnw=0,spot_delta,50.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+european_call,NVDA,best_screened_proto_cvar05,proto_source=spot_delta_k=25_weighted=0_learnw=0,spot_delta,25.0,False,False,False,Spot-Delta-derived prototypes
+european_call,QQQ,best_screened_proto_mean,proto_source=spot_delta_k=25_weighted=0_learnw=0,spot_delta,25.0,False,False,False,Spot-Delta-derived prototypes
+european_call,QQQ,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=0_learnw=0,spot_delta,10.0,False,False,False,Spot-Delta-derived prototypes
+european_call,SPY,best_screened_proto_mean,proto_source=spot_delta_k=10_weighted=1_learnw=0,spot_delta,10.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+european_call,SPY,best_screened_proto_cvar05,proto_source=vanilla_k=50_weighted=1_learnw=0,vanilla,50.0,True,False,False,hand-weighted similarity
+european_call,TLT,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+european_call,TLT,best_screened_proto_cvar05,proto_source=vanilla_k=10_weighted=1_learnw=0,vanilla,10.0,True,False,False,hand-weighted similarity
+european_call,XLE,best_screened_proto_mean,proto_source=spot_delta_k=10_weighted=0_learnw=0,spot_delta,10.0,False,False,False,Spot-Delta-derived prototypes
+european_call,XLE,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=1_learnw=0,spot_delta,10.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+european_call,XLF,best_screened_proto_mean,proto_source=vanilla_k=10_weighted=0_learnw=0,vanilla,10.0,False,False,True,
+european_call,XLF,best_screened_proto_cvar05,proto_source=spot_delta_k=50_weighted=1_learnw=0,spot_delta,50.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity
+european_call,XLK,best_screened_proto_mean,proto_source=vanilla_k=100_weighted=0_learnw=0,vanilla,100.0,False,False,True,
+european_call,XLK,best_screened_proto_cvar05,proto_source=vanilla_k=25_weighted=0_learnw=0,vanilla,25.0,False,False,True,
+european_call,XLV,best_screened_proto_mean,proto_source=vanilla_k=50_weighted=0_learnw=0,vanilla,50.0,False,False,True,
+european_call,XLV,best_screened_proto_cvar05,proto_source=spot_delta_k=10_weighted=1_learnw=0,spot_delta,10.0,True,False,False,Spot-Delta-derived prototypes|hand-weighted similarity

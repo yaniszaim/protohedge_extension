@@ -1,0 +1,57 @@
+{
+  "batch_size": 32,
+  "black_scholes_drift": 0.1,
+  "black_scholes_prototype_mode": "committed",
+  "black_scholes_prototypes": 100,
+  "checkpoint_rule": "minimum training OCE loss, including initialization",
+  "dt": 0.02,
+  "epochs": 800,
+  "framework": "TensorFlow 2.13.0",
+  "learning_rate": 0.001,
+  "metric": "OCE CVaR at lower-tail probability 50% (lambda=1)",
+  "model_seed": 1,
+  "network_activation": "softplus",
+  "network_depth": 3,
+  "network_width": 20,
+  "notebook_reference": {
+    "path": "notebooks/proto-trainer.ipynb",
+    "saved_expected_utility": {
+      "deep_hedging": -0.05816568,
+      "protohedge": -0.05842079
+    },
+    "saved_proto_minus_deep_hedging": -0.00025511000000000283
+  },
+  "optimizer": "Adam",
+  "paper_reference_assessment_applicable": true,
+  "paper_reference_proto_minus_dh": {
+    "black_scholes": -0.00023,
+    "stochastic_volatility": -0.0003
+  },
+  "profile": "notebook-black-scholes",
+  "protocol_mode": "notebook-faithful-black-scholes",
+  "prototype_provenance_note": "The authors' executed Black-Scholes notebook used the committed K=100 prototype asset with the simulator's default drift 0.1.",
+  "reference_pdf": {
+    "bytes": 1269276,
+    "path": "/Users/yaniszaim/Downloads/ProtoHedge.pdf",
+    "sha256": "56c92bd1682c97b2831c61ffbf3cbe43715d427e58dd7bd83e5023d04b423491"
+  },
+  "selected_models": [
+    "black_scholes:deep_hedging",
+    "black_scholes:protohedge"
+  ],
+  "source_commit": "983da37765b0afe9de0407a6cd7cd38002ec62da",
+  "source_commit_requested": "983da37",
+  "steps": 20,
+  "stochastic_volatility_drift": 0.1,
+  "stochastic_volatility_prototypes": 500,
+  "test_samples": 10000,
+  "test_seed_by_environment": {
+    "black_scholes": 1,
+    "stochastic_volatility": 42
+  },
+  "test_seed_note": "The final notebook comparison used an unrecorded random clone seed. This deterministic confirmation uses the same fixed test seed for both models so their pathwise comparison is paired and reproducible.",
+  "training_samples": 10000,
+  "training_seed_note": "The notebooks did not lock TensorFlow initialization before training; this reproduction explicitly locks model_seed=1.",
+  "validation_samples": 1000,
+  "world_seed": 2312414312
+}

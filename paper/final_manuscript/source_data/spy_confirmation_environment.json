@@ -1,0 +1,20 @@
+{
+  "cuda_available": false,
+  "cuda_device": null,
+  "cuda_version": null,
+  "executable": "/opt/anaconda3/envs/dh/bin/python",
+  "git_commit": "47c80a2b210d8317adb621d726e51082c3d8c850",
+  "git_status_at_launch": "?? paper/black_scholes_reproduction_audit/\n?? paper/original_synthetic_reproduction/artifact_checksums.sha256\n?? paper/original_synthetic_reproduction/models/stochastic_volatility/protohedge/\n?? paper/original_synthetic_reproduction/reproduction_assessment.json\n?? paper/original_synthetic_reproduction/synthetic_summary.csv",
+  "numpy": "2.2.5",
+  "package_versions": {
+    "cdxbasics": "0.2.141",
+    "matplotlib": "3.10.8",
+    "scikit-learn": "1.7.2",
+    "scipy": "1.15.3",
+    "seaborn": "0.13.2"
+  },
+  "pandas": "2.3.3",
+  "platform": "macOS-26.3.1-arm64-arm-64bit",
+  "python": "3.10.20 (main, Mar 11 2026, 17:43:48) [Clang 20.1.8 ]",
+  "torch": "2.5.1"
+}

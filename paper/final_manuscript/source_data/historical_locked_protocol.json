@@ -1,0 +1,89 @@
+{
+  "run_version": "submission_rerun_scientific_v4",
+  "created_utc": "2026-08-22T18:29:56.443929+00:00",
+  "tickers": [
+    "AAPL",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "XLE",
+    "XLF",
+    "XLK",
+    "XLV"
+  ],
+  "liabilities": [
+    "european_call",
+    "asian_call"
+  ],
+  "seeds": [
+    1234,
+    2345,
+    3456
+  ],
+  "epochs": 800,
+  "learning_rate": 0.001,
+  "batch_size": null,
+  "epoch_refresh": null,
+  "spot_delta_band_grid": [
+    0.0,
+    0.01,
+    0.02,
+    0.05,
+    0.1,
+    0.15
+  ],
+  "prototype_counts": [
+    10,
+    25,
+    50,
+    100
+  ],
+  "prototype_sources": [
+    "spot_delta",
+    "vanilla"
+  ],
+  "weighted_similarity_options": [
+    false,
+    true
+  ],
+  "outcome_definition": "liability-offset-excluding-premium-v1",
+  "premium_included": false,
+  "hedge_accounting_version": "inventory-step-v1",
+  "episode_timing_version": "decision-intervals-terminal-observation-v1",
+  "n_decisions": 20,
+  "n_observations": 21,
+  "inference_version": "paired-circular-block-seed-average-v2",
+  "temporal_split_version": "chronological-prewindow-v1",
+  "option_path_version": "fixed-optionid-v1",
+  "model_selection_version": "validation-only-across-seeds-v1",
+  "asian_payoff_state_version": "asian-running-average-moneyness-end-fixings-v2",
+  "bootstrap_repetitions": 2000,
+  "bootstrap_confidence": 0.95,
+  "bootstrap_block_length": 20,
+  "training_selection": {
+    "selection_metric": "val_loss",
+    "selection_alpha_action_abs": 0.005,
+    "selection_alpha_delta_abs": 0.01,
+    "selection_alpha_bound_occupancy": 0.1,
+    "selection_alpha_path_bound_touch": 0.0
+  },
+  "training_regularization": {
+    "action_penalty_weight": 0.001,
+    "delta_penalty_weight": 0.002
+  },
+  "max_validation_bound_occupancy": 0.5,
+  "trade_bounds": {
+    "lbnd_as": -1.0,
+    "ubnd_as": 1.0,
+    "lbnd_av": -1.0,
+    "ubnd_av": 1.0
+  },
+  "position_bounds": {
+    "lbnd_delta_s": -1.0,
+    "ubnd_delta_s": 1.0,
+    "lbnd_delta_v": -1.0,
+    "ubnd_delta_v": 1.0
+  }
+}

@@ -1,0 +1,18 @@
+\begin{tabular}{llrrrr}
+\toprule
+Liability & Model & Mean offset & CVaR@5\% & RMSE & Bound occ. \\
+\midrule
+European & Unhedged & -0.031696 & -0.137725 & 0.051082 & 0.0\% \\
+European & Spot-Delta & -0.030281 & -0.070542 & 0.033481 & 0.0\% \\
+European & Spot-Delta Band & -0.029875 & -0.073046 & 0.033661 & 0.0\% \\
+European & Deep Hedging & -0.023872 & -0.113276 & 0.041646 & 39.0\% \\
+European & ProtoHedge (Validation-Mean) & -0.021432 & -0.094189 & 0.035060 & 5.3\% \\
+European & ProtoHedge (Validation-Tail) & -0.024793 & -0.084112 & 0.033853 & 4.2\% \\
+Asian & Unhedged & -0.018544 & -0.082546 & 0.030284 & 0.0\% \\
+Asian & Spot-Delta & -0.017129 & -0.065298 & 0.029230 & 0.0\% \\
+Asian & Spot-Delta Band & -0.016724 & -0.066718 & 0.028730 & 0.0\% \\
+Asian & Deep Hedging & -0.016210 & -0.082270 & 0.030993 & 39.3\% \\
+Asian & ProtoHedge (Validation-Mean) & -0.012483 & -0.085456 & 0.029431 & 2.3\% \\
+Asian & ProtoHedge (Validation-Tail) & -0.014334 & -0.077504 & 0.026745 & 1.6\% \\
+\bottomrule
+\end{tabular}

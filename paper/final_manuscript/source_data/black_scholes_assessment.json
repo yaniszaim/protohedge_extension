@@ -1,0 +1,16 @@
+{
+  "assessment_scope": "The paper reports expected OCE CVaR@50% using each trained utility threshold y. Smoke tests are execution checks only; full runs are numerical checks with stochastic-optimization tolerance.",
+  "comparisons": [
+    {
+      "absolute_gap_error": 0.0006801457327608531,
+      "environment": "black_scholes",
+      "metric": "expected_utility_frozen_training_y",
+      "notebook_saved_gap": -0.00025511000000000283,
+      "paper_ordering_reproduced": true,
+      "paper_reference_assessment_applicable": true,
+      "paper_reference_gap": -0.00023,
+      "proto_minus_deep_hedging": -0.0009101457327608531,
+      "within_0.0025_of_paper_gap": true
+    }
+  ]
+}

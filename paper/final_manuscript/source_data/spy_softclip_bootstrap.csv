@@ -1,0 +1,4 @@
+candidate,benchmark,metric,estimate,ci_low,ci_high,bootstrap_probability_gt_zero,n_observations,block_length,n_bootstrap,confidence,inference_scope
+tfp_exact,deep_hedging,frozen_oce_cvar50_utility_difference,0.0017445086990181046,-0.009189596563454031,0.01458640622557518,0.5885,713,20,2000,0.95,"single-seed paired temporal-block sensitivity; descriptive, not a replacement for panel inference"
+legacy_approx,deep_hedging,frozen_oce_cvar50_utility_difference,-0.0002488172827179114,-0.011393566484037755,0.013623035026410671,0.4715,713,20,2000,0.95,"single-seed paired temporal-block sensitivity; descriptive, not a replacement for panel inference"
+tfp_exact,legacy_approx,frozen_oce_cvar50_utility_difference,0.001993325981736016,-0.0016934794932865075,0.006412062284551026,0.8455,713,20,2000,0.95,"single-seed paired temporal-block sensitivity; descriptive, not a replacement for panel inference"

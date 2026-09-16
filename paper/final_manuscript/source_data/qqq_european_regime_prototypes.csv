@@ -1,0 +1,10 @@
+regime_type,regime,prototype,mean_weight
+drawdown_regime,deep_dd,prototype_2,0.29317280650138855
+drawdown_regime,mid_dd,prototype_2,0.25962916016578674
+drawdown_regime,mild_dd,prototype_9,0.29141518473625183
+return_regime,down,prototype_9,0.3164801597595215
+return_regime,middle,prototype_9,0.21108292043209076
+return_regime,up,prototype_2,0.37424200773239136
+vol_regime,high_vol,prototype_2,0.24920892715454102
+vol_regime,low_vol,prototype_5,0.23248010873794556
+vol_regime,mid_vol,prototype_2,0.27707305550575256

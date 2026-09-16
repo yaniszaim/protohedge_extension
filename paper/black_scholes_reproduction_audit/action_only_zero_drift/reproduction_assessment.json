@@ -1,0 +1,4 @@
+{
+  "assessment_scope": "The paper reports expected OCE CVaR@50% using each trained utility threshold y. Smoke tests are execution checks only; full runs are numerical checks with stochastic-optimization tolerance.",
+  "comparisons": []
+}

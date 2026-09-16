@@ -1,0 +1,17 @@
+# Paper-era TensorFlow stack for the original ProtoHedge simulation reproduction.
+# The paper notebooks report TensorFlow 2.13.0. Keep this environment separate
+# from the PyTorch historical-data environment.
+tensorflow-macos==2.13.0; sys_platform == "darwin" and platform_machine == "arm64"
+tensorflow==2.13.0; sys_platform != "darwin" or platform_machine != "arm64"
+tensorflow-probability==0.21.0
+keras==2.13.1
+typing-extensions==4.5.0
+numpy==1.24.3
+scipy==1.10.1
+pandas==2.0.3
+matplotlib==3.7.3
+# The committed prototype scaler records this exact serialization version.
+scikit-learn==1.6.1
+psutil==5.9.8
+cdxbasics==0.2.141
+ipython==8.12.3

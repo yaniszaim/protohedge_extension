@@ -1,0 +1,47 @@
+{
+  "batch_size": 32,
+  "black_scholes_drift": 0.0,
+  "black_scholes_prototypes": 100,
+  "checkpoint_rule": "minimum training OCE loss, including initialization",
+  "dt": 0.02,
+  "epochs": 800,
+  "framework": "TensorFlow 2.13.0",
+  "learning_rate": 0.001,
+  "metric": "OCE CVaR at lower-tail probability 50% (lambda=1)",
+  "model_seed": 1,
+  "network_activation": "softplus",
+  "network_depth": 3,
+  "network_width": 20,
+  "optimizer": "Adam",
+  "paper_reference_proto_minus_dh": {
+    "black_scholes": -0.00023,
+    "stochastic_volatility": -0.0003
+  },
+  "protocol_mode": "paper-reproduction",
+  "prototype_provenance_note": "The committed stochastic-volatility K=500 asset is used directly. The paper's zero-drift Black-Scholes K=100 asset was not committed, so it is regenerated from the reproduced DH checkpoint using the paper notebook's deterministic extraction procedure.",
+  "reference_pdf": {
+    "bytes": 1269276,
+    "path": "/Users/yaniszaim/Downloads/ProtoHedge.pdf",
+    "sha256": "56c92bd1682c97b2831c61ffbf3cbe43715d427e58dd7bd83e5023d04b423491"
+  },
+  "selected_models": [
+    "black_scholes:deep_hedging",
+    "black_scholes:protohedge",
+    "stochastic_volatility:deep_hedging",
+    "stochastic_volatility:protohedge"
+  ],
+  "source_commit": "aedb450606220462d99c7ca333ab51b600c423b1",
+  "source_commit_requested": "aedb450",
+  "steps": 20,
+  "stochastic_volatility_drift": 0.1,
+  "stochastic_volatility_prototypes": 500,
+  "test_samples": 5000,
+  "test_seed_by_environment": {
+    "black_scholes": 1,
+    "stochastic_volatility": 42
+  },
+  "training_samples": 10000,
+  "training_seed_note": "The notebooks did not lock TensorFlow initialization before training; this reproduction explicitly locks model_seed=1.",
+  "validation_samples": 1000,
+  "world_seed": 2312414312
+}
