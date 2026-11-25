@@ -1,0 +1,31 @@
+{
+  "study": "M1_main",
+  "specs": [
+    "paper/revision_2026_11/phase3/M1_F_spec.json"
+  ],
+  "time": "2026-11-15 16:44:54",
+  "expected_fits": 120,
+  "present": 120,
+  "verified": 120,
+  "largest_differences": {
+    "reload": 0.0,
+    "simulator": 7.830241457139342e-08,
+    "checkpoint": 0.0,
+    "prototype": 0.0
+  },
+  "test_opened": false,
+  "problems": {},
+  "counts": {
+    "split_order_checked": 20,
+    "expected": 120,
+    "present": 120,
+    "cap_reached__dh__trade__cvar50_offset": 0,
+    "failed__dh__trade__cvar50_offset": 25,
+    "fits__dh__trade__cvar50_offset": 60,
+    "verified": 120,
+    "cap_reached__ph__trade__cvar50_offset": 0,
+    "prototype_banks_checked": 60,
+    "failed__ph__trade__cvar50_offset": 38,
+    "fits__ph__trade__cvar50_offset": 60
+  }
+}

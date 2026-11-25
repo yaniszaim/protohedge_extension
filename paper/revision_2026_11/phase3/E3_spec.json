@@ -1,0 +1,13 @@
+{
+  "study": "E3_capacity",
+  "tickers": ["SPY", "TLT", "NVDA"],
+  "liabilities": ["european_call", "asian_call"],
+  "modes": ["residual"],
+  "objectives": ["var_he"],
+  "states": ["s1"],
+  "seeds": [0, 1],
+  "families": "dh,dh:w=8,dh:w=64,dh:w=128,ph,ph:k=10,ph:k=25,ph:k=50,phd",
+  "k": 100,
+  "max_epochs": 800,
+  "patience": 150
+}

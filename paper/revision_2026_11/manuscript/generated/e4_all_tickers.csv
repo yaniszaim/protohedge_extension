@@ -1,0 +1,13 @@
+liability,arm,level,ratio
+asian_call,dh,100%,0.39903178311385823
+asian_call,dh,pooled,0.37339903628811355
+asian_call,ph,100%,0.6078619076761349
+asian_call,ph,pooled,0.45345826899995634
+asian_call,phd,100%,0.6007954239012803
+asian_call,phd,pooled,0.5661817380857814
+european_call,dh,100%,0.2975145991402129
+european_call,dh,pooled,0.27597301251262224
+european_call,ph,100%,0.5742503426078553
+european_call,ph,pooled,0.3716865127316175
+european_call,phd,100%,0.5252285371588837
+european_call,phd,pooled,0.48152017953297666

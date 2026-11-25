@@ -1,0 +1,21 @@
+{
+  "study": "E4_mechanism",
+  "liabilities": [
+    "european_call",
+    "asian_call"
+  ],
+  "mode": "residual",
+  "objective": "var_he",
+  "state": "s1",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "families": "dh,dh:w=128,ph:k=10,phd:k=10",
+  "k": 100,
+  "pooled": true,
+  "pooled_batch_size": 32,
+  "max_epochs": 200,
+  "patience": 30
+}

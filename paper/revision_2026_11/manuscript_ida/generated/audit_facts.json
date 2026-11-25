@@ -1,0 +1,40 @@
+{
+ "untrained_encoder_top1_is_nearest": {
+  "european_call": 0.6516418130972379,
+  "asian_call": 0.7506023555945631
+ },
+ "crisis_recall": [
+  {
+   "liability": "european_call",
+   "layer": "ph",
+   "stressed": 0.19723902642726898,
+   "other": 0.17099174857139587,
+   "tickers": 10
+  },
+  {
+   "liability": "european_call",
+   "layer": "phd",
+   "stressed": 0.26297590136528015,
+   "other": 0.12628963589668274,
+   "tickers": 10
+  },
+  {
+   "liability": "asian_call",
+   "layer": "ph",
+   "stressed": 0.25851356983184814,
+   "other": 0.19908417761325836,
+   "tickers": 10
+  },
+  {
+   "liability": "asian_call",
+   "layer": "phd",
+   "stressed": 0.27986112236976624,
+   "other": 0.1517253965139389,
+   "tickers": 10
+  }
+ ],
+ "plain_usage_harm_spearman": {
+  "european_call": 0.4586666666666666,
+  "asian_call": 0.5195151515151515
+ }
+}

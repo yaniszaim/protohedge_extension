@@ -1,0 +1,15 @@
+liability,model,dynamic,initialisation or first epoch,static (>=90% of trading at first step)
+asian_call,dh,28,2,0
+asian_call,dh_hybrid,29,1,0
+asian_call,ph_fixed,30,0,0
+asian_call,ph_mean,30,0,0
+asian_call,ph_mean_hybrid,30,0,0
+asian_call,ph_tail,30,0,0
+asian_call,ph_tail_hybrid,30,0,0
+european_call,dh,7,18,5
+european_call,dh_hybrid,11,8,11
+european_call,ph_fixed,30,0,0
+european_call,ph_mean,30,0,0
+european_call,ph_mean_hybrid,30,0,0
+european_call,ph_tail,30,0,0
+european_call,ph_tail_hybrid,30,0,0

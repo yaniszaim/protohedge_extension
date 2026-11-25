@@ -1,0 +1,13 @@
+{
+  "study": "E2_pilot",
+  "tickers": ["SPY", "TLT", "NVDA"],
+  "liabilities": ["european_call", "asian_call"],
+  "modes": ["trade", "target", "residual"],
+  "objectives": ["var_he"],
+  "states": ["s1"],
+  "seeds": [0, 1],
+  "families": "dh,ph",
+  "k": 100,
+  "max_epochs": 800,
+  "patience": 150
+}

@@ -161,3 +161,9 @@ data/*
 
 # VS Code
 .vscode/
+
+Data/
+protohedge-main/
+handoff/
+PROJECT_HANDOFF*
+REVIEWS_SSCI_2027.md

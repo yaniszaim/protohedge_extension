@@ -1,0 +1,37 @@
+{
+  "study": "M1_main",
+  "tickers": [
+    "AAPL",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "XLE",
+    "XLF",
+    "XLK",
+    "XLV"
+  ],
+  "liabilities": [
+    "european_call",
+    "asian_call"
+  ],
+  "states": [
+    "s1"
+  ],
+  "k": 100,
+  "max_epochs": 2000,
+  "patience": 150,
+  "modes": [
+    "residual"
+  ],
+  "objectives": [
+    "cvar10_he"
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "families": "dh,dh:w=128,ph:k=10"
+}

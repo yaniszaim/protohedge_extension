@@ -1,0 +1,135 @@
+{
+  "verdict": {
+    "european_call/ph": {
+      "X3a": true,
+      "X3b": true,
+      "X3c": false
+    },
+    "european_call/phd": {
+      "X3a": true,
+      "X3b": true,
+      "X3c": false
+    },
+    "asian_call/ph": {
+      "X3a": true,
+      "X3b": true,
+      "X3c": false
+    },
+    "asian_call/phd": {
+      "X3a": true,
+      "X3b": true,
+      "X3c": false
+    }
+  },
+  "examples": [
+    {
+      "ticker": "QQQ",
+      "layer": "ph",
+      "decision_date": "2022-12-12",
+      "decision_ivol": 0.6575520038604736,
+      "test_window": "",
+      "top3": [
+        {
+          "date": "2014-01-30",
+          "weight": 0.31810709834098816,
+          "ivol": 0.1518319994211197,
+          "event": ""
+        },
+        {
+          "date": "2008-07-01",
+          "weight": 0.309906542301178,
+          "ivol": 0.24960799515247345,
+          "event": ""
+        },
+        {
+          "date": "2015-06-25",
+          "weight": 0.1430291384458542,
+          "ivol": 0.14569799602031708,
+          "event": ""
+        }
+      ]
+    },
+    {
+      "ticker": "QQQ",
+      "layer": "phd",
+      "decision_date": "2022-12-12",
+      "decision_ivol": 0.6575520038604736,
+      "test_window": "",
+      "top3": [
+        {
+          "date": "2008-12-18",
+          "weight": 0.8817734718322754,
+          "ivol": 0.4443430006504059,
+          "event": "financial crisis"
+        },
+        {
+          "date": "2011-08-29",
+          "weight": 0.038267385214567184,
+          "ivol": 0.3637459874153137,
+          "event": "US downgrade, euro crisis"
+        },
+        {
+          "date": "2018-07-02",
+          "weight": 0.02029397338628769,
+          "ivol": 0.16211199760437012,
+          "event": ""
+        }
+      ]
+    },
+    {
+      "ticker": "SPY",
+      "layer": "ph",
+      "decision_date": "2022-07-27",
+      "decision_ivol": 0.5208560228347778,
+      "test_window": "",
+      "top3": [
+        {
+          "date": "2009-01-27",
+          "weight": 0.4254797399044037,
+          "ivol": 0.3713180124759674,
+          "event": "financial crisis"
+        },
+        {
+          "date": "2005-12-06",
+          "weight": 0.21991556882858276,
+          "ivol": 0.10541799664497375,
+          "event": ""
+        },
+        {
+          "date": "2008-09-29",
+          "weight": 0.1904916614294052,
+          "ivol": 0.47932299971580505,
+          "event": "financial crisis"
+        }
+      ]
+    },
+    {
+      "ticker": "SPY",
+      "layer": "phd",
+      "decision_date": "2022-07-27",
+      "decision_ivol": 0.5208560228347778,
+      "test_window": "",
+      "top3": [
+        {
+          "date": "2009-04-27",
+          "weight": 0.9999997615814209,
+          "ivol": 0.3939250111579895,
+          "event": ""
+        },
+        {
+          "date": "2016-06-10",
+          "weight": 2.415309268144483e-07,
+          "ivol": 0.17094600200653076,
+          "event": ""
+        },
+        {
+          "date": "2018-10-19",
+          "weight": 1.6491135568230675e-08,
+          "ivol": 0.18786700069904327,
+          "event": "Q4 2018 selloff"
+        }
+      ]
+    }
+  ],
+  "written": "2026-11-19 11:24:17"
+}

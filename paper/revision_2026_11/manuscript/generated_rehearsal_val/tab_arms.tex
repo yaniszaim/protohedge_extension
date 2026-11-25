@@ -1,0 +1,20 @@
+\begin{tabular}{@{}l rrrr c rrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{European call} && \multicolumn{4}{c}{Asian call} \\
+\cmidrule{2-5}\cmidrule{7-10}
+Variation & Std ratio & $\mathrm{CVaR}_{5\%}(E)$ & Mean $E$ & Failed && Std ratio & $\mathrm{CVaR}_{5\%}(E)$ & Mean $E$ & Failed \\
+\midrule
+\multicolumn{10}{@{}l}{\emph{Arm A: variance of $E$, correction to delta}} \\
+\quad DH & 0.30 & $-$0.80 & $-$0.18 & 0/50 && 0.41 & $-$0.89 & $-$0.23 & 0/50 \\
+\quad PH (encoder) & 0.59 & $-$1.57 & $-$0.09 & 0/50 && 0.63 & $-$1.31 & $-$0.18 & 0/50 \\
+\quad PH (plain) & 0.52 & $-$1.61 & $-$0.27 & 0/50 && 0.59 & $-$1.32 & $-$0.21 & 0/50 \\
+\multicolumn{10}{@{}l}{\emph{Objective $\mathrm{CVaR}_{10\%}(E)$}} \\
+\quad DH & 1.31 & $-$1.05 & +0.61 & 0/30 && 1.78 & $-$0.82 & +0.70 & 0/30 \\
+\quad PH (encoder) & 1.28 & $-$1.94 & +0.58 & 0/30 && 1.39 & $-$1.31 & +0.53 & 0/30 \\
+\multicolumn{10}{@{}l}{\emph{Objective $\mathrm{CVaR}_{50\%}(O)$ (submitted)}} \\
+\quad DH & 3.42 & $-$5.63 & +1.84 & 11/30 && 4.31 & $-$4.81 & +1.77 & 21/30 \\
+\quad PH (encoder) & 2.83 & $-$5.06 & +1.38 & 1/30 && 3.40 & $-$4.38 & +1.20 & 14/30 \\
+\multicolumn{10}{@{}l}{\emph{Original sizes}} \\
+\quad DH, width 20 & 0.32 & $-$0.80 & $-$0.17 & 0/50 && 0.44 & $-$0.90 & $-$0.21 & 0/50 \\
+\bottomrule
+\end{tabular}

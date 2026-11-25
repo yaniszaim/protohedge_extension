@@ -1,0 +1,38 @@
+{
+ "ph": {
+  "prototype_state": {
+   "spot": 0.9003,
+   "call": 0.0086,
+   "time_left": 0.0278,
+   "ivol": 0.4793,
+   "listed_log_moneyness": -0.1073,
+   "listed_ttm": 0.0525,
+   "inventory_spot": -0.0118,
+   "inventory_call": 0.9537
+  },
+  "attached_output_spot_call": [
+   -0.485,
+   0.459
+  ],
+  "source_episode_start": "2008-09-10",
+  "source_step": 13
+ },
+ "phd": {
+  "prototype_state": {
+   "spot": 0.9003,
+   "call": 0.0086,
+   "time_left": 0.0278,
+   "ivol": 0.4793,
+   "listed_log_moneyness": -0.1073,
+   "listed_ttm": 0.0525,
+   "inventory_spot": -0.0118,
+   "inventory_call": 0.9537
+  },
+  "attached_output_spot_call": [
+   -0.05,
+   0.363
+  ],
+  "source_episode_start": "2008-09-10",
+  "source_step": 13
+ }
+}

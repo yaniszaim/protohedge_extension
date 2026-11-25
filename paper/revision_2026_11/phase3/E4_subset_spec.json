@@ -1,0 +1,28 @@
+{
+  "study": "E4_mechanism",
+  "liabilities": [
+    "european_call",
+    "asian_call"
+  ],
+  "mode": "residual",
+  "objective": "var_he",
+  "state": "s1",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "families": "dh,dh:w=128,ph:k=10,phd:k=10",
+  "k": 100,
+  "subset_tickers": [
+    "SPY",
+    "TLT",
+    "NVDA"
+  ],
+  "fractions": [
+    0.25,
+    0.5
+  ],
+  "max_epochs": 2000,
+  "patience": 150
+}

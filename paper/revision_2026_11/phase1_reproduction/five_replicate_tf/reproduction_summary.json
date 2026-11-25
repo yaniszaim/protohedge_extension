@@ -1,0 +1,202 @@
+{
+  "criteria": {
+    "bs/ph": {
+      "replicates": [
+        "paper",
+        "r1",
+        "r2",
+        "r3",
+        "r4"
+      ],
+      "R0_unhedged_paper_test": [
+        -0.103868
+      ],
+      "R0_pass": true,
+      "R1_dh_vs_unhedged_paper_rep": 0.045663899488246534,
+      "R1_dh_vs_unhedged_mean": 0.04565884374889545,
+      "R1_paper_value": 0.0457,
+      "R1_pass": true,
+      "R2_large_rel_gap_mean": -0.10757551502404301,
+      "R2_large_gap_mean": -0.006263342721357942,
+      "R2_large_gap_ci95": [
+        -0.016723471196738855,
+        0.0041967857540229705
+      ],
+      "R2_large_gap_by_rep": {
+        "paper": -0.0002404175042361021,
+        "r1": -0.013584860475286842,
+        "r2": -0.017186288958527147,
+        "r3": -0.00016101950593292713,
+        "r4": -0.00014412716280668973
+      },
+      "R2_paper_rep_gap": -0.000197138150036335,
+      "R2_paper_rep_gap_se": 8.596682046421851e-05,
+      "R2_paper_rep_within_2se_of_paper": true,
+      "R2_paper_value": -0.00023,
+      "R2_verdict": "not confirmed",
+      "R3_sd_dh_large": 6.050608505405839e-05,
+      "R3_sd_ph_large": 0.008417577845832034,
+      "R3_sd_gap_large": 0.008424282648536877
+    },
+    "bs/ph_weighted": {
+      "replicates": [
+        "paper",
+        "r1",
+        "r2",
+        "r3",
+        "r4"
+      ],
+      "R0_unhedged_paper_test": [
+        -0.103868
+      ],
+      "R0_pass": true,
+      "R1_dh_vs_unhedged_paper_rep": 0.045663899488246534,
+      "R1_dh_vs_unhedged_mean": 0.04565884374889545,
+      "R1_paper_value": 0.0457,
+      "R1_pass": true,
+      "R2_large_rel_gap_mean": -0.2751042349863632,
+      "R2_large_gap_mean": -0.016016630309954285,
+      "R2_large_gap_ci95": [
+        -0.02786239110923014,
+        -0.0041708695106784325
+      ],
+      "R2_large_gap_by_rep": {
+        "paper": -0.022258477943465114,
+        "r1": -0.02316523431867361,
+        "r2": -0.010813770694173873,
+        "r3": -0.02225271121494472,
+        "r4": -0.001592957378514111
+      },
+      "R2_paper_rep_gap": -0.022614540512859823,
+      "R2_paper_rep_gap_se": 0.0008596037975847126,
+      "R2_paper_rep_within_2se_of_paper": false,
+      "R2_paper_value": -0.00023,
+      "R2_verdict": "not confirmed",
+      "R3_sd_dh_large": 6.050608505405839e-05,
+      "R3_sd_ph_large": 0.009519428010448906,
+      "R3_sd_gap_large": 0.009540230542572173
+    },
+    "bs/ph_plain": {
+      "replicates": [
+        "paper",
+        "r1",
+        "r2",
+        "r4"
+      ],
+      "R0_unhedged_paper_test": [
+        -0.103868
+      ],
+      "R0_pass": true,
+      "R1_dh_vs_unhedged_paper_rep": 0.045663899488246534,
+      "R1_dh_vs_unhedged_mean": 0.04564178443041746,
+      "R1_paper_value": 0.0457,
+      "R1_pass": true,
+      "R2_large_rel_gap_mean": -0.00010401502576081866,
+      "R2_large_gap_mean": -6.003938410431145e-06,
+      "R2_large_gap_ci95": [
+        -0.00011143438107562965,
+        9.942650425476737e-05
+      ],
+      "R2_large_gap_by_rep": {
+        "paper": -8.255817592144013e-05,
+        "r1": 3.5836492031812667e-05,
+        "r2": -3.8428886383771894e-05,
+        "r4": 6.113481663167477e-05
+      },
+      "R2_paper_rep_gap": -0.00011624061614274979,
+      "R2_paper_rep_gap_se": 6.202026322032299e-05,
+      "R2_paper_rep_within_2se_of_paper": true,
+      "R2_paper_value": -0.00023,
+      "R2_verdict": "confirmed",
+      "R3_sd_dh_large": 6.738978172703674e-05,
+      "R3_sd_ph_large": 2.456800060572753e-05,
+      "R3_sd_gap_large": 6.62574840556697e-05
+    },
+    "sv/ph": {
+      "replicates": [
+        "paper",
+        "r1",
+        "r2",
+        "r3",
+        "r4"
+      ],
+      "R0_unhedged_paper_test": [
+        -0.124612
+      ],
+      "R0_pass": true,
+      "R1_dh_vs_unhedged_paper_rep": 0.034377172967232764,
+      "R1_dh_vs_unhedged_mean": 0.03433084597811102,
+      "R1_paper_value": 0.0344,
+      "R1_pass": true,
+      "R2_large_rel_gap_mean": -0.005365187805470623,
+      "R2_large_gap_mean": -0.0004842981813624501,
+      "R2_large_gap_ci95": [
+        -0.0010495988571614676,
+        8.100249443656737e-05
+      ],
+      "R2_large_gap_by_rep": {
+        "paper": -1.0950832068920136e-05,
+        "r1": -0.0005477851681411266,
+        "r2": -0.0004042388431727886,
+        "r3": -0.00024212406922131778,
+        "r4": -0.0012163919942080974
+      },
+      "R2_paper_rep_gap": -0.00021026733666658403,
+      "R2_paper_rep_gap_se": 0.00037502536705027437,
+      "R2_paper_rep_within_2se_of_paper": true,
+      "R2_paper_value": -0.0003,
+      "R2_verdict": "partially confirmed",
+      "R3_sd_dh_large": 0.00011290596820248783,
+      "R3_sd_ph_large": 0.0004815342832096682,
+      "R3_sd_gap_large": 0.00045527669048696004
+    },
+    "sv/ph_weighted": {
+      "replicates": [
+        "paper",
+        "r1",
+        "r2",
+        "r3",
+        "r4"
+      ],
+      "R0_unhedged_paper_test": [
+        -0.124612
+      ],
+      "R0_pass": true,
+      "R1_dh_vs_unhedged_paper_rep": 0.034377172967232764,
+      "R1_dh_vs_unhedged_mean": 0.03433084597811102,
+      "R1_paper_value": 0.0344,
+      "R1_pass": true,
+      "R2_large_rel_gap_mean": -0.14526553493009592,
+      "R2_large_gap_mean": -0.013114583515159785,
+      "R2_large_gap_ci95": [
+        -0.02080752091479628,
+        -0.005421646115523292
+      ],
+      "R2_large_gap_by_rep": {
+        "paper": -0.01650675122484565,
+        "r1": -0.0037732804019004105,
+        "r2": -0.009929749546051025,
+        "r3": -0.016473144313022495,
+        "r4": -0.01888999208997935
+      },
+      "R2_paper_rep_gap": -0.016613811352849006,
+      "R2_paper_rep_gap_se": 0.0010673341880892441,
+      "R2_paper_rep_within_2se_of_paper": false,
+      "R2_paper_value": -0.0003,
+      "R2_verdict": "not confirmed",
+      "R3_sd_dh_large": 0.00011290596820248783,
+      "R3_sd_ph_large": 0.006257535121277662,
+      "R3_sd_gap_large": 0.006195667596681034
+    },
+    "R4_bs_row": {
+      "paper_BS_value_implied": -0.0516349,
+      "authors_bar_recomputed_training_world": -0.05163489282131195,
+      "bs_delta_hedge_cvar50_training_world": -0.05816932185591731,
+      "bs_delta_hedge_cvar50_paper_test": -0.0579884359591892,
+      "authors_bar_paper_test": -0.0519341379404068
+    }
+  },
+  "missing": [
+    "bs/r3/ph_plain"
+  ]
+}

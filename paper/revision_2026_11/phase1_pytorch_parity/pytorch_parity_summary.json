@@ -1,0 +1,85 @@
+{
+  "rows": 12,
+  "by_env": {
+    "bs": {
+      "pytorch_reps": [
+        "paper",
+        "r1",
+        "r2"
+      ],
+      "pytorch_dh_mean": -0.05820353905454278,
+      "pytorch_dh_by_rep": {
+        "paper": -0.058176284358650444,
+        "r1": -0.058181719456911085,
+        "r2": -0.058252613348066806
+      },
+      "pytorch_rel_gap_by_rep": {
+        "paper": -0.0008050216831594971,
+        "r1": -0.0019217630638198697,
+        "r2": -0.0001999683415399149
+      },
+      "pytorch_rel_gap_median": -0.0008050216831594971,
+      "pytorch_stalled_reps": [],
+      "pytorch_unhedged_cvar50_paper_test": [
+        -0.103868
+      ],
+      "tf_dh_mean": -0.05823025450266893,
+      "tf_dh_sd": 6.050608505404803e-05,
+      "tf_rel_gap_by_rep": {
+        "paper": -0.0041318139449492,
+        "r1": -0.2330691104956996,
+        "r2": -0.2954380619306027,
+        "r3": -0.0027665777648258,
+        "r4": -0.0024720109841377
+      },
+      "tf_rel_gap_median": -0.0041318139449492,
+      "tf_unhedged_cvar50_paper_test": [
+        -0.103868
+      ],
+      "G1_data_identity": true,
+      "G2_dh_within_1pct_of_tf": true,
+      "G3_median_rel_gap_no_worse_than_minus_1pct": true
+    },
+    "sv": {
+      "pytorch_reps": [
+        "paper",
+        "r1",
+        "r2"
+      ],
+      "pytorch_dh_mean": -0.09012012141950428,
+      "pytorch_dh_by_rep": {
+        "paper": -0.09001126852311193,
+        "r1": -0.09013838895499707,
+        "r2": -0.09021070678040385
+      },
+      "pytorch_rel_gap_by_rep": {
+        "paper": -0.03519286006081717,
+        "r1": -0.0030138638756781536,
+        "r2": -0.0022360725757723412
+      },
+      "pytorch_rel_gap_median": -0.0030138638756781536,
+      "pytorch_stalled_reps": [
+        "paper"
+      ],
+      "pytorch_unhedged_cvar50_paper_test": [
+        -0.124612
+      ],
+      "tf_dh_mean": -0.09025706239102778,
+      "tf_dh_sd": 0.00011290596820247414,
+      "tf_rel_gap_by_rep": {
+        "paper": -0.0001214532662404,
+        "r1": -0.0060781415821543,
+        "r2": -0.0044767431358012,
+        "r3": -0.0026782336897395,
+        "r4": -0.0134713673534175
+      },
+      "tf_rel_gap_median": -0.0044767431358012,
+      "tf_unhedged_cvar50_paper_test": [
+        -0.124612
+      ],
+      "G1_data_identity": true,
+      "G2_dh_within_1pct_of_tf": true,
+      "G3_median_rel_gap_no_worse_than_minus_1pct": true
+    }
+  }
+}

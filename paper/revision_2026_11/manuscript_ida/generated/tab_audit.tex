@@ -1,0 +1,24 @@
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}p{3.45cm}>{\raggedright\arraybackslash}p{0.8cm}cccc@{}}
+\toprule
+ & & & \multicolumn{2}{c}{Released encoder} & \multicolumn{2}{c}{Plain distance} \\
+\cmidrule(lr){4-5}\cmidrule(l){6-7}
+Test & Measure & Pass mark & European & Asian & European & Asian \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Influence}} \\
+Stability & Heaviest prototype unchanged under 0.1 sd noise & $\ge$90\% & 94\% \textsc{p} & 91\% \textsc{p} & 92\% \textsc{p} & 94\% \textsc{p} \\
+Local removal & Output change, 3 heaviest / 3 lightest removed (sd) & $\ge$3$\times$, $\le$0.05 & 0.63/0.00 \textsc{p} & 0.76/0.00 \textsc{p} & 0.35/0.01 \textsc{p} & 0.75/0.01 \textsc{p} \\
+Deletion & Corr.\ of use with std$(E)$ rise on deletion & $\ge$0.5 & 0.69 \textsc{p} & 0.73 \textsc{p} & 0.46 \textsc{f} & 0.52 \textsc{p} \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Visible similarity}} \\
+Nearest$^{\ddagger}$ & Heaviest is nearest of 10 (chance 10\%) & $\ge$50\% & 19\% \textsc{f} & 37\% \textsc{f} & 73\% \textsc{p} & 78\% \textsc{p} \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Crisis correspondence}} \\
+Represent. & Prototypes in stress windows (9.4\% of days) & $\ge$14\% & 20\% \textsc{p} & 24\% \textsc{p} & 22\% \textsc{p} & 23\% \textsc{p} \\
+Recall & Their weight, calm $\to$ stressed test days & rise & 17$\to$20\% \textsc{p} & 20$\to$26\% \textsc{p} & 13$\to$26\% \textsc{p} & 15$\to$28\% \textsc{p} \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Reading and use}} \\
+Sufficiency$^{\ddagger}$ & std$(E)$ change, top 3 prototypes only & $\le$5\% & 7\% \textsc{f} & 15\% \textsc{f} & 63\% \textsc{f} & 35\% \textsc{f} \\
+Self-consist. & Output at own state vs attached output (sd) & $\le$10\% & 14\% \textsc{f} & 23\% \textsc{f} & 18\% \textsc{f} & 28\% \textsc{f} \\
+Fallback & std$(E)$ change, delta hedge far from bank & $<$0 & +15\% \textsc{f} & +12\% \textsc{f} & +23\% \textsc{f} & +11\% \textsc{f} \\
+\bottomrule
+\end{tabular}

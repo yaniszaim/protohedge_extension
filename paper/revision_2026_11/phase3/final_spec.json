@@ -1,0 +1,605 @@
+{
+  "study": "M1_main",
+  "tickers": [
+    "AAPL",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "SPY",
+    "TLT",
+    "XLE",
+    "XLF",
+    "XLK",
+    "XLV"
+  ],
+  "liabilities": [
+    "european_call",
+    "asian_call"
+  ],
+  "arms": [
+    {
+      "name": "dh",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "dh_w128",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "save_positions": true
+    },
+    {
+      "name": "ph",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "ph_k10",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "save_positions": true
+    },
+    {
+      "name": "phd",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "phd_k10",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "save_positions": true
+    },
+    {
+      "name": "dh_w20",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "dh",
+      "seeds": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "name": "ph_k100",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "ph",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "dh_cvar10",
+      "objective": "cvar10_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "dh_w128",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "ph_cvar10",
+      "objective": "cvar10_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "ph_k10",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "dh_cvar50",
+      "objective": "cvar50_offset",
+      "mode": "residual",
+      "state": "s1",
+      "family": "dh_w128",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "ph_cvar50",
+      "objective": "cvar50_offset",
+      "mode": "residual",
+      "state": "s1",
+      "family": "ph_k10",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "dh_trade",
+      "objective": "var_he",
+      "mode": "trade",
+      "state": "s1",
+      "family": "dh_w128",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "ph_trade",
+      "objective": "var_he",
+      "mode": "trade",
+      "state": "s1",
+      "family": "ph_k10",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "dh_pooled",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "dh_w128",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "study": "E4_mechanism",
+      "pooled": true
+    },
+    {
+      "name": "ph_pooled",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "ph_k10",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "study": "E4_mechanism",
+      "pooled": true
+    },
+    {
+      "name": "phd_pooled",
+      "objective": "var_he",
+      "mode": "residual",
+      "state": "s1",
+      "family": "phd_k10",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "study": "E4_mechanism",
+      "pooled": true
+    },
+    {
+      "name": "dh_orig",
+      "objective": "cvar50_offset",
+      "mode": "trade",
+      "state": "s0",
+      "family": "dh",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "ph_orig",
+      "objective": "cvar50_offset",
+      "mode": "trade",
+      "state": "s0",
+      "family": "ph",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "candidate": "ph",
+      "benchmark": "dh",
+      "metrics": [
+        "he_std",
+        "he_cvar05"
+      ],
+      "primary": true
+    },
+    {
+      "candidate": "dh",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05"
+      ],
+      "primary": true
+    },
+    {
+      "candidate": "ph",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05"
+      ],
+      "primary": true
+    },
+    {
+      "candidate": "phd",
+      "benchmark": "ph",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd",
+      "benchmark": "dh",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh",
+      "benchmark": "delta_vega",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph",
+      "benchmark": "delta_vega",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd",
+      "benchmark": "delta_vega",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_cvar10",
+      "benchmark": "dh_cvar10",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_cvar50",
+      "benchmark": "dh_cvar50",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_trade",
+      "benchmark": "dh_trade",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_k100",
+      "benchmark": "dh_w20",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh",
+      "benchmark": "dh_w20",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph",
+      "benchmark": "ph_k100",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_cvar10",
+      "benchmark": "dh",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_cvar10",
+      "benchmark": "ph",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_cvar50",
+      "benchmark": "dh",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_cvar50",
+      "benchmark": "ph",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_trade",
+      "benchmark": "dh",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_trade",
+      "benchmark": "ph",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_pooled",
+      "benchmark": "dh",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_pooled",
+      "benchmark": "ph",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd_pooled",
+      "benchmark": "phd",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_pooled",
+      "benchmark": "dh_pooled",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd_pooled",
+      "benchmark": "dh_pooled",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_pooled",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_pooled",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd_pooled",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_pooled",
+      "benchmark": "delta_vega",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_pooled",
+      "benchmark": "delta_vega",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "phd_pooled",
+      "benchmark": "delta_vega",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_orig",
+      "benchmark": "dh_orig",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_orig",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_orig",
+      "benchmark": "liability_delta",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "dh_orig",
+      "benchmark": "unhedged",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    },
+    {
+      "candidate": "ph_orig",
+      "benchmark": "unhedged",
+      "metrics": [
+        "he_std",
+        "he_cvar05",
+        "he_cvar10",
+        "offset_cvar50"
+      ]
+    }
+  ],
+  "blocks": [
+    20,
+    10,
+    40
+  ],
+  "draws": 2000
+}

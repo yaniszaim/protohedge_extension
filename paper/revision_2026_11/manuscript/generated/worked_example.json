@@ -1,0 +1,188 @@
+{
+  "ph": {
+    "rule": "median hedging-error episode, decision step 10",
+    "episode_start_date": "2024-07-16",
+    "episode_end_date": "2024-08-13",
+    "hedging_error": -0.0023405347743599147,
+    "state": {
+      "spot": 0.9595298171043396,
+      "call": 0.0014605389442294836,
+      "time_left": 0.0396825410425663,
+      "ivol": 0.14270099997520447,
+      "listed_log_moneyness": -0.04155970666333137,
+      "listed_ttm": 0.045248967166775386,
+      "inventory_spot": 0.053629934787750244,
+      "inventory_call": 0.43819478154182434
+    },
+    "output_meaning": "correction to the delta hedge",
+    "output": [
+      -0.03582676872611046,
+      0.4138696789741516
+    ],
+    "top_reconstruction": [
+      -0.006550906577896143,
+      0.42543399172012286
+    ],
+    "position_held": [
+      0.03923952206969261,
+      0.4138696789741516
+    ],
+    "previous_position": [
+      0.053629934787750244,
+      0.43819478154182434
+    ],
+    "liability_delta": 0.07506629346289874,
+    "top": [
+      {
+        "rank": 1,
+        "prototype": 6,
+        "weight": 0.41872450709342957,
+        "source_start_date": "2018-03-09",
+        "source_step": 1,
+        "state": {
+          "spot": 0.9987449049949646,
+          "call": 0.012622369453310966,
+          "time_left": 0.075396828353405,
+          "ivol": 0.12327499687671661,
+          "listed_log_moneyness": -0.0017219417495653033,
+          "listed_ttm": 0.09192215651273727,
+          "inventory_spot": 0.10239070653915405,
+          "inventory_call": 0.7537069320678711
+        },
+        "output_spot": -0.03807473182678223,
+        "output_call": 0.5198744535446167
+      },
+      {
+        "rank": 2,
+        "prototype": 3,
+        "weight": 0.35827380418777466,
+        "source_start_date": "2015-01-15",
+        "source_step": 15,
+        "state": {
+          "spot": 1.0328112840652466,
+          "call": 0.03580044209957123,
+          "time_left": 0.01984127052128315,
+          "ivol": 0.16739200055599213,
+          "listed_log_moneyness": 0.0323844812810421,
+          "listed_ttm": 0.039106328040361404,
+          "inventory_spot": 0.18532836437225342,
+          "inventory_call": 0.850098729133606
+        },
+        "output_spot": 0.07084345817565918,
+        "output_call": 0.2899048328399658
+      },
+      {
+        "rank": 3,
+        "prototype": 4,
+        "weight": 0.11205194145441055,
+        "source_start_date": "2015-10-16",
+        "source_step": 7,
+        "state": {
+          "spot": 1.0163822174072266,
+          "call": 0.02609829232096672,
+          "time_left": 0.0515873059630394,
+          "ivol": 0.15123799443244934,
+          "listed_log_moneyness": 0.017578642815351486,
+          "listed_ttm": 0.06811263412237167,
+          "inventory_spot": 0.07606476545333862,
+          "inventory_call": 0.8855950236320496
+        },
+        "output_spot": -0.13621020317077637,
+        "output_call": 0.5058610439300537
+      }
+    ]
+  },
+  "phd": {
+    "rule": "median hedging-error episode, decision step 10",
+    "episode_start_date": "2024-05-31",
+    "episode_end_date": "2024-07-01",
+    "hedging_error": -0.003992621939781005,
+    "state": {
+      "spot": 1.0292205810546875,
+      "call": 0.016089271754026413,
+      "time_left": 0.0396825410425663,
+      "ivol": 0.09657999873161316,
+      "listed_log_moneyness": 0.010706093334807317,
+      "listed_ttm": 0.056207871276364424,
+      "inventory_spot": 0.6270469427108765,
+      "inventory_call": 0.4235475957393646
+    },
+    "output_meaning": "correction to the delta hedge",
+    "output": [
+      -0.1952182501554489,
+      0.31546494364738464
+    ],
+    "top_reconstruction": [
+      -0.17814208383556362,
+      0.22915272371068696
+    ],
+    "position_held": [
+      0.7388324737548828,
+      0.31546494364738464
+    ],
+    "previous_position": [
+      0.6270469427108765,
+      0.4235475957393646
+    ],
+    "liability_delta": 0.9340507137737053,
+    "top": [
+      {
+        "rank": 1,
+        "prototype": 5,
+        "weight": 0.6530476212501526,
+        "source_start_date": "2005-11-15",
+        "source_step": 14,
+        "state": {
+          "spot": 1.029049038887024,
+          "call": 0.011765660718083382,
+          "time_left": 0.0238095261156559,
+          "ivol": 0.10541799664497375,
+          "listed_log_moneyness": 0.006486879196017981,
+          "listed_ttm": 0.03211567550897598,
+          "inventory_spot": 0.7483180165290833,
+          "inventory_call": 0.34243953227996826
+        },
+        "output_spot": -0.04555630683898926,
+        "output_call": 0.0960150957107544
+      },
+      {
+        "rank": 2,
+        "prototype": 0,
+        "weight": 0.127645805478096,
+        "source_start_date": "2014-03-21",
+        "source_step": 10,
+        "state": {
+          "spot": 1.0010740756988525,
+          "call": 0.012459720484912395,
+          "time_left": 0.0396825410425663,
+          "ivol": 0.11817300319671631,
+          "listed_log_moneyness": 0.002148190513253212,
+          "listed_ttm": 0.05620787292718887,
+          "inventory_spot": 0.06947332620620728,
+          "inventory_call": 0.9001515507698059
+        },
+        "output_spot": -0.9877183437347412,
+        "output_call": 0.3368360996246338
+      },
+      {
+        "rank": 3,
+        "prototype": 9,
+        "weight": 0.09707042574882507,
+        "source_start_date": "2016-10-21",
+        "source_step": 3,
+        "state": {
+          "spot": 0.9988784193992615,
+          "call": 0.011239368468523026,
+          "time_left": 0.0674603208899498,
+          "ivol": 0.12026800215244293,
+          "listed_log_moneyness": -0.005877685267478228,
+          "listed_ttm": 0.08398564904928207,
+          "inventory_spot": 0.1282345950603485,
+          "inventory_call": 0.8159000277519226
+        },
+        "output_spot": -0.005543828010559082,
+        "output_call": 0.9832432270050049
+      }
+    ]
+  }
+}

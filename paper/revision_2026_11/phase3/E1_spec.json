@@ -1,0 +1,13 @@
+{
+  "study": "E1_spy_exploration",
+  "tickers": ["SPY"],
+  "liabilities": ["european_call", "asian_call"],
+  "modes": ["trade", "target", "residual"],
+  "objectives": ["cvar50_offset", "cvar10_he", "var_he"],
+  "states": ["s0"],
+  "seeds": [0],
+  "families": "dh,ph",
+  "k": 100,
+  "max_epochs": 400,
+  "patience": 100
+}

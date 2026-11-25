@@ -1,0 +1,15 @@
+\begin{tabular}{@{}l rrrr c rrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{European call} && \multicolumn{4}{c}{Asian call} \\
+\cmidrule{2-5}\cmidrule{7-10}
+Strategy & Std $E$ & $\mathrm{CVaR}_{5\%}(E)$ & Mean $E$ & Cost && Std $E$ & $\mathrm{CVaR}_{5\%}(E)$ & Mean $E$ & Cost \\
+\midrule
+Unhedged & 4.170 & $-$12.20 & $-$1.16 & 0.00 && 2.493 & $-$7.28 & $-$0.55 & 0.00 \\
+Delta hedge & 0.925 & $-$2.59 & +0.13 & 0.04 && 0.667 & $-$1.92 & +0.06 & 0.03 \\
+Delta--vega hedge & 0.342 & $-$1.21 & $-$0.31 & 0.40 && 0.449 & $-$1.54 & $-$0.23 & 0.30 \\
+\midrule
+DH & 0.275 & $-$0.80 & $-$0.18 & 0.32 && 0.275 & $-$0.89 & $-$0.23 & 0.39 \\
+PH (encoder) & 0.544 & $-$1.57 & $-$0.09 & 0.26 && 0.417 & $-$1.31 & $-$0.18 & 0.34 \\
+PH (plain) & 0.482 & $-$1.61 & $-$0.27 & 0.36 && 0.395 & $-$1.32 & $-$0.21 & 0.31 \\
+\bottomrule
+\end{tabular}

@@ -1,0 +1,114 @@
+[
+ {
+  "ticker": "SPY",
+  "layer": "ph",
+  "day": "2024-08-05",
+  "decisions": 20,
+  "median_ivol_that_day": 0.22642000019550323,
+  "top3": [
+   {
+    "prototype_date": "2018-03-12",
+    "weight": 0.43,
+    "ivol": 0.12,
+    "event": ""
+   },
+   {
+    "prototype_date": "2015-02-06",
+    "weight": 0.33,
+    "ivol": 0.17,
+    "event": ""
+   },
+   {
+    "prototype_date": "2009-01-27",
+    "weight": 0.14,
+    "ivol": 0.37,
+    "event": "financial crisis"
+   }
+  ],
+  "weight_on_crisis_prototypes": 0.15
+ },
+ {
+  "ticker": "SPY",
+  "layer": "phd",
+  "day": "2024-08-05",
+  "decisions": 20,
+  "median_ivol_that_day": 0.22642000019550323,
+  "top3": [
+   {
+    "prototype_date": "2008-03-12",
+    "weight": 0.85,
+    "ivol": 0.21,
+    "event": ""
+   },
+   {
+    "prototype_date": "2008-09-29",
+    "weight": 0.05,
+    "ivol": 0.48,
+    "event": "financial crisis"
+   },
+   {
+    "prototype_date": "2018-10-19",
+    "weight": 0.04,
+    "ivol": 0.19,
+    "event": "Q4 2018 selloff"
+   }
+  ],
+  "weight_on_crisis_prototypes": 0.09
+ },
+ {
+  "ticker": "QQQ",
+  "layer": "ph",
+  "day": "2024-08-05",
+  "decisions": 20,
+  "median_ivol_that_day": 0.32910001277923584,
+  "top3": [
+   {
+    "prototype_date": "2018-02-16",
+    "weight": 0.67,
+    "ivol": 0.17,
+    "event": "volatility shock"
+   },
+   {
+    "prototype_date": "2008-07-01",
+    "weight": 0.2,
+    "ivol": 0.25,
+    "event": ""
+   },
+   {
+    "prototype_date": "2013-05-06",
+    "weight": 0.09,
+    "ivol": 0.15,
+    "event": ""
+   }
+  ],
+  "weight_on_crisis_prototypes": 0.68
+ },
+ {
+  "ticker": "QQQ",
+  "layer": "phd",
+  "day": "2024-08-05",
+  "decisions": 20,
+  "median_ivol_that_day": 0.32910001277923584,
+  "top3": [
+   {
+    "prototype_date": "2008-07-03",
+    "weight": 0.7,
+    "ivol": 0.27,
+    "event": ""
+   },
+   {
+    "prototype_date": "2014-02-04",
+    "weight": 0.1,
+    "ivol": 0.17,
+    "event": ""
+   },
+   {
+    "prototype_date": "2008-12-18",
+    "weight": 0.08,
+    "ivol": 0.44,
+    "event": "financial crisis"
+   }
+  ],
+  "weight_on_crisis_prototypes": 0.08
+ }
+]

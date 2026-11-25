@@ -1,0 +1,53 @@
+{
+  "split": "test",
+  "checks": {
+    "check_saved_offset_maxdiff": 0.0,
+    "check_edited_identity_maxdiff": 1.7881393432617188e-07,
+    "check_rollout_keep_maxdiff": 0.0,
+    "check_dh_saved_offset_maxdiff": 0.0,
+    "check_liability_delta_maxdiff": 3.7230458299619684e-09
+  },
+  "verdict": {
+    "european_call/ph": {
+      "X1a": false,
+      "X1b": false,
+      "X1c": false,
+      "X1d": true,
+      "X1e": true,
+      "X2a_flags_risky_episodes": true,
+      "X2a_adds_to_implied_vol": false,
+      "X2b_fallback_helps": false
+    },
+    "european_call/phd": {
+      "X1a": false,
+      "X1b": true,
+      "X1c": false,
+      "X1d": false,
+      "X1e": true,
+      "X2a_flags_risky_episodes": true,
+      "X2a_adds_to_implied_vol": true,
+      "X2b_fallback_helps": false
+    },
+    "asian_call/ph": {
+      "X1a": false,
+      "X1b": false,
+      "X1c": false,
+      "X1d": true,
+      "X1e": true,
+      "X2a_flags_risky_episodes": true,
+      "X2a_adds_to_implied_vol": true,
+      "X2b_fallback_helps": false
+    },
+    "asian_call/phd": {
+      "X1a": false,
+      "X1b": true,
+      "X1c": false,
+      "X1d": true,
+      "X1e": true,
+      "X2a_flags_risky_episodes": true,
+      "X2a_adds_to_implied_vol": true,
+      "X2b_fallback_helps": false
+    }
+  },
+  "written": "2026-11-18 23:42:14"
+}

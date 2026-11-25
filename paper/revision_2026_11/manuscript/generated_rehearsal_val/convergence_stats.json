@@ -1,0 +1,26 @@
+{
+  "european_call__dh": {
+    "val_final": 0.2940396313997431,
+    "train_final": 0.25934229767280176
+  },
+  "european_call__ph": {
+    "val_final": 0.5726806067904777,
+    "train_final": 0.3814621113348997
+  },
+  "european_call__phd": {
+    "val_final": 0.5250769016687564,
+    "train_final": 0.5036061942448394
+  },
+  "asian_call__dh": {
+    "val_final": 0.3744691019544921,
+    "train_final": 0.28275308157400536
+  },
+  "asian_call__ph": {
+    "val_final": 0.6281093292214172,
+    "train_final": 0.4336856542606732
+  },
+  "asian_call__phd": {
+    "val_final": 0.5995626438435058,
+    "train_final": 0.6017734838271047
+  }
+}
